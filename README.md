@@ -21,11 +21,11 @@ a description of additional features that will be complete by the Final version:
 
 a description of the technology that you will use:
 
-Angular - frontend
-Node - front/backend
-Express - server
-MongoDB - database
-Socket.io - for collaboration between multiple users
+- Angular - frontend
+- Node - front/backend
+- Express - server
+- MongoDB - database
+- Socket.io - for collaboration between multiple users
 
 a description of the top 5 technical challenges:
 
