@@ -1,30 +1,23 @@
 let express = require("express");
 let bodyParser = require("body-parser");
 let mongodb = require("mongodb");
+let mongoose = require("mongoose");
 
 let app = express();
 app.use(bodyParser.json());
 
-let db;
+let mongoDB = "mongodb://127.0.0.1/latex-editor";
+mongoose.connect(mongoDB, { useNewUrlParser: true });
 
-// Connect to the database
-mongodb.MongoClient.connect(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/test",
-  (err, client) => {
-    if (err) {
-      console.log(err);
-      process.exit(1);
-    }
+let db = mongoose.connection;
+let Schema = mongoose.Schema;
 
-    db = client.db();
-    console.log("db ready");
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-    // Initialize the app.
-    let server = app.listen(process.env.PORT || 8080, () => {
-      let port = server.address().port;
-      console.log("App running on port", port);
-    });
-  }
-);
+
+// Initialize the app.
+let server = app.listen(process.env.PORT || 8080, () => {
+  console.log("App running on port", server.address().port);
+});
 
 //https://www.sitepoint.com/user-authentication-mean-stack/
