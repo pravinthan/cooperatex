@@ -26,3 +26,5 @@ mongodb.MongoClient.connect(
     });
   }
 );
+
+//https://www.sitepoint.com/user-authentication-mean-stack/
