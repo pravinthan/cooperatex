@@ -1,0 +1,25 @@
+<mat-sidenav-container class="sidebar-container">
+  <mat-sidenav #sidebar class="sidebar">
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <span class="toolbar-title">LaTeX Editor</span>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <mat-nav-list>
+      <a routerLink="/" style="height: 0;"></a>
+      <a
+        mat-list-item
+        (click)="sidebar.close()"
+        routerLink=""
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <mat-icon class="button-border" mat-list-icon>
+          home
+        </mat-icon>
+        Home
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content></mat-sidenav-content>
+</mat-sidenav-container>

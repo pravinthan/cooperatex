@@ -1,0 +1,23 @@
+<div id="sign-up-container">
+  <h1>Sign Up</h1>
+  <!-- <div *ngIf="error" class="alert alert-danger">{{ error }}</div> -->
+  <form #form="ngForm" id="sign-up-form" (ngSubmit)="signUp(form)">
+    <mat-form-field class="full-width">
+      <input matInput name="username" required placeholder="Username" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <input matInput name="password" required placeholder="Password" />
+    </mat-form-field>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      class="full-width"
+      [disabled]="loading"
+    >
+      Sign Up
+      <mat-spinner *ngIf="loading"></mat-spinner>
+    </button>
+  </form>
+</div>
