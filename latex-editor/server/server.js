@@ -21,3 +21,8 @@ let server = app.listen(process.env.PORT || 8080, () => {
 });
 
 //https://www.sitepoint.com/user-authentication-mean-stack/
+
+
+server.post('/signup', function (req, res, next){
+  
+});
