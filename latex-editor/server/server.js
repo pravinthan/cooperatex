@@ -2,9 +2,16 @@ let express = require("express");
 let bodyParser = require("body-parser");
 let mongodb = require("mongodb");
 let mongoose = require("mongoose");
+let passport = require('passport');
+
+require('./api/models/db');
+require('./api/config/passport');
 
 let app = express();
 app.use(bodyParser.json());
+
+app.use(passport.initialize());
+app.use('/api', routesApi);
 
 let mongoDB = "mongodb://127.0.0.1/latex-editor";
 mongoose.connect(mongoDB, { useNewUrlParser: true });
@@ -24,5 +31,5 @@ let server = app.listen(process.env.PORT || 8080, () => {
 
 
 server.post('/signup', function (req, res, next){
-  
+
 });
