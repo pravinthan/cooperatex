@@ -1,49 +1,55 @@
-let mongoose = require("mongoose");
-let gracefulShutdown;
-let uri = "mongodb://localhost/latex-editor";
+// let mongoose = require("mongoose");
+// let uri = "mongodb://localhost/latex-editor";
 
-if (process.env.NODE_ENV === "production") {
-  uri = process.env.MONGOLAB_URI;
-}
+// if (process.env.NODE_ENV === "production") {
+//   uri = process.env.MONGOLAB_URI;
+// }
 
-mongoose.connect(uri);
+// mongoose.connect(uri);
 
-mongoose.connection.on("connected", () => {
-  console.log(`Mongoose connected to ${uri}`);
-});
-mongoose.connection.on("disconnected", () => {
-  console.log(`Mongoose disconnected from ${uri}`);
-});
-mongoose.connection.on("error", err => {
-  console.log(`Mongoose connection error: ${err}`);
-});
+// mongoose.connection.on("connected", () => {
+//   console.log(`Mongoose connected to ${uri}`);
+// });
+// mongoose.connection.on("disconnected", () => {
+//   console.log(`Mongoose disconnected from ${uri}`);
+// });
+// mongoose.connection.on("error", err => {
+//   console.log(`Mongoose connection error: ${err}`);
+// });
 
-shutDown = (message, cb) => {
-  mongoose.connection.close(function() {
-    console.log(`Mongoose disconnected: ${message}`);
-    cb();
-  });
-};
+// let gracefulShutdown = function(msg, callback) {
+//   mongoose.connection.close(function() {
+//     console.log("Mongoose disconnected through " + msg);
+//     callback();
+//   });
+// };
 
-// For nodemon restarts
-process.once("SIGUSR2", () => {
-  gracefulShutdown("Nodemon restarted", () => {
-    process.kill(process.pid, "SIGUSR2");
-  });
-});
+// shutDown = (message, cb) => {
+//   mongoose.connection.close(function() {
+//     console.log(`Mongoose disconnected: ${message}`);
+//     cb();
+//   });
+// };
 
-// For app termination
-process.on("SIGINT", () => {
-  gracefulShutdown("App terminated", () => {
-    process.exit(0);
-  });
-});
+// // For nodemon restarts
+// process.once("SIGUSR2", () => {
+//   gracefulShutdown("Nodemon restarted", () => {
+//     process.kill(process.pid, "SIGUSR2");
+//   });
+// });
 
-// // For Heroku app termination
-// process.on("SIGTERM", function() {
-//   gracefulShutdown("Heroku app termination", function() {
+// // For app termination
+// process.on("SIGINT", () => {
+//   gracefulShutdown("App terminated", () => {
 //     process.exit(0);
 //   });
 // });
 
-require("./users");
+// // // For Heroku app termination
+// // process.on("SIGTERM", function() {
+// //   gracefulShutdown("Heroku app termination", function() {
+// //     process.exit(0);
+// //   });
+// // });
+
+// require("./users");

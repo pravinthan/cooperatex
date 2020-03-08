@@ -3,11 +3,11 @@
   <!-- <div *ngIf="error" class="alert alert-danger">{{ error }}</div> -->
   <form #form="ngForm" id="sign-up-form" (ngSubmit)="signUp(form)">
     <mat-form-field class="full-width">
-      <input matInput name="username" required placeholder="Username" />
+      <input matInput name="username" required placeholder="Username" ngModel/>
     </mat-form-field>
 
     <mat-form-field class="full-width">
-      <input matInput name="password" required placeholder="Password" />
+      <input matInput name="password" required placeholder="Password" ngModel/>
     </mat-form-field>
 
     <button

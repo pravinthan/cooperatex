@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Output, EventEmitter } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Router } from "@angular/router";
 import { AuthenticationService } from "src/app/shared/authentication.service";
@@ -8,10 +8,11 @@ import { AuthenticationService } from "src/app/shared/authentication.service";
   templateUrl: "./sign-up.component.html",
   styleUrls: ["./sign-up.component.css"]
 })
-export class SignUpComponent implements OnInit {
+export class SignUpComponent {
   loading = false;
-  submitted = false;
   error: string;
+
+  @Output() signedUp = new EventEmitter();
 
   constructor(
     private router: Router,
@@ -23,15 +24,13 @@ export class SignUpComponent implements OnInit {
     }
   }
 
-  ngOnInit() {}
-
   signUp(form: NgForm) {
-    this.submitted = true;
     this.loading = true;
     this.authenticationService
       .signUp(form.value.username, form.value.password)
       .subscribe(
         data => {
+          this.signedUp.emit(true);
           this.router.navigate(["/projects"]);
         },
         error => {

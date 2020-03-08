@@ -2,7 +2,17 @@
   <mat-toolbar-row>
     <a routerLink="/" id="toolbar-title">LaTeX Editor</a>
     <div id="spacer"></div>
-    <button mat-button (click)="openSignInDialog()">Sign In</button>
-    <button mat-raised-button (click)="openSignUpDialog()">Sign Up</button>
+
+    <ng-container *ngIf="!currentUser">
+      <button mat-button (click)="openSignInDialog()">
+        Sign In
+      </button>
+      <button mat-raised-button (click)="openSignUpDialog()">
+        Sign Up
+      </button>
+    </ng-container>
+    <button *ngIf="currentUser" mat-button (click)="signOut()">
+      Sign Out
+    </button>
   </mat-toolbar-row>
 </mat-toolbar>

@@ -1,6 +1,6 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -25,6 +25,8 @@ import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/pages/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/pages/sign-up/sign-up.component";
 import { FormsModule } from "@angular/forms";
+import { JwtInterceptor } from "./shared/jwt.interceptor";
+import { ErrorInterceptor } from "./shared/error.interceptor";
 
 @NgModule({
   declarations: [
@@ -55,7 +57,10 @@ import { FormsModule } from "@angular/forms";
     MatProgressSpinnerModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

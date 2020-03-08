@@ -11,7 +11,7 @@ let authenticationController = require("../controllers/authentication");
 // router.get('/example', auth, ctrlExample.example);
 
 // Authentication
-router.post("/signup", authenticationController.register);
-router.post("/signin", authenticationController.login);
+router.post("/users/signup", authenticationController.signUp);
+router.post("/users/signin", authenticationController.signIn);
 
 module.exports = router;

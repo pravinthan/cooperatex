@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Output, EventEmitter } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Router } from "@angular/router";
 import { AuthenticationService } from "src/app/shared/authentication.service";
@@ -11,6 +11,8 @@ import { AuthenticationService } from "src/app/shared/authentication.service";
 export class SignInComponent {
   loading = false;
   error: string;
+
+  @Output() signedIn = new EventEmitter();
 
   constructor(
     private router: Router,
@@ -28,6 +30,7 @@ export class SignInComponent {
       .signIn(form.value.username, form.value.password)
       .subscribe(
         data => {
+          this.signedIn.emit(true);
           this.router.navigate(["/projects"]);
         },
         error => {
