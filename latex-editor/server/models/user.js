@@ -1,7 +1,6 @@
 let mongoose = require("mongoose");
 let crypto = require("crypto");
 let jwt = require("jsonwebtoken");
-const Document = mongoose.model("Document");
 const Schema = mongoose.Schema;
 
 let userSchema = new Schema({
@@ -10,8 +9,7 @@ let userSchema = new Schema({
     required: true
   },
   hash: String,
-  salt: String,
-  projects: [{ document: Document }]
+  salt: String
 });
 
 userSchema.methods.setPassword = function(password) {
