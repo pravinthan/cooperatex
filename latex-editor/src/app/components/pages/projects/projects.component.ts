@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 
-export interface PeriodicElement {
+export interface ProjectList {
   title: string;
   position: number;
   owner: string;
-  symbol: string;
+  action: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, title: 'Hydrogen', owner: "You", symbol: 'H' },
-  { position: 2, title: 'Helium', owner: "You", symbol: 'He' },
-  { position: 3, title: 'Lithium', owner: "You", symbol: 'Li' },
+const ELEMENT_DATA: ProjectList[] = [
+  { position: 1, title: 'a1', owner: "You", action: 'a' },
+  { position: 2, title: 'a2', owner: "You", action: 'b' },
+  { position: 3, title: 'a3', owner: "You", action: 'c' },
 ];
 
 @Component({
@@ -25,7 +25,11 @@ export class ProjectsComponent implements OnInit {
   ngOnInit(): void {
 
   }
-  displayedColumns: string[] = ['position', 'title', 'weight', 'symbol'];
+  displayedColumns: string[] = ['position', 'title', 'owner', 'action'];
   dataSource = ELEMENT_DATA;
+
+  clickAction(row){
+    console.log(row);
+  }
 
 }
