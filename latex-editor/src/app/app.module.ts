@@ -14,7 +14,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatTablesModule } from "@angular/material/table"
+import { MatTableModule } from "@angular/material/table"
 import { FormsModule } from "@angular/forms";
 
 import { AppComponent } from "./app.component";
@@ -25,6 +25,7 @@ import { PageNotFoundComponent } from "./components/pages/page-not-found/page-no
 import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
+import { ProjectsComponent } from "./components/pages/projects/projects.component"
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
 import { ErrorInterceptor } from "./shared/error.interceptor";
@@ -38,7 +39,8 @@ import { ErrorInterceptor } from "./shared/error.interceptor";
     PageNotFoundComponent,
     CreditsComponent,
     SignInComponent,
-    SignUpComponent
+    SignUpComponent,
+    ProjectsComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +58,7 @@ import { ErrorInterceptor } from "./shared/error.interceptor";
     MatInputModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatTablesModule,
+    MatTableModule,
     FormsModule
   ],
   providers: [
