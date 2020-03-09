@@ -7,11 +7,15 @@ let auth = jwt({
 });
 
 let authenticationController = require("../controllers/authentication");
+let documentController = require("../controllers/document");
 
 // router.get('/example', auth, ctrlExample.example);
 
 // Authentication
 router.post("/users/signup", authenticationController.signUp);
 router.post("/users/signin", authenticationController.signIn);
+
+// Document
+router.post("/documents", documentController.createDocument);
 
 module.exports = router;

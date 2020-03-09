@@ -2,7 +2,6 @@ let http = require("http");
 let path = require("path");
 let express = require("express");
 let bodyParser = require("body-parser");
-let mongodb = require("mongodb");
 let mongoose = require("mongoose");
 let passport = require("passport");
 // require("./models/db");
@@ -45,5 +44,3 @@ const port = process.env.PORT || 4201;
 server.listen(port, () =>
   console.log(`App running on: http://localhost:${port}`)
 );
-
-//https://www.sitepoint.com/user-authentication-mean-stack/
