@@ -1,0 +1,24 @@
+.example-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-top: 64px;
+  }
+
+  .example-sidenav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    background: #eee;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  button {
+      width: auto;
+  }

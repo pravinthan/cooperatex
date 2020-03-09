@@ -6,6 +6,7 @@ import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
 import { AuthenticationGuard } from "./shared/authentication.guard";
+import { ProjectsComponent } from './components/pages/projects/projects.component';
 
 const routes: Routes = [
   { path: "", pathMatch: "full", component: HomeComponent },
@@ -15,6 +16,10 @@ const routes: Routes = [
     path: "credits",
     component: CreditsComponent,
     canActivate: [AuthenticationGuard]
+  },
+  {
+    path: "projects",
+    component: ProjectsComponent
   },
   { path: "**", component: PageNotFoundComponent }
 ];

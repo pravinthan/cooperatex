@@ -14,6 +14,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTablesModule } from "@angular/material/table"
 import { FormsModule } from "@angular/forms";
 
 import { AppComponent } from "./app.component";
@@ -55,6 +56,7 @@ import { ErrorInterceptor } from "./shared/error.interceptor";
     MatInputModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatTablesModule,
     FormsModule
   ],
   providers: [
