@@ -1,10 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 
 export interface ProjectList {
   title: string;
   position: number;
   owner: string;
   action: string;
+}
+
+export interface DialogData {
+  projectTitle: string
 }
 
 const ELEMENT_DATA: ProjectList[] = [
@@ -20,11 +26,12 @@ const ELEMENT_DATA: ProjectList[] = [
 })
 export class ProjectsComponent implements OnInit {
 
-  constructor() { }
+  constructor(public dialog: MatDialog) { }
 
-  ngOnInit(): void {
+  projectTitle: string
 
-  }
+  ngOnInit(): void {}
+
   displayedColumns: string[] = ['position', 'title', 'owner', 'action'];
   dataSource = ELEMENT_DATA;
 
@@ -32,4 +39,64 @@ export class ProjectsComponent implements OnInit {
     console.log(row);
   }
 
+  openNewProjectDialog(){
+    const dialogRef = this.dialog.open(NewProjectDialog, {
+      width: '250px',
+      data: {projectTitle: this.projectTitle}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      this.projectTitle = result;
+      console.log(`Dialog result: ${this.projectTitle}`);
+    });
+  }
+
+  // openDeleteProjectDialog(){
+  //   const dialogRef = this.dialog.open(NewProjectDialog, {
+  //     width: '250px',
+  //     data: {projectTitle: this.projectTitle}
+  //   });
+
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     console.log('The dialog was closed');
+  //     this.projectTitle = result;
+  //     console.log(`Dialog result: ${result}`);
+  //   });
+  // }
+
 }
+
+@Component({
+  selector: 'new-project-dialog',
+  templateUrl: 'new-project-dialog.html'
+})
+export class NewProjectDialog {
+
+  constructor(
+    public dialogRef: MatDialogRef<NewProjectDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData
+  ) {}
+
+  onCancel(): void {
+    this.dialogRef.close();
+    console.log("B")
+  }
+
+}
+
+// @Component({
+//   selector: 'delete-project-dialog',
+//   templateUrl: 'delete-project-dialog.html'
+// })
+// export class DeleteProjectDialog {
+
+//   constructor(
+//     public dialogRef: MatDialogRef<DeleteProjectDialog>
+//   ) {}
+
+//   onNoClick(): void {
+//     this.dialogRef.close();
+//   }
+
+// }
