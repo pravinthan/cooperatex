@@ -4,7 +4,7 @@
             Options
         </div>
         <div class="mat-subheading-1">
-            <button (click)="openDialog()" mat-button>New Project</button>
+            <button (click)="openNewProjectDialog()" mat-button>New Project</button>
             <button mat-button>p2</button>
             <button mat-button>p3</button>
 
@@ -42,8 +42,6 @@
                 <th mat-header-cell class="column_header4" *matHeaderCellDef> Actions </th>
                 <td mat-cell *matCellDef="let element">
                      <button class="table_btn" mat-flat-button>Edit</button>
-                     <button class="table_btn" mat-flat-button>Delete</button>
-
                 </td>
             </ng-container>
 

@@ -39,17 +39,31 @@ export class ProjectsComponent implements OnInit {
     console.log(row);
   }
 
-  openDialog(){
+  openNewProjectDialog(){
     const dialogRef = this.dialog.open(NewProjectDialog, {
       width: '250px',
-      data: {title: this.projectTitle}
+      data: {projectTitle: this.projectTitle}
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       this.projectTitle = result;
+      console.log(`Dialog result: ${this.projectTitle}`);
     });
   }
+
+  // openDeleteProjectDialog(){
+  //   const dialogRef = this.dialog.open(NewProjectDialog, {
+  //     width: '250px',
+  //     data: {projectTitle: this.projectTitle}
+  //   });
+
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     console.log('The dialog was closed');
+  //     this.projectTitle = result;
+  //     console.log(`Dialog result: ${result}`);
+  //   });
+  // }
 
 }
 
@@ -64,8 +78,25 @@ export class NewProjectDialog {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
 
-  onNoClick(): void {
+  onCancel(): void {
     this.dialogRef.close();
+    console.log("B")
   }
 
 }
+
+// @Component({
+//   selector: 'delete-project-dialog',
+//   templateUrl: 'delete-project-dialog.html'
+// })
+// export class DeleteProjectDialog {
+
+//   constructor(
+//     public dialogRef: MatDialogRef<DeleteProjectDialog>
+//   ) {}
+
+//   onNoClick(): void {
+//     this.dialogRef.close();
+//   }
+
+// }
