@@ -1,0 +1,24 @@
+<h1 mat-dialog-title>New Project</h1>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <div mat-dialog-content>
+    <mat-form-field>
+      <input
+        matInput
+        #titleInput
+        name="title"
+        placeholder="Project title"
+        required
+        maxlength="50"
+        autocomplete="off"
+        ngModel
+      />
+      <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button (click)="this.dialogRef.close()">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="form.invalid">
+      Create
+    </button>
+  </div>
+</form>

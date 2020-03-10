@@ -1,102 +1,107 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+import { NewProjectDialogComponent } from "./new-project-dialog/new-project-dialog.component";
+import { MatTableDataSource } from "@angular/material/table";
+import { ProjectService } from "src/app/shared/project.service";
+import { AuthenticationService } from "src/app/shared/authentication.service";
+import { MatSort } from "@angular/material/sort";
+import { DeleteProjectDialogComponent } from "./delete-project-dialog/delete-project-dialog.component";
 
-
-export interface ProjectList {
+export interface ProjectTableData {
+  _id: string;
   title: string;
-  position: number;
   owner: string;
-  action: string;
+  lastUpdated: Date;
+  lastUpdatedBy: string;
 }
-
-export interface DialogData {
-  projectTitle: string
-}
-
-const ELEMENT_DATA: ProjectList[] = [
-  { position: 1, title: 'a1', owner: "You", action: 'a' },
-  { position: 2, title: 'a2', owner: "You", action: 'b' },
-  { position: 3, title: 'a3', owner: "You", action: 'c' },
-];
 
 @Component({
-  selector: 'app-projects',
-  templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.css']
+  selector: "app-projects",
+  templateUrl: "./projects.component.html",
+  styleUrls: ["./projects.component.css"]
 })
 export class ProjectsComponent implements OnInit {
+  currentUsername = this.authenticationService.currentUsername;
+  projectTableData: ProjectTableData[];
+  displayedColumns: string[] = ["title", "owner", "lastUpdated", "actions"];
+  dataSource = new MatTableDataSource([]);
+  @ViewChild(MatSort) sort: MatSort;
 
-  constructor(public dialog: MatDialog) { }
+  constructor(
+    public dialog: MatDialog,
+    private projectService: ProjectService,
+    private authenticationService: AuthenticationService
+  ) {}
 
-  projectTitle: string
+  private getProjects() {
+    this.projectTableData = [];
+    this.projectService.getAllProjects().subscribe(projects => {
+      // Construct table data
+      projects.forEach(project => {
+        this.projectTableData.push({
+          _id: project._id,
+          title: project.title,
+          owner: project.owner.username,
+          lastUpdated: project.lastUpdated,
+          lastUpdatedBy: project.lastUpdatedBy.username
+        });
+      });
 
-  ngOnInit(): void {}
-
-  displayedColumns: string[] = ['position', 'title', 'owner', 'action'];
-  dataSource = ELEMENT_DATA;
-
-  clickAction(row){
-    console.log(row);
+      // Update table
+      this.dataSource.data = this.projectTableData;
+      this.dataSource.sort = this.sort;
+    });
   }
 
-  openNewProjectDialog(){
-    const dialogRef = this.dialog.open(NewProjectDialog, {
-      width: '250px',
-      data: {projectTitle: this.projectTitle}
+  ngOnInit() {
+    this.getProjects();
+  }
+
+  // Search function
+  applySearch(e: Event) {
+    const filterValue = (e.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  // Open a new project dialog
+  openNewProjectDialog() {
+    this.dialog.open(NewProjectDialogComponent, { width: "400px" });
+  }
+
+  // Show all projects
+  filterByAllProjects() {
+    this.dataSource.data = this.projectTableData;
+    this.dataSource.sort = this.sort;
+  }
+
+  // Show projects owned by signed in user
+  filterByYourProjects() {
+    this.dataSource.data = this.projectTableData.filter(project => {
+      return project.owner === this.currentUsername;
+    });
+    this.dataSource.sort = this.sort;
+  }
+
+  // Show projects shared with signed in user
+  filterByProjectsSharedWithYou() {
+    this.dataSource.data = this.projectTableData.filter(project => {
+      return project.owner !== this.currentUsername;
+    });
+    this.dataSource.sort = this.sort;
+  }
+
+  // Open a delete project dialog
+  openDeleteProjectDialog(id: string, title: string) {
+    const dialogRef = this.dialog.open(DeleteProjectDialogComponent, {
+      data: { title }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      this.projectTitle = result;
-      console.log(`Dialog result: ${this.projectTitle}`);
+      // Delete project by id and update table
+      if (result)
+        this.projectService.deleteProjectById(id).subscribe(project => {
+          this.getProjects();
+        });
     });
   }
-
-  // openDeleteProjectDialog(){
-  //   const dialogRef = this.dialog.open(NewProjectDialog, {
-  //     width: '250px',
-  //     data: {projectTitle: this.projectTitle}
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     console.log('The dialog was closed');
-  //     this.projectTitle = result;
-  //     console.log(`Dialog result: ${result}`);
-  //   });
-  // }
-
 }
-
-@Component({
-  selector: 'new-project-dialog',
-  templateUrl: 'new-project-dialog.html'
-})
-export class NewProjectDialog {
-
-  constructor(
-    public dialogRef: MatDialogRef<NewProjectDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
-
-  onCancel(): void {
-    this.dialogRef.close();
-    console.log("B")
-  }
-
-}
-
-// @Component({
-//   selector: 'delete-project-dialog',
-//   templateUrl: 'delete-project-dialog.html'
-// })
-// export class DeleteProjectDialog {
-
-//   constructor(
-//     public dialogRef: MatDialogRef<DeleteProjectDialog>
-//   ) {}
-
-//   onNoClick(): void {
-//     this.dialogRef.close();
-//   }
-
-// }

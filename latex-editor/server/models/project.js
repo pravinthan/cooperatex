@@ -2,11 +2,11 @@ let mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 let projectSchema = new Schema({
-  title: String,
   owner: {
     type: Schema.Types.ObjectId,
     ref: "User"
   },
+  title: String,
   collaborators: [
     {
       type: Schema.ObjectId,

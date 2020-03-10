@@ -20,7 +20,7 @@
       mat-stroked-button
       color="primary"
       class="full-width"
-      [disabled]="loading"
+      [disabled]="loading || form.invalid"
     >
       Sign Up
     </button>

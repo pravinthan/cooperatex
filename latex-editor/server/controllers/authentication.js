@@ -19,11 +19,7 @@ module.exports.signUp = (req, res) => {
       newUser.setPassword(req.body.password);
 
       newUser.save(err => {
-        let token = newUser.generateJwt();
-        res.status(200);
-        res.json({
-          token: token
-        });
+        res.json({ token: newUser.generateJWT() });
       });
     })
     .catch(err => res.status(500).json("Internal server error"));
@@ -38,6 +34,6 @@ module.exports.signIn = (req, res) => {
     if (err) return res.status(404).json(err);
     if (!user) return res.status(401).json(info);
 
-    res.json({ token: user.generateJwt() });
+    res.json({ token: user.generateJWT() });
   })(req, res);
 };

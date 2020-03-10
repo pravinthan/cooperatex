@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { map } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { Project } from "./models/Project.model";
 
 @Injectable({
   providedIn: "root"
@@ -15,7 +17,7 @@ export class ProjectService {
       .pipe(map(project => project));
   }
 
-  getAllProjects() {
+  getAllProjects(): Observable<Project[]> {
     return this.http
       .get<any>(`${environment.apiUrl}/projects`)
       .pipe(map(projects => projects));
@@ -24,6 +26,12 @@ export class ProjectService {
   getProjectById(id: string) {
     return this.http
       .get<any>(`${environment.apiUrl}/projects/${id}`)
+      .pipe(map(project => project));
+  }
+
+  deleteProjectById(id: string) {
+    return this.http
+      .delete<any>(`${environment.apiUrl}/projects/${id}`)
       .pipe(map(project => project));
   }
 }

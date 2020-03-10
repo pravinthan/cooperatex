@@ -16,6 +16,22 @@ export class AuthenticationService {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
+  private parseJWT(token: string) {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  public get currentUserId() {
+    return this.parseJWT(this.currentUserSubject.value.token)._id;
+  }
+
+  public get currentUsername() {
+    return this.parseJWT(this.currentUserSubject.value.token).username;
+  }
+
   public get currentUserValue() {
     return this.currentUserSubject.value;
   }

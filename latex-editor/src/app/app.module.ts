@@ -17,6 +17,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { FormsModule } from "@angular/forms";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -27,8 +29,12 @@ import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
 import { ProjectsComponent } from "./components/pages/projects/projects.component";
+import { NewProjectDialogComponent } from "./components/pages/projects/new-project-dialog/new-project-dialog.component";
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
+
+import { TimeAgoPipeExtension } from "./shared/time-ago-pipe-extension.pipe";
+import { DeleteProjectDialogComponent } from "./components/pages/projects/delete-project-dialog/delete-project-dialog.component";
 
 @NgModule({
   declarations: [
@@ -40,7 +46,10 @@ import { JwtInterceptor } from "./shared/jwt.interceptor";
     CreditsComponent,
     SignInComponent,
     SignUpComponent,
-    ProjectsComponent
+    ProjectsComponent,
+    NewProjectDialogComponent,
+    TimeAgoPipeExtension,
+    DeleteProjectDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -60,7 +69,9 @@ import { JwtInterceptor } from "./shared/jwt.interceptor";
     MatProgressSpinnerModule,
     MatTableModule,
     FormsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatSortModule,
+    MatTooltipModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
