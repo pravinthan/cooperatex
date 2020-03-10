@@ -7,6 +7,7 @@ let auth = jwt({
 });
 
 let authenticationController = require("../controllers/authentication");
+let projectController = require("../controllers/project");
 let documentController = require("../controllers/document");
 
 // router.get('/example', auth, ctrlExample.example);
@@ -15,7 +16,12 @@ let documentController = require("../controllers/document");
 router.post("/users/signup", authenticationController.signUp);
 router.post("/users/signin", authenticationController.signIn);
 
+// Project
+router.post("/projects", auth, projectController.createProject);
+router.get("/projects", auth, projectController.retrieveAllProjects);
+router.get("/projects/:id", auth, projectController.retrieveProjectById);
+
 // Document
-router.post("/documents", documentController.createDocument);
+// router.post("/documents", documentController.createDocument);
 
 module.exports = router;

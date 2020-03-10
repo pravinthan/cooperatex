@@ -14,8 +14,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatTableModule } from "@angular/material/table"
+import { MatTableModule } from "@angular/material/table";
 import { FormsModule } from "@angular/forms";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -25,10 +26,9 @@ import { PageNotFoundComponent } from "./components/pages/page-not-found/page-no
 import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
-import { ProjectsComponent } from "./components/pages/projects/projects.component"
+import { ProjectsComponent } from "./components/pages/projects/projects.component";
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
-import { ErrorInterceptor } from "./shared/error.interceptor";
 
 @NgModule({
   declarations: [
@@ -59,11 +59,11 @@ import { ErrorInterceptor } from "./shared/error.interceptor";
     MatDialogModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    FormsModule
+    FormsModule,
+    MatSnackBarModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

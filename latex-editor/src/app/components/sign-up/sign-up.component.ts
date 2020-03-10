@@ -1,7 +1,8 @@
 import { Component, Output, EventEmitter } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { AuthenticationService } from "src/app/shared/authentication.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-sign-up",
@@ -10,18 +11,16 @@ import { AuthenticationService } from "src/app/shared/authentication.service";
 })
 export class SignUpComponent {
   loading = false;
-  error: string;
-
   @Output() signedUp = new EventEmitter();
 
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {
-    // redirect to home if already logged in
-    if (this.authenticationService.currentUserValue) {
+    if (this.authenticationService.currentUserValue)
       this.router.navigate(["/"]);
-    }
   }
 
   signUp(form: NgForm) {
@@ -31,11 +30,17 @@ export class SignUpComponent {
       .subscribe(
         data => {
           this.signedUp.emit(true);
-          this.router.navigate(["/projects"]);
+
+          const returnUrl = this.route.snapshot.queryParams.returnUrl;
+          if (returnUrl) this.router.navigate([returnUrl]);
+          else this.router.navigate(["/projects"]);
         },
         error => {
-          this.error = error;
           this.loading = false;
+
+          const message =
+            error.status == 409 ? error.error : "Sign up failed, try again.";
+          this.snackBar.open(message, "OK", { duration: 3000 });
         }
       );
   }

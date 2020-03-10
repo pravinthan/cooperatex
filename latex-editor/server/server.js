@@ -5,6 +5,7 @@ let bodyParser = require("body-parser");
 let mongoose = require("mongoose");
 let passport = require("passport");
 // require("./models/db");
+require("./models/project");
 require("./models/document");
 require("./models/user");
 require("./config/passport");
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
-    res.status(401).json({ message: err.name + ": " + err.message });
+    return res.status(401).json("Unauthorized access");
   }
 });
 
@@ -41,7 +42,7 @@ let db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 const server = http.createServer(app);
-const port = process.env.PORT || 4201;
+const port = process.env.PORT || 4200;
 server.listen(port, () =>
   console.log(`App running on: http://localhost:${port}`)
 );

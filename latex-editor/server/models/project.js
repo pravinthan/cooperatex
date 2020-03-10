@@ -2,23 +2,25 @@ let mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 let projectSchema = new Schema({
-  title: {
-    type: String,
-    default: "Untitled Project"
-  },
+  title: String,
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User"
   },
-  // collaborators: [
-  //   {
-  //     type: mongoose.Schema.ObjectId,
-  //     ref: "User"
-  //   }
-  // ],
-  files: [],
+  collaborators: [
+    {
+      type: Schema.ObjectId,
+      ref: "User"
+    }
+  ],
   // shareLink: String,
-  dateCreated: String
+  files: [],
+  dateCreated: { type: Date, default: Date.now },
+  lastUpdated: Date,
+  lastUpdatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
 
 mongoose.model("Project", projectSchema);

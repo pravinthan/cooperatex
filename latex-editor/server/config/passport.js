@@ -5,21 +5,15 @@ let User = mongoose.model("User");
 
 passport.use(
   new LocalStrategy(
-    {
-      usernameField: "username"
-    },
+    { usernameField: "username" },
     (username, password, done) => {
       User.findOne({ username: username }, (err, user) => {
         if (err) return done(err);
-
-        // Return if user not found in database
-        if (!user) return done(null, false, { message: "User not found" });
-
-        // Return if password is wrong
+        if (!user) return done(null, false, "User was not found");
         if (!user.validPassword(password))
-          return done(null, false, { message: "Password is wrong" });
+          return done(null, false, "Password was incorrect");
 
-        // If credentials are correct, return the user object
+        // Credentials are correct
         return done(null, user);
       });
     }

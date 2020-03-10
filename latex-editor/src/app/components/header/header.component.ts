@@ -37,7 +37,7 @@ export class HeaderComponent {
   }
 
   openSignUpDialog() {
-    const signUpDialog = this.dialog.open(SignUpComponent);
+    const signUpDialog = this.dialog.open(SignUpComponent, { width: "400px" });
     const signUpSubscription = signUpDialog.componentInstance.signedUp.subscribe(
       (signedUp: boolean) => {
         if (signedUp) signUpDialog.close();

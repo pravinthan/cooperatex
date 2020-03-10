@@ -1,13 +1,19 @@
 <div id="sign-in-container">
   <h1>Sign In</h1>
-  <!-- <div *ngIf="error" class="alert alert-danger">{{ error }}</div> -->
   <form #form="ngForm" id="sign-in-form" (ngSubmit)="signIn(form)">
     <mat-form-field class="full-width">
       <input matInput name="username" required placeholder="Username" ngModel />
     </mat-form-field>
 
     <mat-form-field class="full-width">
-      <input matInput name="password" required placeholder="Password" ngModel />
+      <input
+        matInput
+        type="password"
+        name="password"
+        required
+        placeholder="Password"
+        ngModel
+      />
     </mat-form-field>
 
     <button

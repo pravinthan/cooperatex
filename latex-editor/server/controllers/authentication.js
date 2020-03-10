@@ -7,17 +7,26 @@ module.exports.signUp = (req, res) => {
     return res.status(400).json("Username and password required");
   }
 
-  let user = new User();
-  user.username = req.body.username;
-  user.setPassword(req.body.password);
+  User.findOne({ username: req.body.username })
+    .then(user => {
+      if (user)
+        return res
+          .status(409)
+          .send(`Username ${req.body.username} already exists`);
 
-  user.save(err => {
-    let token = user.generateJwt();
-    res.status(200);
-    res.json({
-      token: token
-    });
-  });
+      let newUser = new User();
+      newUser.username = req.body.username;
+      newUser.setPassword(req.body.password);
+
+      newUser.save(err => {
+        let token = newUser.generateJwt();
+        res.status(200);
+        res.json({
+          token: token
+        });
+      });
+    })
+    .catch(err => res.status(500).json("Internal server error"));
 };
 
 module.exports.signIn = (req, res) => {

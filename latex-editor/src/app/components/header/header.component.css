@@ -16,6 +16,10 @@
   flex: 1 1 auto;
 }
 
+mat-toolbar-row {
+  height: 64px !important;
+}
+
 mat-toolbar-row > button {
   margin: 12px;
 }
@@ -24,11 +28,6 @@ mat-toolbar-row > button:last-of-type {
   margin-right: 36px;
 }
 
-@media (max-width: 768px) and (min-width: 250px) {
-  #toolbar-title {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
+.mat-toolbar-multiple-rows {
+  line-height: 64px !important;
 }

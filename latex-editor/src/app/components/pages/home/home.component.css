@@ -1,6 +1,4 @@
 #home-overlay {
-  border: 2px solid #f1f1f1;
-  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
   position: absolute;
@@ -12,7 +10,6 @@
   max-width: 500px;
   min-width: 220px;
   padding: 20px;
-
 }
 
 #home-video {
@@ -29,32 +26,34 @@
 }
 
 #home-video > video {
-  width: 102%;
+  width: 105vw;
+  height: 105vh;
+  object-fit: cover;
 }
 
-/* #links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  margin-top: 1rem;
+.typewriter {
+  border-right: solid 1px white;
+  white-space: nowrap;
+  overflow: hidden;
+  margin: 0 auto;
+  animation: animated-text 4s steps(29, end) 1s 1 normal both,
+    animated-cursor 600ms steps(29, end) infinite;
 }
 
-#links a {
-  margin: 0 0.5rem 0 0.5rem;
-}
-
-.mat-list-icon {
-  outline: none;
-  margin: 0 6px 0 0 !important;
-}
-
-@media only screen and (max-width: 760px) {
-  #links {
-    flex-direction: column;
+@keyframes animated-text {
+  from {
+    width: 0;
   }
-
-  #links a {
-    margin: 1rem 0 0 0;
+  to {
+    width: 260px;
   }
-} */
+}
+
+@keyframes animated-cursor {
+  from {
+    border-right-color: white;
+  }
+  to {
+    border-right-color: transparent;
+  }
+}
