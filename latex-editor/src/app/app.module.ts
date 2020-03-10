@@ -26,6 +26,7 @@ import { CreditsComponent } from "./components/pages/credits/credits.component";
 import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
 import { ProjectsComponent } from "./components/pages/projects/projects.component"
+import { NewProjectDialog } from "./components/pages/projects/projects.component"
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
 import { ErrorInterceptor } from "./shared/error.interceptor";
@@ -40,7 +41,8 @@ import { ErrorInterceptor } from "./shared/error.interceptor";
     CreditsComponent,
     SignInComponent,
     SignUpComponent,
-    ProjectsComponent
+    ProjectsComponent,
+    NewProjectDialog
   ],
   imports: [
     BrowserModule,
