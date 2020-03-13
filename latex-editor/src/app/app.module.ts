@@ -19,6 +19,9 @@ import { FormsModule } from "@angular/forms";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { CodemirrorModule } from "@ctrl/ngx-codemirror";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -35,6 +38,9 @@ import { JwtInterceptor } from "./shared/jwt.interceptor";
 
 import { TimeAgoPipeExtension } from "./shared/time-ago-pipe-extension.pipe";
 import { DeleteProjectDialogComponent } from "./components/pages/projects/delete-project-dialog/delete-project-dialog.component";
+import { ProjectComponent } from "./components/pages/project/project.component";
+
+import "codemirror/mode/stex/stex";
 
 @NgModule({
   declarations: [
@@ -49,7 +55,8 @@ import { DeleteProjectDialogComponent } from "./components/pages/projects/delete
     ProjectsComponent,
     NewProjectDialogComponent,
     TimeAgoPipeExtension,
-    DeleteProjectDialogComponent
+    DeleteProjectDialogComponent,
+    ProjectComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +78,10 @@ import { DeleteProjectDialogComponent } from "./components/pages/projects/delete
     FormsModule,
     MatSnackBarModule,
     MatSortModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatButtonToggleModule,
+    CodemirrorModule,
+    MatCheckboxModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

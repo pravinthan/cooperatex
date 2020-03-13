@@ -1,0 +1,82 @@
+mat-sidenav-container {
+  width: 100%;
+  height: 100%;
+  padding-top: 64px;
+}
+
+mat-sidenav {
+  width: 300px;
+  padding-top: 64px;
+  background-color: #4b2a85;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+#file-context-buttons {
+  display: flex;
+  justify-content: space-between;
+  background-color: #3f2272;
+}
+
+mat-button-toggle-group {
+  width: stretch;
+}
+
+mat-button-toggle {
+  color: black;
+  background-color: #ffd740;
+}
+
+.mat-button-toggle-checked {
+  color: black;
+  background-color: #cead35;
+  font-weight: bold;
+}
+
+::ng-deep .mat-button-toggle-label-content {
+  text-align: left;
+}
+
+mat-sidenav-content > div {
+  display: flex;
+  height: 100%;
+}
+
+ngx-codemirror {
+  width: 50%;
+}
+
+#output-container {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+#output-context-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3f2272;
+}
+
+#output-pdf {
+  height: 100%;
+}
+
+#auto-compile-checkbox {
+  color: white;
+  margin-left: 1rem;
+}
+
+::ng-deep #auto-compile-checkbox .mat-checkbox-frame {
+  border-color: white;
+}
+
+::ng-deep #auto-compile-checkbox .mat-checkbox-checkmark-path {
+  stroke: black !important;
+}
+
+#download-pdf-button {
+  color: white;
+}

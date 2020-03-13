@@ -7,12 +7,18 @@ import { SignInComponent } from "./components/sign-in/sign-in.component";
 import { SignUpComponent } from "./components/sign-up/sign-up.component";
 import { AuthenticationGuard } from "./shared/authentication.guard";
 import { ProjectsComponent } from "./components/pages/projects/projects.component";
+import { ProjectComponent } from "./components/pages/project/project.component";
 
 const routes: Routes = [
   { path: "", pathMatch: "full", component: HomeComponent },
   { path: "signin", component: SignInComponent },
   { path: "signup", component: SignUpComponent },
   { path: "credits", component: CreditsComponent },
+  {
+    path: "projects/:id",
+    component: ProjectComponent,
+    canActivate: [AuthenticationGuard]
+  },
   {
     path: "projects",
     component: ProjectsComponent,

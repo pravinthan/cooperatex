@@ -1,0 +1,78 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened>
+    <div id="file-context-buttons">
+      <div>
+        <!-- <button
+          mat-icon-button
+          matTooltip="New Folder"
+          matTooltipPosition="below"
+        >
+          <mat-icon>create_new_folder</mat-icon>
+        </button> -->
+        <button mat-icon-button matTooltip="Upload" matTooltipPosition="below">
+          <mat-icon>cloud_upload</mat-icon>
+        </button>
+      </div>
+      <div>
+        <button mat-icon-button matTooltip="Rename" matTooltipPosition="below">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Delete" matTooltipPosition="below">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div id="files">
+      <mat-button-toggle-group [vertical]="true" name="fontStyle">
+        <mat-button-toggle value="bold">
+          <mat-icon>insert_drive_file</mat-icon>
+          main.tex
+        </mat-button-toggle>
+        <mat-button-toggle value="italic">
+          <mat-icon>photo</mat-icon>
+          image.png
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div>
+      <ngx-codemirror
+        #editor
+        [(ngModel)]="latex"
+        [options]="{
+          lineNumbers: 'true',
+          mode: 'stex',
+          theme: 'material',
+          lineWrapping: 'true',
+          showCursorWhenSelecting: 'true'
+        }"
+        [autoFocus]="true"
+      ></ngx-codemirror>
+      <div id="output-container">
+        <div id="output-context-buttons">
+          <div>
+            <button mat-flat-button color="accent">
+              <mat-icon>cached</mat-icon>
+              Compile
+            </button>
+            <mat-checkbox id="auto-compile-checkbox">Auto compile</mat-checkbox>
+          </div>
+          <button
+            id="download-pdf-button"
+            mat-icon-button
+            matTooltip="Download PDF"
+            matTooltipPosition="below"
+          >
+            <mat-icon>get_app</mat-icon>
+          </button>
+        </div>
+        <object
+          id="output-pdf"
+          data="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+          type="application/pdf"
+        ></object>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
