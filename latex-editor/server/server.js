@@ -6,7 +6,6 @@ let bodyParser = require("body-parser");
 let mongoose = require("mongoose");
 let passport = require("passport");
 require("./models/project");
-require("./models/document");
 require("./models/user");
 require("./config/passport");
 let apiRoute = require("./routes/index");
@@ -29,7 +28,7 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
-    return res.status(401).json("Unauthorized access");
+    return res.status(401).send("Unauthorized access");
   }
 });
 

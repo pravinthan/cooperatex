@@ -4,7 +4,7 @@ let User = mongoose.model("User");
 
 module.exports.signUp = (req, res) => {
   if (!req.body.username || !req.body.password) {
-    return res.status(400).json("Username and password required");
+    return res.status(400).send("Username and password required");
   }
 
   User.findOne({ username: req.body.username })
@@ -22,17 +22,17 @@ module.exports.signUp = (req, res) => {
         res.json({ token: newUser.generateJWT() });
       });
     })
-    .catch(err => res.status(500).json("Internal server error"));
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.signIn = (req, res) => {
   if (!req.body.username || !req.body.password) {
-    return res.status(400).json("Username and password required");
+    return res.status(400).send("Username and password required");
   }
 
   passport.authenticate("local", (err, user, info) => {
-    if (err) return res.status(404).json(err);
-    if (!user) return res.status(401).json(info);
+    if (err) return res.status(404).send(err);
+    if (!user) return res.status(401).send(info);
 
     res.json({ token: user.generateJWT() });
   })(req, res);

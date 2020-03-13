@@ -15,7 +15,7 @@ module.exports.createProject = (req, res) => {
     lastUpdatedBy: req.user._id
   })
     .then(project => res.json(project))
-    .catch(err => res.status(500).json("Internal server error"));
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.retrieveProjectById = (req, res) => {
@@ -26,11 +26,13 @@ module.exports.retrieveProjectById = (req, res) => {
     .exec()
     .then(project => {
       if (!project)
-        return res.status(404).json(`Project ${req.params.id} does not exist`);
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
 
       res.json(project);
     })
-    .catch(err => res.status(500).json("Internal server error"));
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.retrieveAllProjects = (req, res) => {
@@ -40,16 +42,52 @@ module.exports.retrieveAllProjects = (req, res) => {
     .populate("lastUpdatedBy", "_id username")
     .exec()
     .then(projects => res.json(projects))
-    .catch(err => res.status(500).json("Internal server error"));
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.deleteProjectById = (req, res) => {
-  Project.findByIdAndDelete(req.params.id)
+  Project.findById(req.params.id)
     .then(project => {
       if (!project)
-        return res.status(404).json(`Project ${req.params.id} does not exist`);
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      res.json(project);
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      Project.findByIdAndDelete(project._id).then(project => res.json(project));
     })
-    .catch(err => res.status(500).json("Internal server error"));
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.uploadFile = (req, res) => {
+  Project.findById(req.params.id)
+    .then(project => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      Project.findByIdAndUpdate(project._id, {
+        $push: { files: req.file }
+      }).then(result => res.json(req.file));
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.retrieveFile = (req, res) => {
+  Project.findById(req.params.projectId)
+    .then(project => {
+      if (!project)
+        return res
+          .status(404)
+          .send(`Project ${req.params.projectId} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      const filePath = project.files.find(
+        file => file._id === req.params.fileId
+      ).path;
+
+      res.sendFile(filePath);
+    })
+    .catch(err => res.sendStatus(500));
 };

@@ -13,8 +13,20 @@ let projectSchema = new Schema({
       ref: "User"
     }
   ],
+  files: [
+    {
+      fieldname: String,
+      originalname: String,
+      encoding: String,
+      mimetype: String,
+      size: String,
+      destination: String,
+      filename: String,
+      path: String,
+      buffer: Array
+    }
+  ],
   // shareLink: String,
-  files: [],
   dateCreated: { type: Date, default: Date.now },
   lastUpdated: Date,
   lastUpdatedBy: {

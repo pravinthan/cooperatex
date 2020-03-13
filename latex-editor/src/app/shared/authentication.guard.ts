@@ -22,9 +22,13 @@ export class AuthenticationGuard implements CanActivate {
     if (this.authenticationService.currentUserValue) return true;
 
     this.router.navigate(["/"], { queryParams: { returnUrl: state.url } });
-    this.snackBar.open("You must be signed in to access this resource", "OK", {
-      duration: 3000
-    });
+    this.snackBar.open(
+      "Unauthorized or forbidden access to this resource, try signing in",
+      "OK",
+      {
+        duration: 3000
+      }
+    );
 
     return false;
   }
