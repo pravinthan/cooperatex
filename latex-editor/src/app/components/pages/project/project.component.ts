@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import * as CodeMirror from "codemirror";
 import { ProjectService } from "src/app/shared/project.service";
+import { MatDialog } from "@angular/material/dialog";
+import { UploadFileDialogComponent } from "./upload-file-dialog/upload-file-dialog.component"
 
 @Component({
   selector: "app-project",
@@ -11,7 +13,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
   @ViewChild("editor") private editor;
 
   latex: string;
-  constructor(private projectService: ProjectService) {}
+  constructor(private projectService: ProjectService, public dialog: MatDialog) {}
 
   ngOnInit() {
     // Retrieve data from service
@@ -24,5 +26,9 @@ export class ProjectComponent implements OnInit, AfterViewInit {
 
     let document = codeMirror.getDoc();
     console.log(document);
+  }
+
+  openUploadFileDialog() {
+    this.dialog.open(UploadFileDialogComponent, { width: "400px" });
   }
 }

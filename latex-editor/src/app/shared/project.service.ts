@@ -4,12 +4,13 @@ import { environment } from "src/environments/environment";
 import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { Project } from "./models/Project.model";
+import { ActivatedRoute } from "@angular/router";
 
 @Injectable({
   providedIn: "root"
 })
 export class ProjectService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   createProject(title: string) {
     return this.http
@@ -33,5 +34,15 @@ export class ProjectService {
     return this.http
       .delete<any>(`${environment.apiUrl}/projects/${id}`)
       .pipe(map(project => project));
+  }
+
+  postFile(fileToUpload: File): Observable<boolean> {
+    const project_id = this.route.snapshot.paramMap.get('id');
+    const endpoint = `${environment.apiUrl}/projects/${project_id}/files`;
+    const formData: FormData = new FormData();
+    formData.append('fileKey', fileToUpload, fileToUpload.name);
+    return this.http
+      .post(endpoint, formData)
+      .pipe(map(() => { return true; }));
   }
 }
