@@ -17,6 +17,7 @@ export class UploadFileDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<UploadFileDialogComponent>,
     private projectService: ProjectService,
+    private snackBar: MatSnackBar,
 
   ) { }
 
@@ -25,11 +26,19 @@ export class UploadFileDialogComponent {
   }
 
   uploadFile() {
-    this.projectService.postFile(this.fileToUpload).subscribe(data => {
-      this.dialogRef.close();
-    }, error => {
-      console.log(error);
-    });
+    if (!this.fileToUpload) {
+      this.snackBar.open("No file uploaded", "OK", {
+        duration: 3000
+      });
+    } else {
+
+      this.projectService.postFile(this.fileToUpload).subscribe(data => {
+        this.dialogRef.close();
+      }, error => {
+        console.log(error);
+      });
+
+    }
   }
 
 
