@@ -13,29 +13,52 @@ mat-sidenav {
   flex-direction: column;
 }
 
-#file-context-buttons {
+#file-list-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background-color: #293680;
 }
 
-mat-button-toggle-group {
+#title {
+  font-size: large;
+  padding-left: 16px;
+}
+
+::ng-deep mat-sidenav .mat-list-item-content {
+  padding-right: 0 !important;
+}
+
+.file-name {
+  padding-left: 0.5rem;
+}
+
+.file-container {
   width: stretch;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
 }
 
-mat-button-toggle {
-  color: black;
-  background-color: #ffd740;
+.file-container > div {
+  display: flex;
+  align-items: center;
 }
 
-.mat-button-toggle-checked {
-  color: black;
-  background-color: #cead35;
-  font-weight: bold;
+.file-container:hover > .file-context-buttons {
+  visibility: visible;
 }
 
-::ng-deep .mat-button-toggle-label-content {
-  text-align: left;
+.file-context-buttons {
+  visibility: hidden;
+}
+
+#files-hint {
+  margin: 0.5rem auto 0 auto;
+  font-size: small;
+  color: rgba(255, 255, 255, 0.5);
+  width: max-content;
 }
 
 mat-sidenav-content > div {

@@ -8,17 +8,16 @@ const fileFilter = (req, file, callback) => {
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpeg" ||
     file.mimetype === "application/x-tex" ||
-    file.mimetype === "application/x-latex"
+    file.mimetype === "application/x-latex" ||
+    file.mimetype === "application/octet-stream"
   )
     callback(null, true);
   else callback(null, false);
 };
 let upload = require("multer")({
-  dest: path.join(__dirname, "uploads"),
+  dest: path.join(__dirname, "../../uploads"),
   fileFilter: fileFilter,
-  limits: {
-    fileSize: 1024 * 1024 * 5
-  }
+  limits: { fileSize: 1024 * 1024 * 5 }
 });
 
 let authenticationController = require("../controllers/authentication");
@@ -39,10 +38,10 @@ router.post(
   upload.single("file"),
   projectController.uploadFile
 );
+router.get("/projects/:id/files", auth, projectController.retrieveAllFiles);
 router.get(
   "/projects/:projectId/files/:fileId",
   auth,
-  upload.single("file"),
   projectController.retrieveFile
 );
 

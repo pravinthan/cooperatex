@@ -1,38 +1,50 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened>
-    <div id="file-context-buttons">
-      <div>
-        <!-- <button
-          mat-icon-button
-          matTooltip="New Folder"
-          matTooltipPosition="below"
-        >
-          <mat-icon>create_new_folder</mat-icon>
-        </button> -->
-        <button (click)="openUploadFileDialog()" mat-icon-button matTooltip="Upload" matTooltipPosition="below">
-          <mat-icon>cloud_upload</mat-icon>
-        </button>
-      </div>
-      <div>
-        <button mat-icon-button matTooltip="Rename" matTooltipPosition="below">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button matTooltip="Delete" matTooltipPosition="below">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
+    <div id="file-list-header">
+      <span id="title">{{ projectTitle }}</span>
+      <button
+        (click)="openUploadFileDialog()"
+        mat-icon-button
+        matTooltip="Upload"
+        matTooltipPosition="below"
+      >
+        <mat-icon>cloud_upload</mat-icon>
+      </button>
     </div>
-    <div id="files">
-      <mat-button-toggle-group [vertical]="true" name="fontStyle">
-        <mat-button-toggle value="bold">
-          <mat-icon>insert_drive_file</mat-icon>
-          main.tex
-        </mat-button-toggle>
-        <mat-button-toggle value="italic">
-          <mat-icon>photo</mat-icon>
-          image.png
-        </mat-button-toggle>
-      </mat-button-toggle-group>
+    <div>
+      <mat-list>
+        <mat-list-item *ngFor="let displayFile of displayFiles">
+          <div class="file-container">
+            <div>
+              <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
+              <mat-icon *ngIf="!displayFile.isImage"
+                >insert_drive_file</mat-icon
+              >
+              <span class="file-name">
+                {{ displayFile.fileName }}
+              </span>
+            </div>
+            <div class="file-context-buttons">
+              <button
+                mat-icon-button
+                matTooltip="Rename"
+                matTooltipPosition="below"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                matTooltip="Delete"
+                matTooltipPosition="below"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-list>
+      <mat-divider></mat-divider>
+      <div id="files-hint">Hover over a file to rename or delete</div>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>

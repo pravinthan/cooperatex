@@ -28,7 +28,7 @@ module.exports.retrieveProjectById = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       res.json(project);
     })
@@ -53,7 +53,9 @@ module.exports.deleteProjectById = (req, res) => {
 
       if (project.owner != req.user._id) return res.sendStatus(403);
 
-      Project.findByIdAndDelete(project._id).then(project => res.json(project));
+      Project.findByIdAndDelete(project._id).then(project =>
+        res.sendStatus(200)
+      );
     })
     .catch(err => res.sendStatus(500));
 };
@@ -73,6 +75,19 @@ module.exports.uploadFile = (req, res) => {
     .catch(err => res.sendStatus(500));
 };
 
+module.exports.retrieveAllFiles = (req, res) => {
+  Project.findById(req.params.id)
+    .then(project => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      res.json(project.files);
+    })
+    .catch(err => res.sendStatus(500));
+};
+
 module.exports.retrieveFile = (req, res) => {
   Project.findById(req.params.projectId)
     .then(project => {
@@ -83,11 +98,8 @@ module.exports.retrieveFile = (req, res) => {
 
       if (project.owner != req.user._id) return res.sendStatus(403);
 
-      const filePath = project.files.find(
-        file => file._id === req.params.fileId
-      ).path;
-
-      res.sendFile(filePath);
+      const file = project.files.find(file => file._id == req.params.fileId);
+      res.sendFile(file.path);
     })
     .catch(err => res.sendStatus(500));
 };

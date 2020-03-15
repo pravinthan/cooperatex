@@ -39,10 +39,9 @@ import { JwtInterceptor } from "./shared/jwt.interceptor";
 import { TimeAgoPipeExtension } from "./shared/time-ago-pipe-extension.pipe";
 import { DeleteProjectDialogComponent } from "./components/pages/projects/delete-project-dialog/delete-project-dialog.component";
 import { ProjectComponent } from "./components/pages/project/project.component";
-import { UploadFileDialogComponent } from './components/pages/project/upload-file-dialog/upload-file-dialog.component';
+import { UploadFileDialogComponent } from "./components/pages/project/upload-file-dialog/upload-file-dialog.component";
 
 import "codemirror/mode/stex/stex";
-
 
 @NgModule({
   declarations: [

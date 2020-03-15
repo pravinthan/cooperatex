@@ -35,22 +35,25 @@ export class ProjectsComponent implements OnInit {
 
   private getProjects() {
     this.projectTableData = [];
-    this.projectService.getAllProjects().subscribe(projects => {
-      // Construct table data
-      projects.forEach(project => {
-        this.projectTableData.push({
-          _id: project._id,
-          title: project.title,
-          owner: project.owner.username,
-          lastUpdated: project.lastUpdated,
-          lastUpdatedBy: project.lastUpdatedBy.username
+    this.projectService
+      .getAllProjects()
+      .toPromise()
+      .then(projects => {
+        // Construct table data
+        projects.forEach(project => {
+          this.projectTableData.push({
+            _id: project._id,
+            title: project.title,
+            owner: project.owner.username,
+            lastUpdated: project.lastUpdated,
+            lastUpdatedBy: project.lastUpdatedBy.username
+          });
         });
-      });
 
-      // Update table
-      this.dataSource.data = this.projectTableData;
-      this.dataSource.sort = this.sort;
-    });
+        // Update table
+        this.dataSource.data = this.projectTableData;
+        this.dataSource.sort = this.sort;
+      });
   }
 
   ngOnInit() {
@@ -99,9 +102,12 @@ export class ProjectsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       // Delete project by id and update table
       if (result)
-        this.projectService.deleteProjectById(id).subscribe(project => {
-          this.getProjects();
-        });
+        this.projectService
+          .deleteProjectById(id)
+          .toPromise()
+          .then(project => {
+            this.getProjects();
+          });
     });
   }
 }
