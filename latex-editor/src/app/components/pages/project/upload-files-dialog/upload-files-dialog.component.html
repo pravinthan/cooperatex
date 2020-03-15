@@ -1,15 +1,15 @@
 <div id="upload-container">
   <button
     mat-stroked-button
-    (click)="fileInput.click()"
+    (click)="input.click()"
     color="primary"
-    id="choose-file-button"
+    id="choose-files-button"
   >
-    <span>{{ inputLabel }}</span>
+    <span>{{ inputLabel | truncate: [25] }}</span>
     <input
-      #fileInput
+      #input
       type="file"
-      (change)="handleFileInput($event.target.files)"
+      (change)="handleInput($event.target.files)"
       multiple
       accept=".png,.jpg,.jpeg,.tex,.latex,.fd,.bst,.brf,.cls,.dtx"
       required
@@ -18,7 +18,7 @@
 
   <button
     mat-flat-button
-    (click)="uploadFile()"
+    (click)="uploadFiles()"
     color="primary"
     [disabled]="filesToUpload.length == 0"
   >

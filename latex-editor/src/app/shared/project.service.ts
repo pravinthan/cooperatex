@@ -28,9 +28,14 @@ export class ProjectService {
     });
   }
 
-  createFile(projectId: string, fileToUpload: File): Observable<MulterFile> {
+  uploadFiles(
+    projectId: string,
+    filesToUpload: File[]
+  ): Observable<MulterFile[]> {
     let formData = new FormData();
-    formData.append("file", fileToUpload, fileToUpload.name);
+    filesToUpload.forEach(fileToUpload => {
+      formData.append("files", fileToUpload, fileToUpload.name);
+    });
     return this.http.post<any>(
       `${environment.apiUrl}/projects/${projectId}/files`,
       formData
@@ -58,6 +63,6 @@ export class ProjectService {
       {
         responseType: "text"
       }
-      );
+    );
   }
 }

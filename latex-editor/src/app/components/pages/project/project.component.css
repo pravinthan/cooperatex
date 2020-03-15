@@ -81,6 +81,7 @@ ngx-codemirror {
   justify-content: space-between;
   align-items: center;
   background-color: #293680;
+  color: white;
 }
 
 #output-pdf {
@@ -88,14 +89,9 @@ ngx-codemirror {
 }
 
 #auto-compile-checkbox {
-  color: white;
   margin-left: 1rem;
 }
 
 ::ng-deep #auto-compile-checkbox .mat-checkbox-frame {
   border-color: white;
-}
-
-#download-pdf-button {
-  color: white;
 }

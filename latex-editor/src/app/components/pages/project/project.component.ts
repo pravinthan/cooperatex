@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import * as CodeMirror from "codemirror";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
-import { UploadFileDialogComponent } from "./upload-file-dialog/upload-file-dialog.component";
+import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MulterFile } from "src/app/shared/models/Project.model";
 
@@ -32,15 +32,15 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     private router: Router
   ) {}
 
-  private convertFilesToDisplayFiles(files: MulterFile[]) {
-    for (let file of files) {
-      this.displayFiles.push({
-        _id: file._id,
-        fileName: file.originalname,
-        mimeType: file.mimetype,
-        isImage: /^image\/(jpeg|png)$/i.test(file.mimetype)
-      });
-    }
+  private convertFileToDisplayFile(file: MulterFile) {
+    const displayFile: DisplayFile = {
+      _id: file._id,
+      fileName: file.originalname,
+      mimeType: file.mimetype,
+      isImage: /^image\/(jpeg|png)$/i.test(file.mimetype)
+    };
+
+    return displayFile;
   }
 
   ngOnInit() {
@@ -50,20 +50,21 @@ export class ProjectComponent implements OnInit, AfterViewInit {
       .toPromise()
       .then(project => {
         this.projectTitle = project.title;
-        this.convertFilesToDisplayFiles(project.files);
+        this.displayFiles = project.files.map(file =>
+          this.convertFileToDisplayFile(file)
+        );
 
-        // Get each file's data
+        // Get each file's stream
         this.displayFiles.forEach(displayFile => {
           this.projectService
             .getFileStream(this.projectId, displayFile._id)
-            .subscribe(file => {
-              console.log(file);
+            .subscribe(fileStream => {
+              // console.log(file);
             });
         });
       })
       .catch(err => {
-        console.log(err)
-        // this.router.navigate(["/404"]);
+        this.router.navigate(["/404"]);
       });
 
     this.latex = "qwe";
@@ -76,59 +77,48 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     let document = codeMirror.getDoc();
   }
 
-  openUploadFileDialog() {
-    let dialogRef = this.dialog.open(UploadFileDialogComponent, {
+  openUploadFilesDialog() {
+    let dialogRef = this.dialog.open(UploadFilesDialogComponent, {
       width: "400px",
       data: { projectId: this.projectId }
     });
 
-    dialogRef.afterClosed().subscribe((newFile: MulterFile) => {
-      if (newFile)
-        this.projectService
-          .getAllFiles(this.projectId)
-          .toPromise()
-          .then(files => {
-            this.convertFilesToDisplayFiles(files);
+    dialogRef.afterClosed().subscribe((files: MulterFile[]) => {
+      if (files && files.length > 0) {
+        this.displayFiles = [];
+        files.forEach(file => {
+          this.displayFiles.push(this.convertFileToDisplayFile(file));
 
-            this.projectService
-              .getFileStream(this.projectId, newFile._id)
-              .subscribe(file => {
-                // console.log(file);
-              });
-          });
+          this.projectService
+            .getFileStream(this.projectId, file._id)
+            .subscribe(fileStream => {
+              // console.log(file);
+            });
+        });
+      }
     });
   }
 
-
   deleteFile(fileId: string) {
-
     // let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
     //   width: "400px",
     //   data: { projectId: this.projectId }
     // });
 
-
     // dialogRef.afterClosed().subscribe((result) => {
     //   if (result) {
-        this.projectService
-          .deleteFile(this.projectId, fileId)
-          .toPromise()
-          .then(() => {
-            // this.projectService
-            //   .getAllFiles(this.projectId)
-            //   .toPromise()
-            //   .then(files => {
-            //     this.convertFilesToDisplayFiles(files);
-            //   });
-
-            this.displayFiles.filter(displayFile => {
-              displayFile._id != fileId;
-            })
-          });
-  //     });
+    this.projectService
+      .deleteFile(this.projectId, fileId)
+      .toPromise()
+      .then(() => {
+        this.displayFiles = this.displayFiles.filter(
+          displayFile => displayFile._id != fileId
+        );
+      });
+    //     });
   }
 
-  trackByFn(index, item) {
-    return item.id
+  trackFile(index: number, item: DisplayFile) {
+    return item._id;
   }
 }

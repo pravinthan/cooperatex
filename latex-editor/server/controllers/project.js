@@ -60,7 +60,7 @@ module.exports.deleteProjectById = (req, res) => {
     .catch(err => res.sendStatus(500));
 };
 
-module.exports.uploadFile = (req, res) => {
+module.exports.uploadFiles = (req, res) => {
   Project.findById(req.params.id)
     .then(project => {
       if (!project)
@@ -68,9 +68,22 @@ module.exports.uploadFile = (req, res) => {
 
       if (project.owner != req.user._id) return res.sendStatus(403);
 
-      Project.findByIdAndUpdate(project._id, {
-        $push: { files: req.file }
-      }).then(result => res.json(req.file));
+      let promises = [];
+      for (let i = 0; i < req.files.length; i++) {
+        promises.push(
+          Project.findByIdAndUpdate(
+            project._id,
+            {
+              $push: { files: req.files[i] }
+            },
+            { new: true }
+          )
+        );
+      }
+
+      Promise.all(promises).then(projects =>
+        res.json(projects[promises.length - 1].files)
+      );
     })
     .catch(err => res.sendStatus(500));
 };
@@ -106,7 +119,7 @@ module.exports.retrieveFile = (req, res) => {
 
 module.exports.deleteFile = (req, res) => {
   if (!req.params.fileId || !req.params.projectId) {
-    return res.status(400).send("file id and project id required");
+    return res.status(400).send("File id and project id required");
   }
 
   Project.findById(req.params.projectId)
@@ -119,8 +132,8 @@ module.exports.deleteFile = (req, res) => {
       if (project.owner != req.user._id) return res.sendStatus(403);
 
       Project.findByIdAndUpdate(project._id, {
-        $pull: { files: {_id: req.params.fileId } }
-      }).then(result => res.sendStatus(200));
+        $pull: { files: { _id: req.params.fileId } }
+      }).then(project => res.sendStatus(200));
     })
     .catch(err => res.sendStatus(500));
 };

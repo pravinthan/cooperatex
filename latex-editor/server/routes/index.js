@@ -17,7 +17,7 @@ const fileFilter = (req, file, callback) => {
 let upload = require("multer")({
   dest: path.join(__dirname, "../../uploads"),
   fileFilter: fileFilter,
-  limits: { fileSize: 1024 * 1024 * 5 }
+  limits: { fileSize: 1024 * 1024 * 20 }
 });
 
 let authenticationController = require("../controllers/authentication");
@@ -35,8 +35,8 @@ router.delete("/projects/:id", auth, projectController.deleteProjectById);
 router.post(
   "/projects/:id/files",
   auth,
-  upload.single("file"),
-  projectController.uploadFile
+  upload.array("files"),
+  projectController.uploadFiles
 );
 router.get("/projects/:id/files", auth, projectController.retrieveAllFiles);
 router.get(

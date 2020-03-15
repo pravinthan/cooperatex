@@ -1,11 +1,14 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened>
     <div id="file-list-header">
-      <span id="title">{{ projectTitle }}</span>
+      <span id="title" [matTooltip]="projectTitle" matTooltipPosition="right">{{
+        projectTitle | truncate: 15
+      }}</span>
+
       <button
-        (click)="openUploadFileDialog()"
+        (click)="openUploadFilesDialog()"
         mat-icon-button
-        matTooltip="Upload"
+        matTooltip="Upload Files"
         matTooltipPosition="below"
       >
         <mat-icon>cloud_upload</mat-icon>
@@ -13,15 +16,21 @@
     </div>
     <div>
       <mat-list>
-        <mat-list-item *ngFor="let displayFile of displayFiles;trackBy: trackByFn">
+        <mat-list-item
+          *ngFor="let displayFile of displayFiles; trackBy: trackFile"
+        >
           <div class="file-container">
             <div>
               <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
               <mat-icon *ngIf="!displayFile.isImage"
                 >insert_drive_file</mat-icon
               >
-              <span class="file-name">
-                {{ displayFile.fileName }}
+              <span
+                class="file-name"
+                [matTooltip]="displayFile.fileName"
+                matTooltipPosition="below"
+              >
+                {{ displayFile.fileName | truncate: 15 }}
               </span>
             </div>
             <div class="file-context-buttons">
@@ -49,7 +58,7 @@
         {{
           displayFiles.length > 0
             ? "Hover over a file to rename or delete"
-            : "Upload a file to see it here"
+            : "Upload files to view them here"
         }}
       </div>
     </div>
@@ -78,7 +87,6 @@
             <mat-checkbox id="auto-compile-checkbox">Auto compile</mat-checkbox>
           </div>
           <button
-            id="download-pdf-button"
             mat-icon-button
             matTooltip="Download PDF"
             matTooltipPosition="below"
