@@ -1,4 +1,9 @@
 <div class="form-group">
-  <input type="file" (change)="handleFileInput($event.target.files)" />
+  <input
+    type="file"
+    id="file"
+    (change)="handleFileInput($event.target.files)"
+  />
+  <label for="file">Choose a file</label>
   <button (click)="uploadFile()">Submit</button>
 </div>

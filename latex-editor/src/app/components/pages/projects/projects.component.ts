@@ -99,13 +99,13 @@ export class ProjectsComponent implements OnInit {
       data: { title }
     });
 
+    // Delete project by id and update table
     dialogRef.afterClosed().subscribe(result => {
-      // Delete project by id and update table
       if (result)
         this.projectService
           .deleteProjectById(id)
           .toPromise()
-          .then(project => {
+          .then(() => {
             this.getProjects();
           });
     });

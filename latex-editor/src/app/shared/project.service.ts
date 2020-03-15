@@ -22,8 +22,10 @@ export class ProjectService {
     return this.http.get<any>(`${environment.apiUrl}/projects/${id}`);
   }
 
-  deleteProjectById(id: string): Observable<any> {
-    return this.http.delete<any>(`${environment.apiUrl}/projects/${id}`);
+  deleteProjectById(id: string) {
+    return this.http.delete(`${environment.apiUrl}/projects/${id}`, {
+      responseType: "text"
+    });
   }
 
   createFile(projectId: string, fileToUpload: File): Observable<MulterFile> {
