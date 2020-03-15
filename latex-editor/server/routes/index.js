@@ -44,5 +44,10 @@ router.get(
   auth,
   projectController.retrieveFile
 );
+router.delete(
+  "/projects/:projectId/files/:fileId",
+  auth,
+  projectController.deleteFile
+);
 
 module.exports = router;

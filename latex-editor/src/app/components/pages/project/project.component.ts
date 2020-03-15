@@ -98,4 +98,37 @@ export class ProjectComponent implements OnInit, AfterViewInit {
           });
     });
   }
+
+
+  deleteFile(fileId: string) {
+
+    // let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
+    //   width: "400px",
+    //   data: { projectId: this.projectId }
+    // });
+
+
+    // dialogRef.afterClosed().subscribe((result) => {
+    //   if (result) {
+        this.projectService
+          .deleteFile(this.projectId, fileId)
+          .toPromise()
+          .then(() => {
+            // this.projectService
+            //   .getAllFiles(this.projectId)
+            //   .toPromise()
+            //   .then(files => {
+            //     this.convertFilesToDisplayFiles(files);
+            //   });
+
+            this.displayFiles.filter(displayFile => {
+              displayFile._id != fileId;
+            })
+          });
+  //     });
+  }
+
+  trackByFn(index, item) {
+    return item.id
+  }
 }

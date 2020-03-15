@@ -51,4 +51,13 @@ export class ProjectService {
       }
     );
   }
+
+  deleteFile(projectId: string, fileId: string) {
+    return this.http.delete(
+      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      {
+        responseType: "text"
+      }
+      );
+  }
 }

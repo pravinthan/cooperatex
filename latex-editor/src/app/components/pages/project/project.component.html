@@ -13,7 +13,7 @@
     </div>
     <div>
       <mat-list>
-        <mat-list-item *ngFor="let displayFile of displayFiles">
+        <mat-list-item *ngFor="let displayFile of displayFiles;trackBy: trackByFn">
           <div class="file-container">
             <div>
               <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
@@ -33,6 +33,7 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button
+                (click)="deleteFile(displayFile._id)"
                 mat-icon-button
                 matTooltip="Delete"
                 matTooltipPosition="below"

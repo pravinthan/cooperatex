@@ -103,3 +103,24 @@ module.exports.retrieveFile = (req, res) => {
     })
     .catch(err => res.sendStatus(500));
 };
+
+module.exports.deleteFile = (req, res) => {
+  if (!req.params.fileId || !req.params.projectId) {
+    return res.status(400).send("file id and project id required");
+  }
+
+  Project.findById(req.params.projectId)
+    .then(project => {
+      if (!project)
+        return res
+          .status(404)
+          .send(`Project ${req.params.projectId} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      Project.findByIdAndUpdate(project._id, {
+        $pull: { files: {_id: req.params.fileId } }
+      }).then(result => res.sendStatus(200));
+    })
+    .catch(err => res.sendStatus(500));
+};
