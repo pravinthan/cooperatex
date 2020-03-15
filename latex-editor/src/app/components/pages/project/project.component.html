@@ -43,8 +43,14 @@
           </div>
         </mat-list-item>
       </mat-list>
-      <mat-divider></mat-divider>
-      <div id="files-hint">Hover over a file to rename or delete</div>
+      <mat-divider *ngIf="displayFiles.length > 0"></mat-divider>
+      <div id="files-hint">
+        {{
+          displayFiles.length > 0
+            ? "Hover over a file to rename or delete"
+            : "Upload a file to see it here"
+        }}
+      </div>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>

@@ -1,9 +1,27 @@
-<div class="form-group">
-  <input
-    type="file"
-    id="file"
-    (change)="handleFileInput($event.target.files)"
-  />
-  <label for="file">Choose a file</label>
-  <button (click)="uploadFile()">Submit</button>
+<div id="upload-container">
+  <button
+    mat-stroked-button
+    (click)="fileInput.click()"
+    color="primary"
+    id="choose-file-button"
+  >
+    <span>{{ inputLabel }}</span>
+    <input
+      #fileInput
+      type="file"
+      (change)="handleFileInput($event.target.files)"
+      multiple
+      accept=".png,.jpg,.jpeg,.tex,.latex,.fd,.bst,.brf,.cls,.dtx"
+      required
+    />
+  </button>
+
+  <button
+    mat-flat-button
+    (click)="uploadFile()"
+    color="primary"
+    [disabled]="filesToUpload.length == 0"
+  >
+    Upload
+  </button>
 </div>
