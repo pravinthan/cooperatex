@@ -65,4 +65,19 @@ export class ProjectService {
       }
     );
   }
+
+  patchFile(
+    projectId: string,
+    fileId: string,
+    operation: "replaceName" | "replaceMain",
+    newName?: string
+  ) {
+    return this.http.patch(
+      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      newName ? { operation } : { operation, newName },
+      {
+        responseType: "text"
+      }
+    );
+  }
 }

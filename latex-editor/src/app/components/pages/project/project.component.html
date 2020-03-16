@@ -25,6 +25,7 @@
               <mat-icon *ngIf="!displayFile.isImage"
                 >insert_drive_file</mat-icon
               >
+              <mat-icon *ngIf="displayFile.isMain">flag</mat-icon>
               <span
                 class="file-name"
                 [matTooltip]="displayFile.fileName"
@@ -34,6 +35,15 @@
               </span>
             </div>
             <div class="file-context-buttons">
+              <button
+                *ngIf="!displayFile.isMain && displayFile.canMain"
+                (click)="markAsMain(displayFile._id)"
+                mat-icon-button
+                matTooltip="Mark as main file to compile"
+                matTooltipPosition="below"
+              >
+                <mat-icon>flag</mat-icon>
+              </button>
               <button
                 mat-icon-button
                 matTooltip="Rename"
