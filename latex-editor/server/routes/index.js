@@ -1,6 +1,7 @@
 let express = require("express");
 let router = express.Router();
 let path = require("path");
+let { param, body } = require("express-validator");
 let jwt = require("express-jwt");
 let auth = jwt({ secret: "MY_SECRET" });
 const fileFilter = (req, file, callback) => {
@@ -24,8 +25,36 @@ let authenticationController = require("../controllers/authentication");
 let projectController = require("../controllers/project");
 
 // Authentication
-router.post("/users/signup", authenticationController.signUp);
-router.post("/users/signin", authenticationController.signIn);
+router.post(
+  "/users/signup",
+  [
+    body("username")
+      .isLength({ min: 3, max: 20 })
+      .isAlphanumeric()
+      .trim()
+      .escape(),
+    body("password")
+      .isLength({ min: 8, max: 20 })
+      .trim()
+      .escape()
+  ],
+  authenticationController.signUp
+);
+router.post(
+  "/users/signin",
+  [
+    body("username")
+      .isLength({ min: 3, max: 20 })
+      .isAlphanumeric()
+      .trim()
+      .escape(),
+    body("password")
+      .isLength({ min: 8, max: 20 })
+      .trim()
+      .escape()
+  ],
+  authenticationController.signIn
+);
 
 // Project
 router.post("/projects", auth, projectController.createProject);
@@ -50,9 +79,9 @@ router.delete(
   projectController.deleteFile
 );
 router.patch(
-  "/projects/:projectId/files/:fileId/:fileName",
+  "/projects/:projectId/files/:fileId",
   auth,
-  projectController.editFileName
+  projectController.patchFile
 );
 
 module.exports = router;

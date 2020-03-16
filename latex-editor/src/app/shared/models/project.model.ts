@@ -11,6 +11,7 @@ export class MulterFile {
   filename: string;
   path: string;
   buffer: any[];
+  isMain: boolean;
 }
 
 export class Project {

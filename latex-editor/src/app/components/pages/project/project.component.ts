@@ -11,7 +11,9 @@ interface DisplayFile {
   _id: string;
   fileName: string;
   mimeType: string;
+  isMain: boolean;
   isImage: boolean;
+  canMain: boolean;
 }
 
 @Component({
@@ -38,7 +40,11 @@ export class ProjectComponent implements OnInit, AfterViewInit {
       _id: file._id,
       fileName: file.originalname,
       mimeType: file.mimetype,
-      isImage: /^image\/(jpeg|png)$/i.test(file.mimetype)
+      isMain: file.isMain,
+      isImage: /^image\/(jpeg|png)$/i.test(file.mimetype),
+      canMain: /^application\/(octet-stream|x-tex|x-latex)$/i.test(
+        file.mimetype
+      )
     };
 
     return displayFile;
@@ -129,8 +135,28 @@ export class ProjectComponent implements OnInit, AfterViewInit {
               displayFiles: this.displayFiles 
             }
     });
+  }
 
 
+  markAsMain(fileId: string) {
+    this.projectService
+      .patchFile(this.projectId, fileId, "replaceMain")
+      .toPromise()
+      .then(() => {
+        const oldMainIndex = this.displayFiles.findIndex(
+          displayFile => displayFile.isMain == true
+        );
+        const newMainIndex = this.displayFiles.findIndex(
+          displayFile => displayFile._id == fileId
+        );
+
+        if (oldMainIndex != -1) {
+          this.displayFiles[oldMainIndex].canMain = true;
+          this.displayFiles[oldMainIndex].isMain = false;
+        }
+        this.displayFiles[newMainIndex].canMain = false;
+        this.displayFiles[newMainIndex].isMain = true;
+      });
   }
 
   trackFile(index: number, item: DisplayFile) {

@@ -74,7 +74,7 @@ module.exports.uploadFiles = (req, res) => {
           Project.findByIdAndUpdate(
             project._id,
             {
-              $push: { files: req.files[i] }
+              $push: { files: { ...req.files[i], isMain: false } }
             },
             { new: true }
           )
@@ -114,7 +114,10 @@ module.exports.retrieveFile = (req, res) => {
       const file = project.files.find(file => file._id == req.params.fileId);
       res.sendFile(file.path);
     })
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 module.exports.deleteFile = (req, res) => {
@@ -138,6 +141,40 @@ module.exports.deleteFile = (req, res) => {
     .catch(err => res.sendStatus(500));
 };
 
-module.exports.editFileName = (req, res) => {
-  
-}
+const assignMain = (projectId, fileId) => {
+  return Project.findOneAndUpdate(
+    { _id: projectId, "files._id": fileId },
+    { $set: { "files.$.isMain": true } }
+  );
+};
+
+module.exports.patchFile = (req, res) => {
+  // body: op: replaceFileName/replaceFileMain, id: fileId, val: newName/newMain
+  Project.findById(req.params.projectId)
+    .then(project => {
+      if (!project)
+        return res
+          .status(404)
+          .send(`Project ${req.params.projectId} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      if (req.body.operation == "replaceMain") {
+        if (project.files.find(file => file.isMain == true)) {
+          Project.findOneAndUpdate(
+            { _id: project._id, "files.isMain": true },
+            { $set: { "files.$.isMain": false } }
+          ).then(project => {
+            assignMain(project._id, req.params.fileId).then(project =>
+              res.sendStatus(200)
+            );
+          });
+        } else {
+          assignMain(project._id, req.params.fileId).then(project =>
+            res.sendStatus(200)
+          );
+        }
+      }
+    })
+    .catch(err => res.sendStatus(500));
+};

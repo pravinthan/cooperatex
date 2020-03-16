@@ -23,7 +23,8 @@ let projectSchema = new Schema({
       destination: String,
       filename: String,
       path: String,
-      buffer: Array
+      buffer: Array,
+      isMain: Boolean
     }
   ],
   // shareLink: String,

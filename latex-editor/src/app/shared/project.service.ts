@@ -66,11 +66,17 @@ export class ProjectService {
     );
   }
 
-  editFileName(projectId: string, fileId: string, newFileName: string){
+  patchFile(
+    projectId: string,
+    fileId: string,
+    operation: "replaceName" | "replaceMain",
+    newName?: string
+  ) {
     return this.http.patch(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      newName ? { operation } : { operation, newName },
       {
-        newFileName
+        responseType: "text"
       }
     );
   }
