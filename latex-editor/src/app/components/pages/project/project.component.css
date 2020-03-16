@@ -80,8 +80,8 @@ ngx-codemirror {
   width: 50%;
 }
 
-#editor-hint {
-  width: 50%;
+#main-hint {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,15 +106,15 @@ ngx-codemirror {
   color: white;
 }
 
-#output-pdf {
-  height: 95%;
-  width: 98%;
-}
-
 #auto-compile-checkbox {
   margin-left: 1rem;
 }
 
 ::ng-deep #auto-compile-checkbox .mat-checkbox-frame {
   border-color: white;
+}
+
+ng2-pdfjs-viewer {
+  height: 95%;
+  width: 98%;
 }

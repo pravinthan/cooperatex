@@ -50,7 +50,7 @@
                 <mat-icon>flag</mat-icon>
               </button>
               <button
-                (click)="editFileTitle(displayFile._id)"
+                (click)="renameFile(displayFile._id)"
                 mat-icon-button
                 matTooltip="Rename"
                 matTooltipPosition="below"
@@ -80,7 +80,7 @@
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
-    <div>
+    <div *ngIf="mainFile">
       <div *ngIf="initialLoading" id="progress-spinner">
         <mat-progress-spinner
           mode="indeterminate"
@@ -88,7 +88,7 @@
         ></mat-progress-spinner>
       </div>
       <ngx-codemirror
-        *ngIf="!initialLoading && mainFile"
+        *ngIf="!initialLoading"
         #editor
         [(ngModel)]="latex"
         [options]="{
@@ -100,13 +100,6 @@
         }"
         [autoFocus]="true"
       ></ngx-codemirror>
-      <div id="editor-hint" *ngIf="!initialLoading && !mainFile">
-        {{
-          displayFiles.length > 0
-            ? "Select a file as main to edit it here"
-            : "Upload files to begin"
-        }}
-      </div>
       <div id="output-container">
         <div id="output-context-buttons">
           <div>
@@ -126,7 +119,6 @@
           </button>
         </div>
         <ng2-pdfjs-viewer
-          id="output-pdf"
           #pdfViewer
           [downloadFileName]="'output.pdf'"
           [openFile]="false"
@@ -134,6 +126,13 @@
           [download]="false"
         ></ng2-pdfjs-viewer>
       </div>
+    </div>
+    <div id="main-hint" *ngIf="!mainFile">
+      {{
+        displayFiles.length > 0
+          ? "Mark a file as main to edit it here"
+          : "Upload files to begin"
+      }}
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

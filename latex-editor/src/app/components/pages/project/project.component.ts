@@ -103,7 +103,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
       })
       .catch(err => {
         console.log(err);
-        // this.router.navigate(["/404"]);
+        this.router.navigate(["/404"]);
       });
   }
 
@@ -138,7 +138,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
   deleteFile(fileId: string, fileName: string) {
     let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
       width: "400px",
-      data: { title: fileName }
+      data: { fileName }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -157,7 +157,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     });
   }
 
-  editFileTitle(fileId: string) {
+  renameFile(fileId: string) {
     let dialogRef = this.dialog.open(RenameFileDialogComponent, {
       width: "400px",
       data: {

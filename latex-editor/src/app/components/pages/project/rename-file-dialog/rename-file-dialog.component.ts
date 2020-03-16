@@ -23,11 +23,11 @@ export class RenameFileDialogComponent {
         this.data.projectId,
         this.data.fileId,
         "replaceName",
-        form.value.title
+        form.value.newName
       )
       .subscribe(
         data => {
-          this.dialogRef.close(form.value.title);
+          this.dialogRef.close(form.value.newName);
         },
         error => {
           this.snackBar.open("File name exists already.", "OK", {
