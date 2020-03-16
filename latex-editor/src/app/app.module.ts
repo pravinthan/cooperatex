@@ -37,6 +37,8 @@ import { NewProjectDialogComponent } from "./components/pages/projects/new-proje
 import { DeleteProjectDialogComponent } from "./components/pages/projects/delete-project-dialog/delete-project-dialog.component";
 import { ProjectComponent } from "./components/pages/project/project.component";
 import { UploadFilesDialogComponent } from "./components/pages/project/upload-files-dialog/upload-files-dialog.component";
+import { RenameFileDialogComponent } from "./components/pages/project/rename-file-dialog/rename-file-dialog.component";
+import { DeleteFileDialogComponent } from "./components/pages/project/delete-file-dialog/delete-file-dialog.component";
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
 
@@ -44,8 +46,6 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
-import { EditFileNameDialogComponent } from "./components/pages/project/edit-file-name-dialog/edit-file-name-dialog.component";
-import { DeleteFileDialogComponent } from "./components/pages/project/delete-file-dialog/delete-file-dialog.component";
 
 @NgModule({
   declarations: [
@@ -64,7 +64,7 @@ import { DeleteFileDialogComponent } from "./components/pages/project/delete-fil
     ProjectComponent,
     UploadFilesDialogComponent,
     TruncatePipe,
-    EditFileNameDialogComponent,
+    RenameFileDialogComponent,
     DeleteFileDialogComponent
   ],
   imports: [

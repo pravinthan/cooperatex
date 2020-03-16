@@ -175,16 +175,18 @@ module.exports.patchFile = (req, res) => {
           );
         }
       } else if (req.body.operation == "replaceName") {
-        if (project.files.find(file => file.originalname == req.body.newName)) return res.status(409).send("File name exists");
-        const oldName = project.files.find(file => file._id == req.params.fileId).originalname;
-        let newName = req.body.newName + oldName.substring(oldName.indexOf('.'))
+        if (project.files.find(file => file.originalname == req.body.newName))
+          return res.status(409).send("File name exists");
+
+        const oldName = project.files.find(
+          file => file._id == req.params.fileId
+        ).originalname;
+        const newName =
+          req.body.newName + oldName.substring(oldName.indexOf("."));
         Project.findOneAndUpdate(
           { _id: project._id, "files._id": req.params.fileId },
           { $set: { "files.$.originalname": newName } }
-        ).then(project =>
-          res.sendStatus(200)
-        );
-
+        ).then(project => res.sendStatus(200));
       }
     })
     .catch(err => res.sendStatus(500));
