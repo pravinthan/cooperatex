@@ -1,12 +1,14 @@
+<h1 mat-dialog-title>Upload Files</h1>
 <div id="upload-container">
   <button
     mat-stroked-button
     (click)="input.click()"
     color="primary"
-    id="choose-files-button"
+    class="full-width"
   >
-    <span>{{ inputLabel | truncate: [25] }}</span>
+    <span>{{ inputLabel | truncate: [35] }}</span>
     <input
+      class="full-width"
       #input
       type="file"
       (change)="handleInput($event.target.files)"

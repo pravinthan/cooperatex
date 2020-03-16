@@ -1,13 +1,25 @@
+.mat-dialog-title {
+  text-align: center;
+}
+
 #upload-container {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-}
-
-#choose-files-button {
-  width: 75%;
+  flex-direction: column;
 }
 
 input {
   display: none;
+}
+
+#full-width {
+  width: 100%;
+}
+
+button {
+  margin-bottom: 12px;
+}
+
+button:last-of-type {
+  margin-bottom: 0;
 }
