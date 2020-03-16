@@ -3,6 +3,7 @@ import * as CodeMirror from "codemirror";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
+import { EditFileNameDialogComponent } from "./edit-file-name-dialog/edit-file-name-dialog.component"
 import { ActivatedRoute, Router } from "@angular/router";
 import { MulterFile } from "src/app/shared/models/Project.model";
 
@@ -116,6 +117,20 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         );
       });
     //     });
+  }
+
+
+  editFileTitle(fileId: string){
+    let dialogRef = this.dialog.open(EditFileNameDialogComponent, {
+      width: "400px",
+      data: { 
+              projectId: this.projectId,
+              fileId: fileId, 
+              displayFiles: this.displayFiles 
+            }
+    });
+
+
   }
 
   trackFile(index: number, item: DisplayFile) {
