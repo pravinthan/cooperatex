@@ -80,4 +80,10 @@ export class ProjectService {
       }
     );
   }
+
+  getOutputFile(projectId: string): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
+      responseType: "blob"
+    });
+  }
 }

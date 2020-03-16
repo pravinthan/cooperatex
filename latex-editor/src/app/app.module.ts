@@ -22,6 +22,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -43,8 +44,8 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
-import { EditFileNameDialogComponent } from './components/pages/project/edit-file-name-dialog/edit-file-name-dialog.component';
-import { DeleteFileDialogComponent } from './components/pages/project/delete-file-dialog/delete-file-dialog.component';
+import { EditFileNameDialogComponent } from "./components/pages/project/edit-file-name-dialog/edit-file-name-dialog.component";
+import { DeleteFileDialogComponent } from "./components/pages/project/delete-file-dialog/delete-file-dialog.component";
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { DeleteFileDialogComponent } from './components/pages/project/delete-fil
     MatTooltipModule,
     MatButtonToggleModule,
     CodemirrorModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    PdfJsViewerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

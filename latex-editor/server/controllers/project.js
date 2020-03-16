@@ -1,3 +1,6 @@
+let path = require("path");
+let latex = require("node-latex");
+let fs = require("fs");
 let mongoose = require("mongoose");
 let Project = mongoose.model("Project");
 
@@ -114,10 +117,7 @@ module.exports.retrieveFile = (req, res) => {
       const file = project.files.find(file => file._id == req.params.fileId);
       res.sendFile(file.path);
     })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.deleteFile = (req, res) => {
@@ -175,6 +175,29 @@ module.exports.patchFile = (req, res) => {
           );
         }
       }
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.retrieveOutputPdf = (req, res) => {
+  Project.findById(req.params.id)
+    .then(project => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner != req.user._id) return res.sendStatus(403);
+
+      const mainFile = project.files.find(file => file.isMain);
+      const outputPath = path.join(
+        mainFile.destination,
+        mainFile._id + "-output.pdf"
+      );
+      let input = fs.createReadStream(mainFile.path);
+      let output = fs.createWriteStream(outputPath);
+      let pdf = latex(input);
+      pdf.pipe(output);
+
+      pdf.on("finish", () => res.sendFile(outputPath));
     })
     .catch(err => res.sendStatus(500));
 };

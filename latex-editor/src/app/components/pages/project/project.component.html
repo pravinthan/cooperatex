@@ -22,10 +22,15 @@
           <div class="file-container">
             <div>
               <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
-              <mat-icon *ngIf="!displayFile.isImage"
+              <mat-icon *ngIf="!displayFile.isImage && !displayFile.isMain"
                 >insert_drive_file</mat-icon
               >
-              <mat-icon *ngIf="displayFile.isMain">flag</mat-icon>
+              <mat-icon
+                *ngIf="displayFile.isMain"
+                matTooltip="Main file to compile"
+                matTooltipPosition="below"
+                >flag</mat-icon
+              >
               <span
                 class="file-name"
                 [matTooltip]="displayFile.fileName"
@@ -75,7 +80,14 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <div>
+      <div *ngIf="initialLoading" id="progress-spinner">
+        <mat-progress-spinner
+          mode="indeterminate"
+          color="warn"
+        ></mat-progress-spinner>
+      </div>
       <ngx-codemirror
+        *ngIf="!initialLoading && mainFile"
         #editor
         [(ngModel)]="latex"
         [options]="{
@@ -87,16 +99,24 @@
         }"
         [autoFocus]="true"
       ></ngx-codemirror>
+      <div id="editor-hint" *ngIf="!initialLoading && !mainFile">
+        {{
+          displayFiles.length > 0
+            ? "Select a file as main to edit it here"
+            : "Upload files to begin"
+        }}
+      </div>
       <div id="output-container">
         <div id="output-context-buttons">
           <div>
-            <button mat-flat-button color="accent">
+            <button (click)="compilePdf()" mat-flat-button color="accent">
               <mat-icon>cached</mat-icon>
               Compile
             </button>
             <mat-checkbox id="auto-compile-checkbox">Auto compile</mat-checkbox>
           </div>
           <button
+            (click)="downloadOutputPdf()"
             mat-icon-button
             matTooltip="Download PDF"
             matTooltipPosition="below"
@@ -104,11 +124,14 @@
             <mat-icon>get_app</mat-icon>
           </button>
         </div>
-        <object
+        <ng2-pdfjs-viewer
           id="output-pdf"
-          data="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-          type="application/pdf"
-        ></object>
+          #pdfViewer
+          [downloadFileName]="'output.pdf'"
+          [openFile]="false"
+          [viewBookmark]="false"
+          [download]="false"
+        ></ng2-pdfjs-viewer>
       </div>
     </div>
   </mat-sidenav-content>

@@ -3,9 +3,10 @@ import * as CodeMirror from "codemirror";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
-import { EditFileNameDialogComponent } from "./edit-file-name-dialog/edit-file-name-dialog.component"
+import { EditFileNameDialogComponent } from "./edit-file-name-dialog/edit-file-name-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MulterFile } from "src/app/shared/models/Project.model";
+import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 
 interface DisplayFile {
   _id: string;
@@ -22,11 +23,16 @@ interface DisplayFile {
   styleUrls: ["./project.component.css"]
 })
 export class ProjectComponent implements OnInit, AfterViewInit {
+  @ViewChild("editor") private editor;
+  @ViewChild("pdfViewer") pdfViewer: PdfJsViewerComponent;
   projectTitle: string;
   projectId: string;
   displayFiles: DisplayFile[] = [];
-  @ViewChild("editor") private editor;
+  initialLoading = true;
   latex: string;
+  get mainFile() {
+    return this.displayFiles.find(displayFile => displayFile.isMain);
+  }
 
   constructor(
     private projectService: ProjectService,
@@ -50,6 +56,28 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     return displayFile;
   }
 
+  // Link the main file to the editor
+  private setEditorContentToMainFile() {
+    const mainFile = this.mainFile;
+
+    if (mainFile) {
+      this.projectService
+        .getFileStream(this.projectId, mainFile._id)
+        .subscribe(fileStream => {
+          this.initialLoading = false;
+          new Response(fileStream).text().then(text => {
+            this.latex = text;
+            this.editor.codeMirror.setSize("100%", "100%");
+          });
+        });
+
+      this.compilePdf();
+    } else {
+      this.initialLoading = false;
+      this.latex = "";
+    }
+  }
+
   ngOnInit() {
     this.projectId = this.route.snapshot.paramMap.get("id");
     this.projectService
@@ -61,27 +89,27 @@ export class ProjectComponent implements OnInit, AfterViewInit {
           this.convertFileToDisplayFile(file)
         );
 
+        this.setEditorContentToMainFile();
+
         // Get each file's stream
-        this.displayFiles.forEach(displayFile => {
-          this.projectService
-            .getFileStream(this.projectId, displayFile._id)
-            .subscribe(fileStream => {
-              // console.log(file);
-            });
-        });
+        // this.displayFiles.forEach(displayFile => {
+        //   this.projectService
+        //     .getFileStream(this.projectId, displayFile._id)
+        //     .subscribe(fileStream => {
+        //       // console.log(file);
+        //     });
+        // });
       })
       .catch(err => {
-        this.router.navigate(["/404"]);
+        console.log(err);
+        // this.router.navigate(["/404"]);
       });
-
-    this.latex = "qwe";
   }
 
   ngAfterViewInit() {
-    const codeMirror = this.editor.codeMirror;
-    codeMirror.setSize("100%", "100%");
-
-    let document = codeMirror.getDoc();
+    // const codeMirror = this.editor.codeMirror;
+    // codeMirror.setSize("100%", "100%");
+    // let document = codeMirror.getDoc();
   }
 
   openUploadFilesDialog() {
@@ -121,22 +149,22 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         this.displayFiles = this.displayFiles.filter(
           displayFile => displayFile._id != fileId
         );
+
+        this.setEditorContentToMainFile();
       });
     //     });
   }
 
-
-  editFileTitle(fileId: string){
+  editFileTitle(fileId: string) {
     let dialogRef = this.dialog.open(EditFileNameDialogComponent, {
       width: "400px",
-      data: { 
-              projectId: this.projectId,
-              fileId: fileId, 
-              displayFiles: this.displayFiles 
-            }
+      data: {
+        projectId: this.projectId,
+        fileId: fileId,
+        displayFiles: this.displayFiles
+      }
     });
   }
-
 
   markAsMain(fileId: string) {
     this.projectService
@@ -144,7 +172,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
       .toPromise()
       .then(() => {
         const oldMainIndex = this.displayFiles.findIndex(
-          displayFile => displayFile.isMain == true
+          displayFile => displayFile.isMain
         );
         const newMainIndex = this.displayFiles.findIndex(
           displayFile => displayFile._id == fileId
@@ -156,10 +184,33 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         }
         this.displayFiles[newMainIndex].canMain = false;
         this.displayFiles[newMainIndex].isMain = true;
+
+        this.setEditorContentToMainFile();
       });
   }
 
   trackFile(index: number, item: DisplayFile) {
     return item._id;
+  }
+
+  compilePdf() {
+    this.projectService
+      .getOutputFile(this.projectId)
+      .toPromise()
+      .then(outputPdf => {
+        this.pdfViewer.pdfSrc = outputPdf;
+        this.pdfViewer.refresh();
+      });
+  }
+
+  downloadOutputPdf() {
+    this.projectService
+      .getOutputFile(this.projectId)
+      .toPromise()
+      .then(outputPdf => {
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(outputPdf);
+        link.click();
+      });
   }
 }

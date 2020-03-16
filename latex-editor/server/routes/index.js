@@ -83,5 +83,6 @@ router.patch(
   auth,
   projectController.patchFile
 );
+router.get("/projects/:id/output", auth, projectController.retrieveOutputPdf);
 
 module.exports = router;
