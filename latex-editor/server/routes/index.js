@@ -49,5 +49,10 @@ router.delete(
   auth,
   projectController.deleteFile
 );
+router.patch(
+  "/projects/:projectId/files/:fileId/:fileName",
+  auth,
+  projectController.editFileName
+);
 
 module.exports = router;

@@ -137,3 +137,7 @@ module.exports.deleteFile = (req, res) => {
     })
     .catch(err => res.sendStatus(500));
 };
+
+module.exports.editFileName = (req, res) => {
+  
+}

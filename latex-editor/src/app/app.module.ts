@@ -43,6 +43,8 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
+import { EditFileNameDialogComponent } from './components/pages/project/edit-file-name-dialog/edit-file-name-dialog.component';
+import { DeleteFileDialogComponent } from './components/pages/project/delete-file-dialog/delete-file-dialog.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import "codemirror/mode/stex/stex";
     DeleteProjectDialogComponent,
     ProjectComponent,
     UploadFilesDialogComponent,
-    TruncatePipe
+    TruncatePipe,
+    EditFileNameDialogComponent,
+    DeleteFileDialogComponent
   ],
   imports: [
     BrowserModule,

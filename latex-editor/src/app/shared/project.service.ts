@@ -65,4 +65,13 @@ export class ProjectService {
       }
     );
   }
+
+  editFileName(projectId: string, fileId: string, newFileName: string){
+    return this.http.patch(
+      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      {
+        newFileName
+      }
+    );
+  }
 }
