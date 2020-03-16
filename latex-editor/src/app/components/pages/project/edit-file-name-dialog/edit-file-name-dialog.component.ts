@@ -20,16 +20,18 @@ export class EditFileNameDialogComponent {
   ) {}
 
   onSubmit(form: NgForm) {
-    // this.projectService.editFileName(this.data.projectId, this.data.fileId, form.value.title).subscribe(
-    //   data => {
-    //     this.dialogRef.close();
-    //   },
-    //   error => {
-    //     this.snackBar.open("Failed to create project, try again later.", "OK", {
-    //       duration: 3000
-    //     });
-    //   }
-    // );
+
+    this.projectService
+    .patchFile(this.data.projectId, this.data.fileId, "replaceName", form.value.title).subscribe(
+      data => {
+        this.dialogRef.close(form.value.title);
+      },
+      error => {
+        this.snackBar.open("File name exists already.", "OK", {
+          duration: 3000
+        });
+      }
+    );
   }
 
 }

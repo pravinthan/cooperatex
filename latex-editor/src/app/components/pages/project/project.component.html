@@ -45,6 +45,7 @@
                 <mat-icon>flag</mat-icon>
               </button>
               <button
+                (click)="editFileTitle(displayFile._id)"
                 mat-icon-button
                 matTooltip="Rename"
                 matTooltipPosition="below"
@@ -52,7 +53,7 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button
-                (click)="deleteFile(displayFile._id)"
+                (click)="deleteFile(displayFile._id, displayFile.fileName)"
                 mat-icon-button
                 matTooltip="Delete"
                 matTooltipPosition="below"

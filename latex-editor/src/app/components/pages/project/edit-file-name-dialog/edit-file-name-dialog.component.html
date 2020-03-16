@@ -1,1 +1,24 @@
-<p>edit-file-name-dialog works!</p>
+<h1 mat-dialog-title>Rename File</h1>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <div mat-dialog-content>
+    <mat-form-field>
+      <input
+        matInput
+        #titleInput
+        name="title"
+        placeholder="File Name"
+        required
+        maxlength="50"
+        autocomplete="off"
+        ngModel
+      />
+      <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button (click)="this.dialogRef.close()">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="form.invalid">
+      Confirm
+    </button>
+  </div>
+</form>
