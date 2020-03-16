@@ -4,6 +4,7 @@ import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
 import { EditFileNameDialogComponent } from "./edit-file-name-dialog/edit-file-name-dialog.component";
+import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MulterFile } from "src/app/shared/models/Project.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
@@ -134,25 +135,26 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     });
   }
 
-  deleteFile(fileId: string) {
-    // let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
-    //   width: "400px",
-    //   data: { projectId: this.projectId }
-    // });
+  deleteFile(fileId: string, fileName: string) {
+    let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
+      width: "400px",
+      data: { title: fileName }
+    });
 
-    // dialogRef.afterClosed().subscribe((result) => {
-    //   if (result) {
-    this.projectService
-      .deleteFile(this.projectId, fileId)
-      .toPromise()
-      .then(() => {
-        this.displayFiles = this.displayFiles.filter(
-          displayFile => displayFile._id != fileId
-        );
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.projectService
+          .deleteFile(this.projectId, fileId)
+          .toPromise()
+          .then(() => {
+            this.displayFiles = this.displayFiles.filter(
+              displayFile => displayFile._id != fileId
+            );
 
-        this.setEditorContentToMainFile();
-      });
-    //     });
+            this.setEditorContentToMainFile();
+          });
+      }
+    });
   }
 
   editFileTitle(fileId: string) {
@@ -162,6 +164,18 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         projectId: this.projectId,
         fileId: fileId,
         displayFiles: this.displayFiles
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(newName => {
+      if (newName) {
+        const newNameIndex = this.displayFiles.findIndex(
+          displayFile => displayFile._id == fileId
+        );
+        const suffix = this.displayFiles[newNameIndex].fileName.substring(
+          this.displayFiles[newNameIndex].fileName.indexOf(".")
+        );
+        this.displayFiles[newNameIndex].fileName = newName + suffix;
       }
     });
   }

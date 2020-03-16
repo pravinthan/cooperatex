@@ -74,7 +74,7 @@ export class ProjectService {
   ) {
     return this.http.patch(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
-      newName ? { operation } : { operation, newName },
+      newName ? { operation, newName } : { operation },
       {
         responseType: "text"
       }
