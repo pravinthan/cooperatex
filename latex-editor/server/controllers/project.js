@@ -1,5 +1,6 @@
 let path = require("path");
 let latex = require("node-latex");
+let exec = require("child_process").exec;
 let fs = require("fs");
 let mongoose = require("mongoose");
 let Project = mongoose.model("Project");
@@ -70,6 +71,15 @@ module.exports.uploadFiles = (req, res) => {
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
       if (project.owner != req.user._id) return res.sendStatus(403);
+
+      const existingFileNames = project.files.map(file => file.originalname);
+      for (const file of req.files) {
+        if (existingFileNames.includes(file.originalname)) {
+          return res
+            .status(409)
+            .send(`File ${file.originalname} already exists`);
+        }
+      }
 
       let promises = [];
       for (let i = 0; i < req.files.length; i++) {
@@ -149,7 +159,6 @@ const assignMain = (projectId, fileId) => {
 };
 
 module.exports.patchFile = (req, res) => {
-  // body: op: replaceFileName/replaceFileMain, id: fileId, val: newName/newMain
   Project.findById(req.params.projectId)
     .then(project => {
       if (!project)
@@ -160,7 +169,7 @@ module.exports.patchFile = (req, res) => {
       if (project.owner != req.user._id) return res.sendStatus(403);
 
       if (req.body.operation == "replaceMain") {
-        if (project.files.find(file => file.isMain == true)) {
+        if (project.files.find(file => file.isMain)) {
           Project.findOneAndUpdate(
             { _id: project._id, "files.isMain": true },
             { $set: { "files.$.isMain": false } }
@@ -187,6 +196,20 @@ module.exports.patchFile = (req, res) => {
           { _id: project._id, "files._id": req.params.fileId },
           { $set: { "files.$.originalname": newName } }
         ).then(project => res.sendStatus(200));
+      } else if (req.body.operation == "replaceContents") {
+        const fileToUpdate = project.files.find(
+          file => file._id == req.params.fileId
+        );
+
+        fs.readFile(fileToUpdate.path, "utf8", (err, data) => {
+          if (err) return res.sendStatus(500);
+
+          fs.writeFile(fileToUpdate.path, req.body.newContents, "utf8", err => {
+            if (err) return res.sendStatus(500);
+
+            return res.sendStatus(200);
+          });
+        });
       }
     })
     .catch(err => res.sendStatus(500));
@@ -194,23 +217,45 @@ module.exports.patchFile = (req, res) => {
 
 module.exports.retrieveOutputPdf = (req, res) => {
   Project.findById(req.params.id)
-    .then(project => {
+    .then((project, reject) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
       if (project.owner != req.user._id) return res.sendStatus(403);
 
       const mainFile = project.files.find(file => file.isMain);
-      const outputPath = path.join(
-        mainFile.destination,
-        mainFile._id + "-output.pdf"
-      );
+      const outputPath = mainFile.path + ".pdf";
+      const logPath = mainFile.path + ".log";
       let input = fs.createReadStream(mainFile.path);
       let output = fs.createWriteStream(outputPath);
-      let pdf = latex(input);
+      let pdf = latex(input, { errorLogs: logPath });
       pdf.pipe(output);
 
+      pdf.on("error", err => {
+        fs.readFile(logPath, (err, data) => {
+          if (err) reject(err);
+          return res.status(409).send(data.toString());
+        });
+      });
+
       pdf.on("finish", () => res.sendFile(outputPath));
+
+      // let afterCompile = function(err) {
+      //   if (err) console.log(err);
+
+      //   // store the logs for the user here
+      //   fs.readFile(logPath, (err, data) => {
+      //     if (err) console.log(err);
+      //     response.logs = data ? data.toString() : "";
+      //     res.sendFile(outputPath);
+      //   });
+      // };
+
+      // exec(
+      //   `pdflatex -interaction=nonstopmode -jobname=${mainFile.filename} ${mainFile.filename} > /dev/null 2>&1`,
+      //   { cwd: mainFile.destination },
+      //   afterCompile
+      // );
     })
     .catch(err => res.sendStatus(500));
 };

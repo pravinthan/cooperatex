@@ -46,6 +46,7 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
+import { ProjectService } from "./shared/project.service";
 
 @NgModule({
   declarations: [
@@ -94,7 +95,8 @@ import "codemirror/mode/stex/stex";
     PdfJsViewerModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    ProjectService
   ],
   bootstrap: [AppComponent]
 })

@@ -30,6 +30,7 @@ export class UploadFilesDialogComponent {
 
     let largeFiles: File[] = [];
     let longNameFiles: File[] = [];
+    let existingFiles: File[] = [];
     filesArray = filesArray.filter(file => {
       if (file.size > 20971520) {
         largeFiles.push(file);
@@ -37,13 +38,28 @@ export class UploadFilesDialogComponent {
       } else if (file.name.length > 50) {
         longNameFiles.push(file);
         return false;
+      } else if (this.data.fileNames.includes(file.name)) {
+        existingFiles.push(file);
+        return false;
       }
 
       return true;
     });
 
     // Show snackbars for respective errors
-    if (largeFiles.length > 0) {
+    if (existingFiles.length > 0) {
+      this.snackBar.open(
+        `${existingFiles.length} ${
+          existingFiles.length == 1
+            ? "file already exists"
+            : "files already exist"
+        }`,
+        "OK",
+        {
+          duration: 3000
+        }
+      );
+    } else if (largeFiles.length > 0) {
       this.snackBar.open(
         `${largeFiles.length} ${
           largeFiles.length == 1 ? "file is" : "files are"

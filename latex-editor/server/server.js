@@ -5,6 +5,7 @@ let express = require("express");
 let bodyParser = require("body-parser");
 let mongoose = require("mongoose");
 let passport = require("passport");
+let socketIO = require("socket.io");
 require("./models/project");
 require("./models/user");
 require("./config/passport");
@@ -47,3 +48,14 @@ const port = process.env.PORT || 4201;
 server.listen(port, () =>
   console.log(`Server running on: http://localhost:${port}`)
 );
+
+const io = socketIO(server);
+io.on("connection", socket => {
+  socket.on("openedProject", id => {
+    socket.join(id);
+  });
+
+  socket.on("update", update => {
+    socket.broadcast.emit("update", update);
+  });
+});

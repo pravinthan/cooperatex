@@ -3,12 +3,17 @@ import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 import { Project, MulterFile } from "./models/Project.model";
+import * as io from "socket.io-client";
 
 @Injectable({
   providedIn: "root"
 })
 export class ProjectService {
-  constructor(private http: HttpClient) {}
+  private socket: SocketIOClient.Socket;
+
+  constructor(private http: HttpClient) {
+    this.socket = io(environment.serverUrl);
+  }
 
   createProject(title: string): Observable<Project> {
     return this.http.post<any>(`${environment.apiUrl}/projects`, { title });
@@ -69,12 +74,13 @@ export class ProjectService {
   patchFile(
     projectId: string,
     fileId: string,
-    operation: "replaceName" | "replaceMain",
-    newName?: string
+    operation: "replaceName" | "replaceMain" | "replaceContents",
+    newName?: string,
+    newContents?: string
   ) {
     return this.http.patch(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
-      newName ? { operation, newName } : { operation },
+      { operation, newName, newContents },
       {
         responseType: "text"
       }
@@ -84,6 +90,20 @@ export class ProjectService {
   getOutputFile(projectId: string): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
       responseType: "blob"
+    });
+  }
+
+  /************* SOCKET.IO SPECIFIC CODE *************/
+
+  notifyFileContentsUpdate(newContents: string) {
+    this.socket.emit("update", newContents);
+  }
+
+  getUpdatedFileContents(): Observable<string> {
+    return new Observable(observer => {
+      this.socket.on("update", (newContents: string) => {
+        observer.next(newContents);
+      });
     });
   }
 }

@@ -115,6 +115,41 @@ ngx-codemirror {
 }
 
 ng2-pdfjs-viewer {
-  height: 95%;
-  width: 98%;
+  height: 100%;
+}
+
+::ng-deep ng2-pdfjs-viewer > iframe {
+  border: none;
+}
+
+#error-container {
+  height: 100%;
+  padding: 1rem;
+  overflow-y: scroll;
+  white-space: pre-wrap;
+  background-color: #c9453e;
+  color: white;
+  font-weight: 500;
+}
+
+#error-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+#main-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+#main-error > * {
+  margin-bottom: 1rem;
 }

@@ -36,7 +36,11 @@
                 [matTooltip]="displayFile.fileName"
                 matTooltipPosition="below"
               >
-                {{ displayFile.fileName | truncate: 15 }}
+                {{
+                  displayFile.fileName
+                    | truncate
+                      : (displayFile.isMain || displayFile.canMain ? 15 : 20)
+                }}
               </span>
             </div>
             <div class="file-context-buttons">
@@ -107,7 +111,9 @@
               <mat-icon>cached</mat-icon>
               Compile
             </button>
-            <mat-checkbox id="auto-compile-checkbox">Auto compile</mat-checkbox>
+            <mat-checkbox id="auto-compile-checkbox" [(ngModel)]="autoCompile">
+              Auto compile
+            </mat-checkbox>
           </div>
           <button
             (click)="downloadOutputPdf()"
@@ -120,11 +126,25 @@
         </div>
         <ng2-pdfjs-viewer
           #pdfViewer
-          [downloadFileName]="'output.pdf'"
+          [hidden]="latexErrorLog"
           [openFile]="false"
           [viewBookmark]="false"
           [download]="false"
         ></ng2-pdfjs-viewer>
+        <div *ngIf="latexErrorLog" id="error-container">
+          <div id="error-header">
+            <mat-icon>error</mat-icon>
+            Compilation Error
+            <mat-icon>error</mat-icon>
+          </div>
+          <div id="main-error">
+            <span>{{ mainLatexError }}</span>
+            <button mat-flat-button (click)="showErrorLog = !showErrorLog">
+              {{ showErrorLog ? "Hide" : "Show entire" }} log
+            </button>
+          </div>
+          <span *ngIf="showErrorLog">{{ latexErrorLog }}</span>
+        </div>
       </div>
     </div>
     <div id="main-hint" *ngIf="!mainFile">
