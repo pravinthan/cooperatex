@@ -7,6 +7,7 @@ import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dial
 import { ActivatedRoute, Router } from "@angular/router";
 import { MulterFile } from "src/app/shared/models/Project.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
+import { CodemirrorComponent } from "@ctrl/ngx-codemirror";
 
 interface DisplayFile {
   _id: string;
@@ -23,7 +24,7 @@ interface DisplayFile {
   styleUrls: ["./project.component.css"]
 })
 export class ProjectComponent implements OnInit {
-  @ViewChild("editor") private editor;
+  @ViewChild("editor") editor: CodemirrorComponent;
   @ViewChild("pdfViewer") pdfViewer: PdfJsViewerComponent;
   projectTitle: string;
   projectId: string;
@@ -61,8 +62,8 @@ export class ProjectComponent implements OnInit {
     return displayFile;
   }
 
-  private updateLatex = () => {
-    const newContents = this.editor.codeMirror.getDoc().getValue();
+  private updateLatex = (editor: CodeMirror.Editor) => {
+    const newContents = editor.getValue();
     this.projectService.notifyFileContentsUpdate(newContents);
     this.projectService
       .patchFile(
@@ -90,7 +91,7 @@ export class ProjectComponent implements OnInit {
           new Response(fileStream).text().then(text => {
             this.latex = text;
             this.editor.codeMirror.setSize("100%", "100%");
-            this.editor.onChange = this.updateLatex;
+            this.editor.codeMirror.on("keyup", this.updateLatex);
             this.compilePdf();
           });
         });
