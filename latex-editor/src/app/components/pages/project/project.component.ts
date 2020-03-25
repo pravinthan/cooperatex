@@ -62,21 +62,26 @@ export class ProjectComponent implements OnInit {
     return displayFile;
   }
 
-  private updateLatex = (editor: CodeMirror.Editor) => {
-    const newContents = editor.getValue();
-    this.projectService.notifyFileContentsUpdate(newContents);
-    this.projectService
-      .patchFile(
-        this.projectId,
-        this.mainFile._id,
-        "replaceContents",
-        null,
-        newContents
-      )
-      .toPromise()
-      .then(() => {
-        if (this.autoCompile) this.compilePdf();
-      });
+  private updateLatex = (
+    editor: CodeMirror.Editor,
+    change: CodeMirror.EditorChange
+  ) => {
+    if (change.origin != "setValue") {
+      const newContents = editor.getValue();
+      this.projectService.notifyFileContentsUpdate(newContents);
+      this.projectService
+        .patchFile(
+          this.projectId,
+          this.mainFile._id,
+          "replaceContents",
+          null,
+          newContents
+        )
+        .toPromise()
+        .then(() => {
+          if (this.autoCompile) this.compilePdf();
+        });
+    }
   };
 
   // Link the main file to the editor
@@ -91,7 +96,7 @@ export class ProjectComponent implements OnInit {
           new Response(fileStream).text().then(text => {
             this.latex = text;
             this.editor.codeMirror.setSize("100%", "100%");
-            this.editor.codeMirror.on("keyup", this.updateLatex);
+            this.editor.codeMirror.on("change", this.updateLatex);
             this.compilePdf();
           });
         });
