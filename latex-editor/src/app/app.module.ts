@@ -23,6 +23,7 @@ import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
+import { MatSelectModule } from "@angular/material/select";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -47,6 +48,7 @@ import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
 import { ProjectService } from "./shared/project.service";
+import { ShareProjectDialogComponent } from "./components/pages/project/share-project-dialog/share-project-dialog.component";
 
 @NgModule({
   declarations: [
@@ -66,7 +68,8 @@ import { ProjectService } from "./shared/project.service";
     UploadFilesDialogComponent,
     TruncatePipe,
     RenameFileDialogComponent,
-    DeleteFileDialogComponent
+    DeleteFileDialogComponent,
+    ShareProjectDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -92,7 +95,8 @@ import { ProjectService } from "./shared/project.service";
     MatButtonToggleModule,
     CodemirrorModule,
     MatCheckboxModule,
-    PdfJsViewerModule
+    PdfJsViewerModule,
+    MatSelectModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

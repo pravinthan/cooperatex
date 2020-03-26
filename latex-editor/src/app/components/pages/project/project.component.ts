@@ -5,9 +5,14 @@ import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-d
 import { RenameFileDialogComponent } from "./rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MulterFile } from "src/app/shared/models/Project.model";
+import {
+  MulterFile,
+  Project,
+  Collaborator
+} from "src/app/shared/models/Project.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 import { CodemirrorComponent } from "@ctrl/ngx-codemirror";
+import { ShareProjectDialogComponent } from "./share-project-dialog/share-project-dialog.component";
 
 interface DisplayFile {
   _id: string;
@@ -26,8 +31,8 @@ interface DisplayFile {
 export class ProjectComponent implements OnInit {
   @ViewChild("editor") editor: CodemirrorComponent;
   @ViewChild("pdfViewer") pdfViewer: PdfJsViewerComponent;
-  projectTitle: string;
   projectId: string;
+  project: Project;
   displayFiles: DisplayFile[] = [];
   initialLoading = true;
   latex: string;
@@ -112,7 +117,7 @@ export class ProjectComponent implements OnInit {
       .getProjectById(this.projectId)
       .toPromise()
       .then(project => {
-        this.projectTitle = project.title;
+        this.project = project;
         this.displayFiles = project.files.map(file =>
           this.convertFileToDisplayFile(file)
         );
@@ -122,17 +127,22 @@ export class ProjectComponent implements OnInit {
         this.projectService.getUpdatedFileContents().subscribe(newContents => {
           this.latex = newContents;
         });
-
-        // Get each file's stream
-        // this.displayFiles.forEach(displayFile => {
-        //   this.projectService
-        //     .getFileStream(this.projectId, displayFile._id)
-        //     .subscribe(fileStream => {
-        //        console.log(file);
-        //     });
-        // });
       })
       .catch(err => this.router.navigate(["/404"]));
+  }
+
+  openShareProjectDialog() {
+    let dialogRef = this.dialog.open(ShareProjectDialogComponent, {
+      width: "600px",
+      data: {
+        projectId: this.projectId,
+        collaborators: this.project.collaborators
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((collaborators: Collaborator[]) => {
+      this.project.collaborators = collaborators;
+    });
   }
 
   openUploadFilesDialog() {

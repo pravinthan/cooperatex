@@ -3,14 +3,25 @@ const Schema = mongoose.Schema;
 
 let projectSchema = new Schema({
   owner: {
-    type: Schema.Types.ObjectId,
-    ref: "User"
+    _id: {
+      type: Schema.Types.ObjectId
+    },
+    username: String
   },
   title: String,
   collaborators: [
     {
-      type: Schema.ObjectId,
-      ref: "User"
+      pendingInvitation: { type: Boolean, default: true },
+      access: {
+        type: String,
+        enum: ["read", "readWrite"]
+      },
+      user: {
+        _id: {
+          type: Schema.Types.ObjectId
+        },
+        username: String
+      }
     }
   ],
   files: [
@@ -27,12 +38,13 @@ let projectSchema = new Schema({
       isMain: Boolean
     }
   ],
-  // shareLink: String,
   dateCreated: { type: Date, default: Date.now },
   lastUpdated: Date,
   lastUpdatedBy: {
-    type: Schema.Types.ObjectId,
-    ref: "User"
+    _id: {
+      type: Schema.Types.ObjectId
+    },
+    username: String
   }
 });
 

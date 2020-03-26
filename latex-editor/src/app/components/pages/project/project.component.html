@@ -1,18 +1,31 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened>
-    <div id="file-list-header">
-      <span id="title" [matTooltip]="projectTitle" matTooltipPosition="right">{{
-        projectTitle | truncate: 15
-      }}</span>
-
-      <button
-        (click)="openUploadFilesDialog()"
-        mat-icon-button
-        matTooltip="Upload Files"
-        matTooltipPosition="below"
+    <div id="file-list-header" *ngIf="this.project">
+      <span
+        id="title"
+        [matTooltip]="this.project.title"
+        matTooltipPosition="right"
+        >{{ this.project.title | truncate: 15 }}</span
       >
-        <mat-icon>cloud_upload</mat-icon>
-      </button>
+
+      <div>
+        <button
+          (click)="openShareProjectDialog()"
+          mat-icon-button
+          matTooltip="Share Project"
+          matTooltipPosition="below"
+        >
+          <mat-icon>share</mat-icon>
+        </button>
+        <button
+          (click)="openUploadFilesDialog()"
+          mat-icon-button
+          matTooltip="Upload Files"
+          matTooltipPosition="below"
+        >
+          <mat-icon>cloud_upload</mat-icon>
+        </button>
+      </div>
     </div>
     <div>
       <mat-list>

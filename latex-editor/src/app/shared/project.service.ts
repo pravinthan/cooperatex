@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
-import { Project, MulterFile } from "./models/Project.model";
+import { Project, MulterFile, Collaborator } from "./models/Project.model";
 import * as io from "socket.io-client";
 
 @Injectable({
@@ -91,6 +91,26 @@ export class ProjectService {
     return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
       responseType: "blob"
     });
+  }
+
+  inviteCollaborator(
+    projectId: string,
+    username: string,
+    access: "read" | "readWrite"
+  ): Observable<Collaborator> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/projects/${projectId}/collaborators`,
+      { username: username, access }
+    );
+  }
+
+  removeCollaborator(projectId: string, userId: string) {
+    return this.http.delete(
+      `${environment.apiUrl}/projects/${projectId}/collaborators/${userId}`,
+      {
+        responseType: "text"
+      }
+    );
   }
 
   /************* SOCKET.IO SPECIFIC CODE *************/

@@ -4,6 +4,7 @@ let exec = require("child_process").exec;
 let fs = require("fs");
 let mongoose = require("mongoose");
 let Project = mongoose.model("Project");
+let User = mongoose.model("User");
 
 module.exports.createProject = (req, res) => {
   if (!req.body.title || req.body.title.length > 50)
@@ -12,11 +13,11 @@ module.exports.createProject = (req, res) => {
       .json("Title required and must be less than or equal to 50 characters");
 
   Project.create({
-    owner: req.user._id,
+    owner: { _id: req.user._id, username: req.user.username },
     title: req.body.title,
     collaborators: [],
     lastUpdated: Date.now(),
-    lastUpdatedBy: req.user._id
+    lastUpdatedBy: { _id: req.user._id, username: req.user.username }
   })
     .then(project => res.json(project))
     .catch(err => res.sendStatus(500));
@@ -24,10 +25,6 @@ module.exports.createProject = (req, res) => {
 
 module.exports.retrieveProjectById = (req, res) => {
   Project.findById(req.params.id)
-    .populate("owner", "_id username")
-    .populate("collaborators", "_id username")
-    .populate("lastUpdatedBy", "_id username")
-    .exec()
     .then(project => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
@@ -40,11 +37,7 @@ module.exports.retrieveProjectById = (req, res) => {
 };
 
 module.exports.retrieveAllProjects = (req, res) => {
-  Project.find({ owner: req.user._id })
-    .populate("owner", "_id username")
-    .populate("collaborators", "_id username")
-    .populate("lastUpdatedBy", "_id username")
-    .exec()
+  Project.find({ "owner._id": req.user._id })
     .then(projects => res.json(projects))
     .catch(err => res.sendStatus(500));
 };
@@ -55,7 +48,7 @@ module.exports.deleteProjectById = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       Project.findByIdAndDelete(project._id).then(project =>
         res.sendStatus(200)
@@ -70,7 +63,7 @@ module.exports.uploadFiles = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       const existingFileNames = project.files.map(file => file.originalname);
       for (const file of req.files) {
@@ -107,7 +100,7 @@ module.exports.retrieveAllFiles = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       res.json(project.files);
     })
@@ -122,7 +115,7 @@ module.exports.retrieveFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       const file = project.files.find(file => file._id == req.params.fileId);
       res.sendFile(file.path);
@@ -142,7 +135,7 @@ module.exports.deleteFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       Project.findByIdAndUpdate(project._id, {
         $pull: { files: { _id: req.params.fileId } }
@@ -166,7 +159,7 @@ module.exports.patchFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       if (req.body.operation == "replaceMain") {
         if (project.files.find(file => file.isMain)) {
@@ -221,7 +214,7 @@ module.exports.retrieveOutputPdf = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
       const mainFile = project.files.find(file => file.isMain);
       const outputPath = mainFile.path + ".pdf";
@@ -256,6 +249,76 @@ module.exports.retrieveOutputPdf = (req, res) => {
       //   { cwd: mainFile.destination },
       //   afterCompile
       // );
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.inviteCollaborator = (req, res) => {
+  Project.findById(req.params.id)
+    .then(project => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
+
+      User.findOne({ username: req.body.username }).then(user => {
+        if (!user)
+          return res
+            .status(404)
+            .send(`Username ${req.body.username} does not exist`);
+
+        if (
+          project.collaborators.find(collaborator =>
+            collaborator.user._id.equals(user._id)
+          )
+        ) {
+          return res
+            .status(409)
+            .send(`Username ${user.username} already exists as a collaborator`);
+        }
+
+        const newCollaborator = {
+          access: req.body.access,
+          user: { _id: user._id, username: user.username }
+        };
+        Project.findByIdAndUpdate(project._id, {
+          $push: { collaborators: newCollaborator }
+        }).then(project => res.json(newCollaborator));
+      });
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.removeCollaborator = (req, res) => {
+  Project.findById(req.params.projectId)
+    .then(project => {
+      if (!project)
+        return res
+          .status(404)
+          .send(`Project ${req.params.projectId} does not exist`);
+
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
+
+      User.findById(req.params.userId).then(user => {
+        if (!user)
+          return res
+            .status(404)
+            .send(`User ${req.params.userId} does not exist`);
+
+        if (
+          !project.collaborators.find(collaborator =>
+            collaborator.user._id.equals(user._id)
+          )
+        ) {
+          return res
+            .status(404)
+            .send(`User ${user._id} does not exist as a collaborator`);
+        }
+
+        Project.findByIdAndUpdate(project._id, {
+          $pull: { collaborators: { "user._id": user._id } }
+        }).then(project => res.sendStatus(200));
+      });
     })
     .catch(err => res.sendStatus(500));
 };

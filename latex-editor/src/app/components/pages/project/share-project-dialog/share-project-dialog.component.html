@@ -1,0 +1,72 @@
+<h1 mat-dialog-title>Share Project</h1>
+<div mat-dialog-content>
+  <div>
+    <mat-form-field class="full-width">
+      <mat-label>Collaborator username</mat-label>
+      <input matInput #usernameInput required autocomplete="off" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Access</mat-label>
+      <mat-select #accessSelect required autocomplete="off">
+        <mat-option value="read">Read only</mat-option>
+        <mat-option value="readWrite">Can edit</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button
+      mat-flat-button
+      color="primary"
+      class="full-width"
+      [disabled]="!usernameInput.value || !accessSelect.value"
+      (click)="
+        inviteCollaborator(usernameInput.value, accessSelect.value);
+        usernameInput.value = '';
+        accessSelect.value = ''
+      "
+    >
+      Invite
+    </button>
+  </div>
+
+  <mat-table [dataSource]="dataSource">
+    <ng-container matColumnDef="username">
+      <mat-header-cell *matHeaderCellDef>Username</mat-header-cell>
+      <mat-cell *matCellDef="let collaborator">
+        {{ collaborator.user.username }}
+        <span
+          *ngIf="collaborator.pendingInvitation"
+          class="invitation-pending-hint"
+          >(Invite not yet accepted)</span
+        >
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="access">
+      <mat-header-cell *matHeaderCellDef>Access</mat-header-cell>
+      <mat-cell *matCellDef="let collaborator">
+        {{ collaborator.access == "read" ? "Read only" : "Can edit" }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+      <mat-cell *matCellDef="let collaborator">
+        <button
+          mat-icon-button
+          (click)="removeCollaborator(collaborator.user._id)"
+          [matTooltip]="
+            collaborator.pendingInvitation ? 'Revoke invite' : 'Revoke access'
+          "
+          matTooltipPosition="below"
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="this.dialogRef.close()">Close</button>
+</div>

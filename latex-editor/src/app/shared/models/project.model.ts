@@ -14,11 +14,17 @@ export class MulterFile {
   isMain: boolean;
 }
 
+export class Collaborator {
+  pendingInvitation: boolean;
+  access: "read" | "readWrite";
+  user: User;
+}
+
 export class Project {
   _id: string;
   owner: User;
   title: string;
-  collaborators: User[];
+  collaborators: Collaborator[];
   files: MulterFile[];
   dateCreated: Date;
   lastUpdated: Date;
