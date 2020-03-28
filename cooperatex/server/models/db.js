@@ -1,5 +1,5 @@
 // let mongoose = require("mongoose");
-// let uri = "mongodb://localhost/latex-editor";
+// let uri = "mongodb://localhost/cooperatex";
 
 // if (process.env.NODE_ENV === "production") {
 //   uri = process.env.MONGOLAB_URI;

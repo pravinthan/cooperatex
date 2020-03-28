@@ -13,7 +13,7 @@ let apiRoute = require("./routes/index");
 let app = express();
 
 // UNCOMMENT WHEN READY TO DEPLOY
-// app.use(express.static(path.join(__dirname, "../dist/latex-editor")));
+// app.use(express.static(path.join(__dirname, "../dist/cooperatex")));
 // app.get("/*", (req, res) => res.sendFile(path.join(__dirname)));
 app.use(cors()); // delete when rdy to deploy
 app.use(bodyParser.json());
@@ -33,7 +33,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-mongoose.connect("mongodb://localhost/latex-editor", {
+mongoose.connect("mongodb://localhost/cooperatex", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false

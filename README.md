@@ -1,4 +1,4 @@
-project Title: LaTeX Editor
+project Title: CooperaTeX
 
 team Members: Pravinthan Prabagaran (prabaga2), Thomas Lo (lothoma2)
 
