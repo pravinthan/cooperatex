@@ -10,12 +10,12 @@
 
       <div>
         <button
-          (click)="openShareProjectDialog()"
+          (click)="openInviteCollaboratorsDialog()"
           mat-icon-button
-          matTooltip="Share Project"
+          matTooltip="Invite Collaborators"
           matTooltipPosition="below"
         >
-          <mat-icon>share</mat-icon>
+          <mat-icon>person_add</mat-icon>
         </button>
         <button
           (click)="openUploadFilesDialog()"
@@ -67,7 +67,7 @@
                 <mat-icon>flag</mat-icon>
               </button>
               <button
-                (click)="renameFile(displayFile._id)"
+                (click)="renameFile(displayFile._id, displayFile.fileName)"
                 mat-icon-button
                 matTooltip="Rename"
                 matTooltipPosition="below"

@@ -84,6 +84,11 @@ router.patch(
   projectController.patchFile
 );
 router.get("/projects/:id/output", auth, projectController.retrieveOutputPdf);
+router.get(
+  "/projects/:id/collaborators",
+  auth,
+  projectController.retrieveCollaborators
+);
 router.post(
   "/projects/:id/collaborators",
   auth,
@@ -94,5 +99,12 @@ router.delete(
   auth,
   projectController.removeCollaborator
 );
+router.patch(
+  "/projects/:projectId/collaborators/:userId",
+  auth,
+  projectController.patchCollaborator
+);
+
+router.get("/invitations", auth, projectController.retrieveInvitations);
 
 module.exports = router;

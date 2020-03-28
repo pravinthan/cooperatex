@@ -3,17 +3,13 @@ import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 import { Project, MulterFile, Collaborator } from "./models/Project.model";
-import * as io from "socket.io-client";
+import { Invitation } from "./models/invitation.model";
 
 @Injectable({
   providedIn: "root"
 })
 export class ProjectService {
-  private socket: SocketIOClient.Socket;
-
-  constructor(private http: HttpClient) {
-    this.socket = io(environment.serverUrl);
-  }
+  constructor(private http: HttpClient) {}
 
   createProject(title: string): Observable<Project> {
     return this.http.post<any>(`${environment.apiUrl}/projects`, { title });
@@ -56,22 +52,18 @@ export class ProjectService {
   getFileStream(projectId: string, fileId: string): Observable<Blob> {
     return this.http.get(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
-      {
-        responseType: "blob"
-      }
+      { responseType: "blob" }
     );
   }
 
   deleteFile(projectId: string, fileId: string) {
     return this.http.delete(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
-      {
-        responseType: "text"
-      }
+      { responseType: "text" }
     );
   }
 
-  patchFile(
+  private patchFile(
     projectId: string,
     fileId: string,
     operation: "replaceName" | "replaceMain" | "replaceContents",
@@ -81,9 +73,25 @@ export class ProjectService {
     return this.http.patch(
       `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
       { operation, newName, newContents },
-      {
-        responseType: "text"
-      }
+      { responseType: "text" }
+    );
+  }
+
+  renameFile(projectId: string, fileId: string, newName: string) {
+    return this.patchFile(projectId, fileId, "replaceName", newName);
+  }
+
+  assignMainFile(projectId: string, fileId: string) {
+    return this.patchFile(projectId, fileId, "replaceMain");
+  }
+
+  replaceFileContents(projectId: string, fileId: string, newContents: string) {
+    return this.patchFile(
+      projectId,
+      fileId,
+      "replaceContents",
+      null,
+      newContents
     );
   }
 
@@ -91,6 +99,12 @@ export class ProjectService {
     return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
       responseType: "blob"
     });
+  }
+
+  getCollaborators(projectId: string): Observable<Collaborator[]> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/projects/${projectId}/collaborators`
+    );
   }
 
   inviteCollaborator(
@@ -107,23 +121,30 @@ export class ProjectService {
   removeCollaborator(projectId: string, userId: string) {
     return this.http.delete(
       `${environment.apiUrl}/projects/${projectId}/collaborators/${userId}`,
-      {
-        responseType: "text"
-      }
+      { responseType: "text" }
     );
   }
 
-  /************* SOCKET.IO SPECIFIC CODE *************/
-
-  notifyFileContentsUpdate(newContents: string) {
-    this.socket.emit("update", newContents);
+  private patchCollaborator(
+    invitation: Invitation,
+    operation: "accept" | "reject"
+  ) {
+    return this.http.patch(
+      `${environment.apiUrl}/projects/${invitation.projectId}/collaborators/${invitation.to._id}`,
+      { operation },
+      { responseType: "text" }
+    );
   }
 
-  getUpdatedFileContents(): Observable<string> {
-    return new Observable(observer => {
-      this.socket.on("update", (newContents: string) => {
-        observer.next(newContents);
-      });
-    });
+  acceptInvitation(invitation: Invitation) {
+    return this.patchCollaborator(invitation, "accept");
+  }
+
+  rejectInvitation(invitation: Invitation) {
+    return this.patchCollaborator(invitation, "reject");
+  }
+
+  getInvitations(): Observable<Invitation[]> {
+    return this.http.get<any>(`${environment.apiUrl}/invitations`);
   }
 }

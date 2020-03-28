@@ -5,16 +5,13 @@ import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-d
 import { RenameFileDialogComponent } from "./rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  MulterFile,
-  Project,
-  Collaborator
-} from "src/app/shared/models/Project.model";
+import { MulterFile, Project } from "src/app/shared/models/Project.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 import { CodemirrorComponent } from "@ctrl/ngx-codemirror";
-import { ShareProjectDialogComponent } from "./share-project-dialog/share-project-dialog.component";
+import { InviteCollaboratorsDialogComponent } from "./invite-collaborators-dialog/invite-collaborators-dialog.component";
+import { SocketService } from "src/app/shared/socket.service";
 
-interface DisplayFile {
+export class DisplayFile {
   _id: string;
   fileName: string;
   mimeType: string;
@@ -47,6 +44,7 @@ export class ProjectComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
+    private socketService: SocketService,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router
@@ -73,15 +71,9 @@ export class ProjectComponent implements OnInit {
   ) => {
     if (change.origin != "setValue") {
       const newContents = editor.getValue();
-      this.projectService.notifyFileContentsUpdate(newContents);
+      this.socketService.notifyFileContentsUpdate(this.projectId, newContents);
       this.projectService
-        .patchFile(
-          this.projectId,
-          this.mainFile._id,
-          "replaceContents",
-          null,
-          newContents
-        )
+        .replaceFileContents(this.projectId, this.mainFile._id, newContents)
         .toPromise()
         .then(() => {
           if (this.autoCompile) this.compilePdf();
@@ -113,6 +105,7 @@ export class ProjectComponent implements OnInit {
 
   ngOnInit() {
     this.projectId = this.route.snapshot.paramMap.get("id");
+    this.socketService.joinProjectSession(this.projectId);
     this.projectService
       .getProjectById(this.projectId)
       .toPromise()
@@ -124,24 +117,27 @@ export class ProjectComponent implements OnInit {
 
         this.setEditorContentToMainFile();
 
-        this.projectService.getUpdatedFileContents().subscribe(newContents => {
+        this.socketService.getUpdatedFileContents().subscribe(newContents => {
           this.latex = newContents;
         });
       })
       .catch(err => this.router.navigate(["/404"]));
   }
 
-  openShareProjectDialog() {
-    let dialogRef = this.dialog.open(ShareProjectDialogComponent, {
+  openInviteCollaboratorsDialog() {
+    let dialogRef = this.dialog.open(InviteCollaboratorsDialogComponent, {
       width: "600px",
       data: {
         projectId: this.projectId,
-        collaborators: this.project.collaborators
+        projectTitle: this.project.title
       }
     });
 
-    dialogRef.afterClosed().subscribe((collaborators: Collaborator[]) => {
-      this.project.collaborators = collaborators;
+    dialogRef.afterClosed().subscribe(() => {
+      this.projectService
+        .getCollaborators(this.projectId)
+        .toPromise()
+        .then(collaborators => (this.project.collaborators = collaborators));
     });
   }
 
@@ -192,12 +188,13 @@ export class ProjectComponent implements OnInit {
     });
   }
 
-  renameFile(fileId: string) {
+  renameFile(fileId: string, oldFileName: string) {
     let dialogRef = this.dialog.open(RenameFileDialogComponent, {
       width: "400px",
       data: {
         projectId: this.projectId,
         fileId: fileId,
+        oldFileName,
         displayFiles: this.displayFiles
       }
     });
@@ -217,7 +214,7 @@ export class ProjectComponent implements OnInit {
 
   markAsMain(fileId: string) {
     this.projectService
-      .patchFile(this.projectId, fileId, "replaceMain")
+      .assignMainFile(this.projectId, fileId)
       .toPromise()
       .then(() => {
         const oldMainIndex = this.displayFiles.findIndex(

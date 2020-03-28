@@ -50,12 +50,28 @@ server.listen(port, () =>
 );
 
 const io = socketIO(server);
-io.on("connection", socket => {
-  socket.on("openedProject", id => {
-    socket.join(id);
+io.sockets.on("connection", socket => {
+  socket.on("joinUserSession", userId => {
+    if (!socket.rooms[userId]) socket.join(userId);
   });
 
-  socket.on("update", update => {
-    socket.broadcast.emit("update", update);
+  socket.on("joinProjectSession", projectId => {
+    socket.join(projectId);
+  });
+
+  socket.on("leaveProjectSession", projectId => {
+    socket.leave(projectId);
+  });
+
+  socket.on("updateFileContents", (session, updatedContents) => {
+    socket.broadcast.to(session).emit("updateFileContents", updatedContents);
+  });
+
+  socket.on("notifyInvitationChange", userId => {
+    io.sockets.to(userId).emit("notifyInvitationChange");
+  });
+
+  socket.on("notifyCollaboratorChange", userId => {
+    io.sockets.to(userId).emit("notifyCollaboratorChange");
   });
 });

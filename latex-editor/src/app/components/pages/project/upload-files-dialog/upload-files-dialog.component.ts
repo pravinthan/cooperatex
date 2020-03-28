@@ -14,7 +14,8 @@ export class UploadFilesDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<UploadFilesDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA)
+    public data: { projectId: string; fileNames: string },
     private projectService: ProjectService,
     public snackBar: MatSnackBar
   ) {}

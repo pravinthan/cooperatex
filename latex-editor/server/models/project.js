@@ -12,6 +12,7 @@ let projectSchema = new Schema({
   collaborators: [
     {
       pendingInvitation: { type: Boolean, default: true },
+      acceptedInvitation: { type: Boolean, default: false },
       access: {
         type: String,
         enum: ["read", "readWrite"]

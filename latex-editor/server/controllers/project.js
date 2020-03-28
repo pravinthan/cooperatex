@@ -253,6 +253,19 @@ module.exports.retrieveOutputPdf = (req, res) => {
     .catch(err => res.sendStatus(500));
 };
 
+module.exports.retrieveCollaborators = (req, res) => {
+  Project.findById(req.params.id)
+    .then(project => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
+
+      res.json(project.collaborators);
+    })
+    .catch(err => res.sendStatus(500));
+};
+
 module.exports.inviteCollaborator = (req, res) => {
   Project.findById(req.params.id)
     .then(project => {
@@ -278,6 +291,8 @@ module.exports.inviteCollaborator = (req, res) => {
         }
 
         const newCollaborator = {
+          pendingInvitation: true,
+          acceptedInvitation: false,
           access: req.body.access,
           user: { _id: user._id, username: user.username }
         };
@@ -319,6 +334,62 @@ module.exports.removeCollaborator = (req, res) => {
           $pull: { collaborators: { "user._id": user._id } }
         }).then(project => res.sendStatus(200));
       });
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.patchCollaborator = (req, res) => {
+  Project.findById(req.params.projectId)
+    .then(project => {
+      if (!project)
+        return res
+          .status(404)
+          .send(`Project ${req.params.projectId} does not exist`);
+
+      // Only allow a user that was invited to accept/reject
+      if (
+        !project.collaborators.find(collaborator =>
+          collaborator.user._id.equals(req.user._id)
+        ) &&
+        req.params.userId == req.user._id
+      )
+        return res.sendStatus(403);
+
+      Project.findOneAndUpdate(
+        {
+          _id: project._id,
+          "collaborators.user._id": req.params.userId
+        },
+        {
+          $set: {
+            "collaborators.$.pendingInvitation": false,
+            "collaborators.$.acceptedInvitation": req.body.operation == "accept"
+          }
+        }
+      ).then(project => res.sendStatus(200));
+    })
+    .catch(err => res.sendStatus(500));
+};
+
+module.exports.retrieveInvitations = (req, res) => {
+  Project.find({
+    "collaborators.user._id": req.user._id,
+    "collaborators.pendingInvitation": true
+  })
+    .then(projects => {
+      if (projects.length == 0) return res.json([]);
+
+      let invitations = [];
+      projects.forEach(project => {
+        invitations.push({
+          from: project.owner,
+          to: { _id: req.user._id, username: req.user.username },
+          projectId: project._id,
+          projectTitle: project.title
+        });
+      });
+
+      res.json(invitations);
     })
     .catch(err => res.sendStatus(500));
 };

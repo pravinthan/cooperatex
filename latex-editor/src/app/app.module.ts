@@ -24,6 +24,7 @@ import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
 import { MatSelectModule } from "@angular/material/select";
+import { MatBadgeModule } from "@angular/material/badge";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -47,8 +48,9 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
-import { ProjectService } from "./shared/project.service";
-import { ShareProjectDialogComponent } from "./components/pages/project/share-project-dialog/share-project-dialog.component";
+import { InviteCollaboratorsDialogComponent } from "./components/pages/project/invite-collaborators-dialog/invite-collaborators-dialog.component";
+import { SocketService } from "./shared/socket.service";
+import { InvitationsDialogComponent } from "./components/header/invitations-dialog/invitations-dialog.component";
 
 @NgModule({
   declarations: [
@@ -69,7 +71,8 @@ import { ShareProjectDialogComponent } from "./components/pages/project/share-pr
     TruncatePipe,
     RenameFileDialogComponent,
     DeleteFileDialogComponent,
-    ShareProjectDialogComponent
+    InviteCollaboratorsDialogComponent,
+    InvitationsDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -96,11 +99,12 @@ import { ShareProjectDialogComponent } from "./components/pages/project/share-pr
     CodemirrorModule,
     MatCheckboxModule,
     PdfJsViewerModule,
-    MatSelectModule
+    MatSelectModule,
+    MatBadgeModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    ProjectService
+    SocketService
   ],
   bootstrap: [AppComponent]
 })

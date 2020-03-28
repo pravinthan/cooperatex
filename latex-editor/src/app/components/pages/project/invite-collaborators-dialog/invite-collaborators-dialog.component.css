@@ -21,15 +21,15 @@ mat-table {
 
 .mat-header-cell:nth-child(2),
 .mat-cell:nth-child(2) {
-  flex: 45%;
+  flex: 40%;
 }
 
 .mat-header-cell:last-child,
 .mat-cell:last-child {
-  flex: 10%;
+  flex: 15%;
 }
 
-.invitation-pending-hint {
+.invitation-hint {
   display: block;
   padding-left: 0.25rem;
   color: darkgray;

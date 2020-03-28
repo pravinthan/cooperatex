@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { NgForm } from "@angular/forms";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { DisplayFile } from "../project.component";
 
 @Component({
   selector: "app-rename-file-dialog",
@@ -14,17 +15,18 @@ export class RenameFileDialogComponent {
     public dialogRef: MatDialogRef<RenameFileDialogComponent>,
     private projectService: ProjectService,
     private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      projectId: string;
+      fileId: string;
+      oldFileName: string;
+      displayFiles: DisplayFile;
+    }
   ) {}
 
   onSubmit(form: NgForm) {
     this.projectService
-      .patchFile(
-        this.data.projectId,
-        this.data.fileId,
-        "replaceName",
-        form.value.newName
-      )
+      .renameFile(this.data.projectId, this.data.fileId, form.value.newName)
       .subscribe(
         data => {
           this.dialogRef.close(form.value.newName);

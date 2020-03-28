@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Share Project</h1>
+<h1 mat-dialog-title>Invite Collaborators</h1>
 <div mat-dialog-content>
   <div>
     <mat-form-field class="full-width">
@@ -27,15 +27,20 @@
     </button>
   </div>
 
-  <mat-table [dataSource]="dataSource">
+  <mat-table [dataSource]="dataSource" *ngIf="collaborators.length != 0">
     <ng-container matColumnDef="username">
       <mat-header-cell *matHeaderCellDef>Username</mat-header-cell>
       <mat-cell *matCellDef="let collaborator">
         {{ collaborator.user.username }}
+        <span *ngIf="collaborator.pendingInvitation" class="invitation-hint"
+          >(Invitation not yet accepted)</span
+        >
         <span
-          *ngIf="collaborator.pendingInvitation"
-          class="invitation-pending-hint"
-          >(Invite not yet accepted)</span
+          *ngIf="
+            !collaborator.acceptedInvitation && !collaborator.pendingInvitation
+          "
+          class="invitation-hint"
+          >(Invitation rejected)</span
         >
       </mat-cell>
     </ng-container>
@@ -54,11 +59,18 @@
           mat-icon-button
           (click)="removeCollaborator(collaborator.user._id)"
           [matTooltip]="
-            collaborator.pendingInvitation ? 'Revoke invite' : 'Revoke access'
+            collaborator.pendingInvitation
+              ? 'Revoke invitation'
+              : collaborator.acceptedInvitation
+              ? 'Revoke access'
+              : 'Remove'
           "
           matTooltipPosition="below"
         >
-          <mat-icon>clear</mat-icon>
+          <mat-icon *ngIf="!collaborator.pendingInvitation">clear</mat-icon>
+          <mat-icon *ngIf="collaborator.pendingInvitation"
+            >cancel_schedule_send</mat-icon
+          >
         </button>
       </mat-cell>
     </ng-container>

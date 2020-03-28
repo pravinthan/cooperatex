@@ -8,6 +8,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 export class DeleteFileDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<DeleteFileDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: { fileName: string }
   ) {}
 }

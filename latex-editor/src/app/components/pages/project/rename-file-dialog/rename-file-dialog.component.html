@@ -12,6 +12,9 @@
         autocomplete="off"
         ngModel
       />
+      <span matSuffix>{{
+        data.oldFileName.substring(data.oldFileName.indexOf("."))
+      }}</span>
       <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
     </mat-form-field>
   </div>

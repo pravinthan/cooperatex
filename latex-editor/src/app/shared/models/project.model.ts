@@ -16,6 +16,7 @@ export class MulterFile {
 
 export class Collaborator {
   pendingInvitation: boolean;
+  acceptedInvitation: boolean;
   access: "read" | "readWrite";
   user: User;
 }
