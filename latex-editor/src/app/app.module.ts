@@ -28,7 +28,6 @@ import { MatBadgeModule } from "@angular/material/badge";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
-import { NavigationComponent } from "./components/navigation/navigation.component";
 import { HeaderComponent } from "./components/header/header.component";
 import { PageNotFoundComponent } from "./components/pages/page-not-found/page-not-found.component";
 import { CreditsComponent } from "./components/pages/credits/credits.component";
@@ -57,7 +56,6 @@ import { InvitationsDialogComponent } from "./components/header/invitations-dial
     AppComponent,
     HomeComponent,
     HeaderComponent,
-    NavigationComponent,
     PageNotFoundComponent,
     CreditsComponent,
     SignInComponent,

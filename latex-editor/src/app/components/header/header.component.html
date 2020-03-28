@@ -1,33 +1,34 @@
 <mat-toolbar color="primary" id="toolbar">
   <mat-toolbar-row>
     <a routerLink="/" id="toolbar-title">LaTeX Editor</a>
-    <div id="spacer"></div>
 
-    <ng-container *ngIf="!currentUser">
-      <button mat-button (click)="openSignInDialog()">
-        Sign In
-      </button>
-      <button mat-raised-button (click)="openSignUpDialog()">
-        Sign Up
-      </button>
-    </ng-container>
-    <ng-container *ngIf="currentUser">
-      <button
-        mat-icon-button
-        (click)="openInvitationsDialog()"
-        matTooltip="Invitations"
-        matTooltipPosition="below"
-      >
-        <mat-icon
-          [matBadge]="invitations.length"
-          matBadgeColor="warn"
-          [matBadgeHidden]="invitations.length == 0"
-          >notifications</mat-icon
+    <div id="context-buttons">
+      <ng-container *ngIf="!currentUser">
+        <button mat-button (click)="openSignInDialog()">
+          Sign In
+        </button>
+        <button mat-raised-button (click)="openSignUpDialog()">
+          Sign Up
+        </button>
+      </ng-container>
+      <ng-container *ngIf="currentUser">
+        <button
+          mat-icon-button
+          (click)="openInvitationsDialog()"
+          matTooltip="Invitations"
+          matTooltipPosition="below"
         >
-      </button>
-      <button mat-button (click)="signOut()">
-        Sign Out
-      </button>
-    </ng-container>
+          <mat-icon
+            [matBadge]="invitations.length"
+            matBadgeColor="warn"
+            [matBadgeHidden]="invitations.length == 0"
+            >notifications</mat-icon
+          >
+        </button>
+        <button mat-button (click)="signOut()">
+          Sign Out
+        </button>
+      </ng-container>
+    </div>
   </mat-toolbar-row>
 </mat-toolbar>

@@ -12,20 +12,18 @@
   color: white;
 }
 
-#spacer {
-  flex: 1 1 auto;
-}
-
 mat-toolbar-row {
   height: 64px !important;
+  display: flex;
+  justify-content: space-between;
 }
 
-mat-toolbar-row > button {
-  margin: 12px;
-}
-
-mat-toolbar-row > button:last-of-type {
+#context-buttons {
   margin-right: 36px;
+}
+
+#context-buttons > button {
+  margin: 6px;
 }
 
 .mat-toolbar-multiple-rows {
