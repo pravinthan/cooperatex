@@ -37,9 +37,22 @@ module.exports.retrieveProjectById = (req, res) => {
 };
 
 module.exports.retrieveAllProjects = (req, res) => {
-  Project.find({ "owner._id": req.user._id })
+  Project.find({
+    $or: [
+      {
+        "owner._id": req.user._id
+      },
+      {
+        "collaborators.user._id": req.user._id,
+        "collaborators.acceptedInvitation": true
+      }
+    ]
+  })
     .then(projects => res.json(projects))
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 module.exports.deleteProjectById = (req, res) => {

@@ -28,8 +28,16 @@ mat-sidenav {
   border-radius: 20px;
 }
 
+#filter-by-text {
+  display: block;
+  margin: 0.75rem 0 0.25rem 0;
+  font-size: 13px;
+  user-select: none;
+  color: #adadad;
+}
+
 .selected-filter {
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: #263372;
 }
 
 #search-field {

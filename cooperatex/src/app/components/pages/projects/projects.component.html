@@ -4,9 +4,26 @@
       <button mat-raised-button (click)="openNewProjectDialog()" color="accent">
         New Project
       </button>
-      <button mat-button (click)="filterByAllProjects()">All projects</button>
-      <button mat-button (click)="filterByYourProjects()">Your projects</button>
-      <button mat-button (click)="filterByProjectsSharedWithYou()">
+      <span id="filter-by-text">Filter by:</span>
+      <button
+        mat-button
+        (click)="filterByAllProjects()"
+        [ngClass]="selected == 'all' ? 'selected-filter' : ''"
+      >
+        All projects
+      </button>
+      <button
+        mat-button
+        (click)="filterByYourProjects()"
+        [ngClass]="selected == 'mine' ? 'selected-filter' : ''"
+      >
+        Your projects
+      </button>
+      <button
+        mat-button
+        (click)="filterByProjectsSharedWithYou()"
+        [ngClass]="selected == 'shared' ? 'selected-filter' : ''"
+      >
         Projects shared with you
       </button>
     </div>
@@ -23,8 +40,10 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header
           >Title</mat-header-cell
         >
-        <mat-cell *matCellDef="let row">
-          <a class="link" routerLink="./{{ row._id }}">{{ row.title }}</a>
+        <mat-cell *matCellDef="let project">
+          <a class="link" routerLink="./{{ project._id }}">{{
+            project.title
+          }}</a>
         </mat-cell>
       </ng-container>
 
@@ -32,8 +51,8 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header
           >Owner</mat-header-cell
         >
-        <mat-cell *matCellDef="let row">
-          {{ row.owner === currentUsername ? "You" : row.owner }}
+        <mat-cell *matCellDef="let project">
+          {{ project.owner === currentUsername ? "You" : project.owner }}
         </mat-cell>
       </ng-container>
 
@@ -41,14 +60,16 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header
           >Last Updated</mat-header-cell
         >
-        <mat-cell *matCellDef="let row">
+        <mat-cell *matCellDef="let project">
           <span
-            matTooltip="{{ row.lastUpdated | date: 'MMM d, y, h:mm a' }}"
+            matTooltip="{{ project.lastUpdated | date: 'MMM d, y, h:mm a' }}"
             matTooltipPosition="above"
           >
-            {{ row.lastUpdated | timeAgo }} by
+            {{ project.lastUpdated | timeAgo }} by
             {{
-              row.lastUpdatedBy === currentUsername ? "You" : row.lastUpdatedBy
+              project.lastUpdatedBy === currentUsername
+                ? "You"
+                : project.lastUpdatedBy
             }}
           </span>
         </mat-cell>
@@ -56,7 +77,7 @@
 
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-        <mat-cell *matCellDef="let row">
+        <mat-cell *matCellDef="let project">
           <button
             mat-icon-button
             matTooltip="Download"
@@ -65,8 +86,9 @@
             <mat-icon>cloud_download</mat-icon>
           </button>
           <button
+            *ngIf="project.owner.username == currentUsername"
             mat-icon-button
-            (click)="openDeleteProjectDialog(row._id, row.title)"
+            (click)="openDeleteProjectDialog(project._id, project.title)"
             matTooltip="Delete"
             matTooltipPosition="above"
           >

@@ -26,6 +26,7 @@ export class ProjectsComponent implements OnInit {
   displayedColumns: string[] = ["title", "owner", "lastUpdated", "actions"];
   dataSource = new MatTableDataSource([]);
   @ViewChild(MatSort) sort: MatSort;
+  selected: "all" | "mine" | "shared" = "all";
 
   constructor(
     public dialog: MatDialog,
@@ -75,22 +76,25 @@ export class ProjectsComponent implements OnInit {
   filterByAllProjects() {
     this.dataSource.data = this.projectTableData;
     this.dataSource.sort = this.sort;
+    this.selected = "all";
   }
 
   // Show projects owned by signed in user
   filterByYourProjects() {
-    this.dataSource.data = this.projectTableData.filter(project => {
-      return project.owner === this.currentUsername;
-    });
+    this.dataSource.data = this.projectTableData.filter(
+      project => project.owner === this.currentUsername
+    );
     this.dataSource.sort = this.sort;
+    this.selected = "mine";
   }
 
   // Show projects shared with signed in user
   filterByProjectsSharedWithYou() {
-    this.dataSource.data = this.projectTableData.filter(project => {
-      return project.owner !== this.currentUsername;
-    });
+    this.dataSource.data = this.projectTableData.filter(
+      project => project.owner !== this.currentUsername
+    );
     this.dataSource.sort = this.sort;
+    this.selected = "shared";
   }
 
   // Open a delete project dialog
@@ -101,13 +105,14 @@ export class ProjectsComponent implements OnInit {
 
     // Delete project by id and update table
     dialogRef.afterClosed().subscribe(result => {
-      if (result)
+      if (result) {
         this.projectService
           .deleteProjectById(id)
           .toPromise()
           .then(() => {
             this.getProjects();
           });
+      }
     });
   }
 }
