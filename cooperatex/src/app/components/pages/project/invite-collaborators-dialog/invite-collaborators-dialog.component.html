@@ -57,7 +57,7 @@
       <mat-cell *matCellDef="let collaborator">
         <button
           mat-icon-button
-          (click)="removeCollaborator(collaborator.user._id)"
+          (click)="removeCollaborator(collaborator.user)"
           [matTooltip]="
             collaborator.pendingInvitation
               ? 'Revoke invitation'

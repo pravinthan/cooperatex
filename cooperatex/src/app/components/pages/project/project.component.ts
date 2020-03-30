@@ -1,15 +1,19 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, HostListener } from "@angular/core";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
 import { RenameFileDialogComponent } from "./rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MulterFile, Project } from "src/app/shared/models/Project.model";
+import { Project } from "src/app/shared/models/Project.model";
+import { MulterFile } from "src/app/shared/models/multer-file.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 import { CodemirrorComponent } from "@ctrl/ngx-codemirror";
 import { InviteCollaboratorsDialogComponent } from "./invite-collaborators-dialog/invite-collaborators-dialog.component";
 import { SocketService } from "src/app/shared/socket.service";
+import { AuthenticationService } from "src/app/shared/authentication.service";
+import { User } from "src/app/shared/models/user.model";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 export class DisplayFile {
   _id: string;
@@ -28,6 +32,7 @@ export class DisplayFile {
 export class ProjectComponent implements OnInit {
   @ViewChild("editor") editor: CodemirrorComponent;
   @ViewChild("pdfViewer") pdfViewer: PdfJsViewerComponent;
+  currentUser = this.authenticationService.currentUser;
   projectId: string;
   project: Project;
   displayFiles: DisplayFile[] = [];
@@ -38,6 +43,17 @@ export class ProjectComponent implements OnInit {
   showErrorLog = false;
   autoCompile = true;
   compiling = false;
+  collaboratorColours = [
+    "orange",
+    "green",
+    "purple",
+    "yellow",
+    "gray",
+    "brown",
+    "lightblue"
+  ];
+  liveCollaborators: User[] = [];
+  marker: CodeMirror.TextMarker;
   get mainFile() {
     return this.displayFiles.find(displayFile => displayFile.isMain);
   }
@@ -45,6 +61,8 @@ export class ProjectComponent implements OnInit {
   constructor(
     private projectService: ProjectService,
     private socketService: SocketService,
+    private authenticationService: AuthenticationService,
+    private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router
@@ -71,7 +89,7 @@ export class ProjectComponent implements OnInit {
   ) => {
     if (change.origin != "setValue") {
       const newContents = editor.getValue();
-      this.socketService.notifyFileContentsUpdate(this.projectId, newContents);
+      this.socketService.notifyFileContentsChange(this.projectId, newContents);
       this.projectService
         .replaceFileContents(this.projectId, this.mainFile._id, newContents)
         .toPromise()
@@ -79,6 +97,13 @@ export class ProjectComponent implements OnInit {
           if (this.autoCompile) this.compilePdf();
         });
     }
+  };
+
+  private updateCursor = (editor: CodeMirror.Editor) => {
+    this.socketService.notifyCursorChange(this.projectId, {
+      updatedBy: this.currentUser,
+      cursorPos: editor.getCursor()
+    });
   };
 
   // Link the main file to the editor
@@ -94,6 +119,7 @@ export class ProjectComponent implements OnInit {
             this.latex = text;
             this.editor.codeMirror.setSize("100%", "100%");
             this.editor.codeMirror.on("change", this.updateLatex);
+            this.editor.codeMirror.on("cursorActivity", this.updateCursor);
             this.compilePdf();
           });
         });
@@ -105,7 +131,33 @@ export class ProjectComponent implements OnInit {
 
   ngOnInit() {
     this.projectId = this.route.snapshot.paramMap.get("id");
-    this.socketService.joinProjectSession(this.projectId);
+
+    this.socketService.joinProjectSession(this.projectId, this.currentUser);
+
+    this.socketService.onJoinedProjectSession().subscribe(collaborator => {
+      this.liveCollaborators.push(collaborator);
+
+      this.snackBar.open(
+        `${collaborator.username} has joined the session`,
+        null,
+        { duration: 3000 }
+      );
+    });
+
+    // this.socketService.leaveProjectSession(this.projectId, this.currentUser);
+
+    this.socketService.onLeftProjectSession().subscribe(collaborator => {
+      this.liveCollaborators = this.liveCollaborators.filter(
+        liveCollaborator => liveCollaborator._id != collaborator._id
+      );
+
+      this.snackBar.open(
+        `${collaborator.username} has left the session`,
+        null,
+        { duration: 3000 }
+      );
+    });
+
     this.projectService
       .getProjectById(this.projectId)
       .toPromise()
@@ -117,11 +169,47 @@ export class ProjectComponent implements OnInit {
 
         this.setEditorContentToMainFile();
 
-        this.socketService.getUpdatedFileContents().subscribe(newContents => {
+        this.socketService.onFileContentsChange().subscribe(newContents => {
           this.latex = newContents;
+        });
+
+        this.socketService.onCursorChange().subscribe(cursorChange => {
+          // Create collaborator's cursor
+          if (this.marker) this.marker.clear();
+          const cursorCoords = this.editor.codeMirror.cursorCoords(
+            cursorChange.cursorPos
+          );
+          let cursorElement = document.createElement("span");
+          cursorElement.style.position = "absolute";
+          cursorElement.style.borderLeftStyle = "solid";
+          cursorElement.style.borderLeftWidth = "2px";
+          cursorElement.style.borderLeftColor = "#ff0000";
+          cursorElement.style.backgroundColor = "#ff0000";
+          cursorElement.style.height = `${cursorCoords.bottom -
+            cursorCoords.top}px`;
+          cursorElement.onmouseover = event => {
+            cursorElement.style.width = "auto";
+            cursorElement.style.paddingRight = "5px";
+            cursorElement.innerText = cursorChange.updatedBy.username;
+          };
+          cursorElement.onmouseout = event => {
+            cursorElement.style.width = "0px";
+            cursorElement.style.paddingRight = "0";
+            cursorElement.innerText = "";
+          };
+          this.marker = this.editor.codeMirror.setBookmark(
+            cursorChange.cursorPos,
+            { widget: cursorElement }
+          );
         });
       })
       .catch(err => this.router.navigate(["/404"]));
+  }
+
+  @HostListener("window:beforeunload")
+  beforeUnload() {
+    this.socketService.leaveProjectSession(this.projectId, this.currentUser);
+    return true;
   }
 
   openInviteCollaboratorsDialog() {

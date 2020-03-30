@@ -23,19 +23,19 @@ export class InvitationsDialogComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public data: any
   ) {
-    const getInvitations = () => {
+    const refreshInvitations = () => {
       this.projectService
         .getInvitations()
         .toPromise()
         .then(invitations => (this.invitations = invitations));
     };
 
-    getInvitations();
+    refreshInvitations();
 
     this.onInvitationChangeSubscription = this.socketService
       .onInvitationChange()
       .subscribe(() => {
-        getInvitations();
+        refreshInvitations();
       });
   }
 
@@ -46,14 +46,15 @@ export class InvitationsDialogComponent implements OnDestroy {
 
   acceptInvitation(invitation: Invitation) {
     this.projectService
-      .acceptInvitation(invitation)
+      .acceptInvitation(invitation.projectId)
       .toPromise()
       .then(() => {
         this.invitations = this.invitations.filter(
           acceptedInvitation =>
             acceptedInvitation.projectId != invitation.projectId
         );
-        this.socketService.notifyCollaboratorChange(invitation.from._id);
+        this.socketService.notifyCollaboratorChange(invitation.from);
+        this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
       .catch(err => {
         this.snackBar.open(
@@ -68,14 +69,15 @@ export class InvitationsDialogComponent implements OnDestroy {
 
   rejectInvitation(invitation: Invitation) {
     this.projectService
-      .rejectInvitation(invitation)
+      .rejectInvitation(invitation.projectId)
       .toPromise()
       .then(() => {
         this.invitations = this.invitations.filter(
           rejectedInvitation =>
             rejectedInvitation.projectId != invitation.projectId
         );
-        this.socketService.notifyCollaboratorChange(invitation.from._id);
+        this.socketService.notifyCollaboratorChange(invitation.from);
+        this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
       .catch(err => {
         this.snackBar.open(

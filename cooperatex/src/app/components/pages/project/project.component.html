@@ -10,12 +10,13 @@
 
       <div>
         <button
+          *ngIf="this.project.owner._id == this.currentUser._id"
           (click)="openInviteCollaboratorsDialog()"
           mat-icon-button
           matTooltip="Invite Collaborators"
           matTooltipPosition="below"
         >
-          <mat-icon>person_add</mat-icon>
+          <mat-icon>group_add</mat-icon>
         </button>
         <button
           (click)="openUploadFilesDialog()"

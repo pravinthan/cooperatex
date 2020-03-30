@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>Leave Project: {{ data.title }}</h2>
+<mat-dialog-content
+  >Are you sure you want to leave this project as a collaborator? <br />
+  You will not be able to access it unless the owner invites you
+  again.</mat-dialog-content
+>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button [mat-dialog-close]="true" color="warn">Yes</button>
+</mat-dialog-actions>

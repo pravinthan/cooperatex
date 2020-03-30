@@ -6,6 +6,13 @@ let mongoose = require("mongoose");
 let Project = mongoose.model("Project");
 let User = mongoose.model("User");
 
+const isAllowedAccess = (project, userId) =>
+  project.owner._id.equals(userId) ||
+  project.collaborators.find(
+    collaborator =>
+      collaborator.user._id.equals(userId) && collaborator.acceptedInvitation
+  );
+
 module.exports.createProject = (req, res) => {
   if (!req.body.title || req.body.title.length > 50)
     return res
@@ -29,7 +36,7 @@ module.exports.retrieveProjectById = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       res.json(project);
     })
@@ -49,10 +56,7 @@ module.exports.retrieveAllProjects = (req, res) => {
     ]
   })
     .then(projects => res.json(projects))
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+    .catch(err => res.sendStatus(500));
 };
 
 module.exports.deleteProjectById = (req, res) => {
@@ -76,7 +80,7 @@ module.exports.uploadFiles = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       const existingFileNames = project.files.map(file => file.originalname);
       for (const file of req.files) {
@@ -113,7 +117,7 @@ module.exports.retrieveAllFiles = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       res.json(project.files);
     })
@@ -128,7 +132,7 @@ module.exports.retrieveFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       const file = project.files.find(file => file._id == req.params.fileId);
       res.sendFile(file.path);
@@ -148,7 +152,7 @@ module.exports.deleteFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       Project.findByIdAndUpdate(project._id, {
         $pull: { files: { _id: req.params.fileId } }
@@ -172,7 +176,7 @@ module.exports.patchFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       if (req.body.operation == "replaceMain") {
         if (project.files.find(file => file.isMain)) {
@@ -227,7 +231,7 @@ module.exports.retrieveOutputPdf = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       const mainFile = project.files.find(file => file.isMain);
       const outputPath = mainFile.path + ".pdf";
@@ -272,7 +276,7 @@ module.exports.retrieveCollaborators = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       res.json(project.collaborators);
     })
@@ -325,7 +329,19 @@ module.exports.removeCollaborator = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      // Only allow a user that is either owner or the collaborator themselves
+      if (
+        !(
+          project.owner._id.equals(req.user._id) ||
+          (project.collaborators.find(
+            collaborator =>
+              collaborator.user._id.equals(req.user._id) &&
+              collaborator.acceptedInvitation
+          ) &&
+            req.params.userId == req.user._id)
+        )
+      )
+        return res.sendStatus(403);
 
       User.findById(req.params.userId).then(user => {
         if (!user)
@@ -352,26 +368,23 @@ module.exports.removeCollaborator = (req, res) => {
 };
 
 module.exports.patchCollaborator = (req, res) => {
-  Project.findById(req.params.projectId)
+  Project.findById(req.params.id)
     .then(project => {
       if (!project)
-        return res
-          .status(404)
-          .send(`Project ${req.params.projectId} does not exist`);
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
 
       // Only allow a user that was invited to accept/reject
       if (
         !project.collaborators.find(collaborator =>
           collaborator.user._id.equals(req.user._id)
-        ) &&
-        req.params.userId == req.user._id
+        )
       )
         return res.sendStatus(403);
 
       Project.findOneAndUpdate(
         {
           _id: project._id,
-          "collaborators.user._id": req.params.userId
+          "collaborators.user._id": req.user._id
         },
         {
           $set: {

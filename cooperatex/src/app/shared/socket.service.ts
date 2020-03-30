@@ -2,8 +2,12 @@ import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 import * as io from "socket.io-client";
-import { Invitation } from "./models/invitation.model";
-import { Collaborator } from "./models/Project.model";
+import { User } from "./models/user.model";
+
+class CursorChange {
+  updatedBy: User;
+  cursorPos: { line: number; ch: number };
+}
 
 @Injectable({ providedIn: "root" })
 export class SocketService {
@@ -17,41 +21,87 @@ export class SocketService {
     this.socket.emit("joinUserSession", userId);
   }
 
-  joinProjectSession(projectId: string) {
-    this.socket.emit("joinProjectSession", projectId);
+  joinProjectSession(projectId: string, user: User) {
+    this.socket.emit("joinProjectSession", projectId, user);
   }
 
-  notifyFileContentsUpdate(projectId: string, updatedContents: string) {
-    this.socket.emit("updateFileContents", projectId, updatedContents);
-  }
-
-  getUpdatedFileContents(): Observable<string> {
+  onJoinedProjectSession(): Observable<User> {
     return new Observable(observer => {
-      this.socket.on("updateFileContents", (updatedContents: string) => {
-        observer.next(updatedContents);
+      this.socket.on("joinedProjectSession", (user: User) => {
+        observer.next(user);
       });
     });
   }
 
-  notifyInvitationChange(userId: string) {
-    this.socket.emit("notifyInvitationChange", userId);
+  leaveProjectSession(projectId: string, user: User) {
+    console.log(projectId, user.username);
+    this.socket.emit("leaveProjectSession", projectId, user);
   }
 
-  onInvitationChange(): Observable<Invitation> {
+  onLeftProjectSession(): Observable<User> {
     return new Observable(observer => {
-      this.socket.on("notifyInvitationChange", () => {
+      this.socket.on("leftProjectSession", (user: User) => {
+        console.log("left");
+        observer.next(user);
+      });
+    });
+  }
+
+  notifyCursorChange(projectId: string, cursorChange: CursorChange) {
+    this.socket.emit("cursorChange", projectId, cursorChange);
+  }
+
+  onCursorChange(): Observable<CursorChange> {
+    return new Observable(observer => {
+      this.socket.on("cursorChange", (cursorChange: CursorChange) => {
+        observer.next(cursorChange);
+      });
+    });
+  }
+
+  notifyFileContentsChange(projectId: string, newContents: string) {
+    this.socket.emit("fileContentsChange", projectId, newContents);
+  }
+
+  onFileContentsChange(): Observable<string> {
+    return new Observable(observer => {
+      this.socket.on("fileContentsChange", (newContents: string) => {
+        observer.next(newContents);
+      });
+    });
+  }
+
+  notifyInvitationChange(user: User) {
+    this.socket.emit("invitationChange", user);
+  }
+
+  onInvitationChange() {
+    return new Observable(observer => {
+      this.socket.on("invitationChange", () => {
         observer.next();
       });
     });
   }
 
-  notifyCollaboratorChange(userId: string) {
-    this.socket.emit("notifyCollaboratorChange", userId);
+  notifyCollaboratorChange(user: User) {
+    this.socket.emit("collaboratorChange", user);
   }
 
-  onCollaboratorChange(): Observable<Collaborator> {
+  onCollaboratorChange() {
     return new Observable(observer => {
-      this.socket.on("notifyCollaboratorChange", () => {
+      this.socket.on("collaboratorChange", () => {
+        observer.next();
+      });
+    });
+  }
+
+  notifyProjectAvailabilityChange(user: User) {
+    this.socket.emit("projectAvailabilityChange", user);
+  }
+
+  onProjectAvailabilityChange() {
+    return new Observable(observer => {
+      this.socket.on("projectAvailabilityChange", () => {
         observer.next();
       });
     });

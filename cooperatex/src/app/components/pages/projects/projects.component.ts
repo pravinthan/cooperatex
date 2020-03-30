@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { NewProjectDialogComponent } from "./new-project-dialog/new-project-dialog.component";
 import { MatTableDataSource } from "@angular/material/table";
@@ -6,11 +6,15 @@ import { ProjectService } from "src/app/shared/project.service";
 import { AuthenticationService } from "src/app/shared/authentication.service";
 import { MatSort } from "@angular/material/sort";
 import { DeleteProjectDialogComponent } from "./delete-project-dialog/delete-project-dialog.component";
+import { Subscription } from "rxjs";
+import { SocketService } from "src/app/shared/socket.service";
+import { User } from "src/app/shared/models/user.model";
+import { LeaveProjectDialogComponent } from "./leave-project-dialog/leave-project-dialog.component";
 
 export interface ProjectTableData {
   _id: string;
   title: string;
-  owner: string;
+  owner: User;
   lastUpdated: Date;
   lastUpdatedBy: string;
 }
@@ -20,21 +24,44 @@ export interface ProjectTableData {
   templateUrl: "./projects.component.html",
   styleUrls: ["./projects.component.css"]
 })
-export class ProjectsComponent implements OnInit {
-  currentUsername = this.authenticationService.currentUsername;
+export class ProjectsComponent implements OnInit, OnDestroy {
+  currentUser = this.authenticationService.currentUser;
   projectTableData: ProjectTableData[];
   displayedColumns: string[] = ["title", "owner", "lastUpdated", "actions"];
   dataSource = new MatTableDataSource([]);
   @ViewChild(MatSort) sort: MatSort;
   selected: "all" | "mine" | "shared" = "all";
+  onCollaboratorChangeSubscription: Subscription;
+  onProjectAvailabilityChangeSubscription: Subscription;
 
   constructor(
     public dialog: MatDialog,
     private projectService: ProjectService,
-    private authenticationService: AuthenticationService
-  ) {}
+    private authenticationService: AuthenticationService,
+    private socketService: SocketService
+  ) {
+    if (!this.onCollaboratorChangeSubscription) {
+      this.onCollaboratorChangeSubscription = this.socketService
+        .onCollaboratorChange()
+        .subscribe(() => this.refreshProjects());
+    }
 
-  private getProjects() {
+    if (!this.onProjectAvailabilityChangeSubscription) {
+      this.onProjectAvailabilityChangeSubscription = this.socketService
+        .onProjectAvailabilityChange()
+        .subscribe(() => this.refreshProjects());
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.onCollaboratorChangeSubscription)
+      this.onCollaboratorChangeSubscription.unsubscribe();
+
+    if (this.onProjectAvailabilityChangeSubscription)
+      this.onProjectAvailabilityChangeSubscription.unsubscribe();
+  }
+
+  private refreshProjects() {
     this.projectTableData = [];
     this.projectService
       .getAllProjects()
@@ -45,7 +72,7 @@ export class ProjectsComponent implements OnInit {
           this.projectTableData.push({
             _id: project._id,
             title: project.title,
-            owner: project.owner.username,
+            owner: project.owner,
             lastUpdated: project.lastUpdated,
             lastUpdatedBy: project.lastUpdatedBy.username
           });
@@ -58,7 +85,7 @@ export class ProjectsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getProjects();
+    this.refreshProjects();
   }
 
   // Search function
@@ -82,7 +109,7 @@ export class ProjectsComponent implements OnInit {
   // Show projects owned by signed in user
   filterByYourProjects() {
     this.dataSource.data = this.projectTableData.filter(
-      project => project.owner === this.currentUsername
+      project => project.owner._id === this.currentUser._id
     );
     this.dataSource.sort = this.sort;
     this.selected = "mine";
@@ -91,26 +118,48 @@ export class ProjectsComponent implements OnInit {
   // Show projects shared with signed in user
   filterByProjectsSharedWithYou() {
     this.dataSource.data = this.projectTableData.filter(
-      project => project.owner !== this.currentUsername
+      project => project.owner._id !== this.currentUser._id
     );
     this.dataSource.sort = this.sort;
     this.selected = "shared";
   }
 
   // Open a delete project dialog
-  openDeleteProjectDialog(id: string, title: string) {
+  openDeleteProjectDialog(projectTableData: ProjectTableData) {
     const dialogRef = this.dialog.open(DeleteProjectDialogComponent, {
-      data: { title }
+      width: "400px",
+      data: { title: projectTableData.title }
     });
 
     // Delete project by id and update table
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
         this.projectService
-          .deleteProjectById(id)
+          .deleteProjectById(projectTableData._id)
           .toPromise()
           .then(() => {
-            this.getProjects();
+            this.refreshProjects();
+          });
+      }
+    });
+  }
+
+  // Open a leave project dialog
+  openLeaveProjectDialog(projectTableData: ProjectTableData) {
+    const dialogRef = this.dialog.open(LeaveProjectDialogComponent, {
+      width: "500px",
+      data: { title: projectTableData.title }
+    });
+
+    // Remove the collaborator from the project and update table
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.projectService
+          .removeCollaborator(projectTableData._id, this.currentUser._id)
+          .toPromise()
+          .then(() => {
+            this.socketService.notifyCollaboratorChange(projectTableData.owner);
+            this.refreshProjects();
           });
       }
     });

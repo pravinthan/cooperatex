@@ -94,17 +94,18 @@ router.post(
   auth,
   projectController.inviteCollaborator
 );
+router.patch(
+  "/projects/:id/collaborators",
+  auth,
+  projectController.patchCollaborator
+);
 router.delete(
   "/projects/:projectId/collaborators/:userId",
   auth,
   projectController.removeCollaborator
 );
-router.patch(
-  "/projects/:projectId/collaborators/:userId",
-  auth,
-  projectController.patchCollaborator
-);
 
+// Invitations
 router.get("/invitations", auth, projectController.retrieveInvitations);
 
 module.exports = router;

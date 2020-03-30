@@ -2,12 +2,12 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
-import { Project, MulterFile, Collaborator } from "./models/Project.model";
+import { Project } from "./models/Project.model";
 import { Invitation } from "./models/invitation.model";
+import { MulterFile } from "./models/multer-file.model";
+import { Collaborator } from "./models/collaborator.model";
 
-@Injectable({
-  providedIn: "root"
-})
+@Injectable({ providedIn: "root" })
 export class ProjectService {
   constructor(private http: HttpClient) {}
 
@@ -125,23 +125,20 @@ export class ProjectService {
     );
   }
 
-  private patchCollaborator(
-    invitation: Invitation,
-    operation: "accept" | "reject"
-  ) {
+  private patchCollaborator(projectId: string, operation: "accept" | "reject") {
     return this.http.patch(
-      `${environment.apiUrl}/projects/${invitation.projectId}/collaborators/${invitation.to._id}`,
+      `${environment.apiUrl}/projects/${projectId}/collaborators`,
       { operation },
       { responseType: "text" }
     );
   }
 
-  acceptInvitation(invitation: Invitation) {
-    return this.patchCollaborator(invitation, "accept");
+  acceptInvitation(projectId: string) {
+    return this.patchCollaborator(projectId, "accept");
   }
 
-  rejectInvitation(invitation: Invitation) {
-    return this.patchCollaborator(invitation, "reject");
+  rejectInvitation(projectId: string) {
+    return this.patchCollaborator(projectId, "reject");
   }
 
   getInvitations(): Observable<Invitation[]> {

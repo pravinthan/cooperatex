@@ -55,23 +55,35 @@ io.sockets.on("connection", socket => {
     if (!socket.rooms[userId]) socket.join(userId);
   });
 
-  socket.on("joinProjectSession", projectId => {
-    socket.join(projectId);
+  socket.on("joinProjectSession", (projectId, user) => {
+    socket.join(projectId, () => {
+      socket.to(projectId).emit("joinedProjectSession", user);
+    });
   });
 
-  socket.on("leaveProjectSession", projectId => {
-    socket.leave(projectId);
+  socket.on("leaveProjectSession", (projectId, user) => {
+    socket.leave(projectId, err => {
+      if (!err) socket.to(projectId).emit("leftProjectSession", user);
+    });
   });
 
-  socket.on("updateFileContents", (session, updatedContents) => {
-    socket.broadcast.to(session).emit("updateFileContents", updatedContents);
+  socket.on("cursorChange", (projectId, data) => {
+    socket.to(projectId).emit("cursorChange", data);
   });
 
-  socket.on("notifyInvitationChange", userId => {
-    io.sockets.to(userId).emit("notifyInvitationChange");
+  socket.on("fileContentsChange", (projectId, data) => {
+    socket.to(projectId).emit("fileContentsChange", data);
   });
 
-  socket.on("notifyCollaboratorChange", userId => {
-    io.sockets.to(userId).emit("notifyCollaboratorChange");
+  socket.on("invitationChange", user => {
+    io.sockets.to(user._id).emit("invitationChange");
+  });
+
+  socket.on("collaboratorChange", user => {
+    io.sockets.to(user._id).emit("collaboratorChange");
+  });
+
+  socket.on("projectAvailabilityChange", user => {
+    io.sockets.to(user._id).emit("projectAvailabilityChange");
   });
 });

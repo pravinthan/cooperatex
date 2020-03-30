@@ -19,7 +19,6 @@ import { FormsModule } from "@angular/forms";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
@@ -40,6 +39,9 @@ import { ProjectComponent } from "./components/pages/project/project.component";
 import { UploadFilesDialogComponent } from "./components/pages/project/upload-files-dialog/upload-files-dialog.component";
 import { RenameFileDialogComponent } from "./components/pages/project/rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./components/pages/project/delete-file-dialog/delete-file-dialog.component";
+import { InviteCollaboratorsDialogComponent } from "./components/pages/project/invite-collaborators-dialog/invite-collaborators-dialog.component";
+import { InvitationsDialogComponent } from "./components/header/invitations-dialog/invitations-dialog.component";
+import { LeaveProjectDialogComponent } from "./components/pages/projects/leave-project-dialog/leave-project-dialog.component";
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
 
@@ -47,9 +49,6 @@ import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.p
 import { TruncatePipe } from "./shared/helpers/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
-import { InviteCollaboratorsDialogComponent } from "./components/pages/project/invite-collaborators-dialog/invite-collaborators-dialog.component";
-import { SocketService } from "./shared/socket.service";
-import { InvitationsDialogComponent } from "./components/header/invitations-dialog/invitations-dialog.component";
 
 @NgModule({
   declarations: [
@@ -70,7 +69,8 @@ import { InvitationsDialogComponent } from "./components/header/invitations-dial
     RenameFileDialogComponent,
     DeleteFileDialogComponent,
     InviteCollaboratorsDialogComponent,
-    InvitationsDialogComponent
+    InvitationsDialogComponent,
+    LeaveProjectDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -93,7 +93,6 @@ import { InvitationsDialogComponent } from "./components/header/invitations-dial
     MatSnackBarModule,
     MatSortModule,
     MatTooltipModule,
-    MatButtonToggleModule,
     CodemirrorModule,
     MatCheckboxModule,
     PdfJsViewerModule,
@@ -101,8 +100,7 @@ import { InvitationsDialogComponent } from "./components/header/invitations-dial
     MatBadgeModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    SocketService
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

@@ -16,9 +16,9 @@ import { Subscription } from "rxjs";
   styleUrls: ["./header.component.css"]
 })
 export class HeaderComponent implements OnDestroy {
-  currentUser: any;
+  currentUser = this.authenticationService.currentUser;
   invitations: Invitation[] = [];
-  socketInvitationSubscription: Subscription;
+  onInvitationChangeSubscription: Subscription;
 
   constructor(
     public dialog: MatDialog,
@@ -27,25 +27,21 @@ export class HeaderComponent implements OnDestroy {
     private socketService: SocketService,
     private projectService: ProjectService
   ) {
-    this.authenticationService.currentUser.subscribe(
-      currentUser => (this.currentUser = currentUser)
-    );
-
     // Get invitations after URL changes
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd && this.currentUser) {
-        this.getInvitations();
+        this.refreshInvitations();
 
-        this.socketInvitationSubscription = this.socketService
-          .onInvitationChange()
-          .subscribe(() => {
-            this.getInvitations();
-          });
+        if (!this.onInvitationChangeSubscription) {
+          this.onInvitationChangeSubscription = this.socketService
+            .onInvitationChange()
+            .subscribe(() => this.refreshInvitations());
+        }
       }
     });
   }
 
-  getInvitations = () => {
+  refreshInvitations = () => {
     this.projectService
       .getInvitations()
       .toPromise()
@@ -53,8 +49,18 @@ export class HeaderComponent implements OnDestroy {
   };
 
   ngOnDestroy() {
-    if (this.socketInvitationSubscription)
-      this.socketInvitationSubscription.unsubscribe();
+    if (this.onInvitationChangeSubscription)
+      this.onInvitationChangeSubscription.unsubscribe();
+  }
+
+  // Workaround for when the user decided to leave the session (CanDeactivate guard bugged in Angular 9)
+  async leaveAllProjectSessions() {
+    const projects = await this.projectService.getAllProjects().toPromise();
+    projects
+      .map(project => project._id)
+      .forEach(projectId => {
+        this.socketService.leaveProjectSession(projectId, this.currentUser);
+      });
   }
 
   openInvitationsDialog() {
@@ -62,16 +68,17 @@ export class HeaderComponent implements OnDestroy {
       width: "600px"
     });
 
-    dialogRef.afterClosed().subscribe(() => {
-      this.getInvitations();
-    });
+    dialogRef.afterClosed().subscribe(() => this.refreshInvitations());
   }
 
   openSignInDialog() {
     const signInDialog = this.dialog.open(SignInComponent, { width: "400px" });
     const signInSubscription = signInDialog.componentInstance.signedIn.subscribe(
       (signedIn: boolean) => {
-        if (signedIn) signInDialog.close();
+        if (signedIn) {
+          this.currentUser = this.authenticationService.currentUser;
+          signInDialog.close();
+        }
       }
     );
 
@@ -84,7 +91,10 @@ export class HeaderComponent implements OnDestroy {
     const signUpDialog = this.dialog.open(SignUpComponent, { width: "400px" });
     const signUpSubscription = signUpDialog.componentInstance.signedUp.subscribe(
       (signedUp: boolean) => {
-        if (signedUp) signUpDialog.close();
+        if (signedUp) {
+          this.currentUser = this.authenticationService.currentUser;
+          signUpDialog.close();
+        }
       }
     );
 
@@ -94,7 +104,10 @@ export class HeaderComponent implements OnDestroy {
   }
 
   signOut() {
-    this.authenticationService.signOut();
-    this.router.navigate(["/"]);
+    this.leaveAllProjectSessions().finally(() => {
+      this.authenticationService.signOut();
+      this.currentUser = null;
+      this.router.navigate(["/"]);
+    });
   }
 }

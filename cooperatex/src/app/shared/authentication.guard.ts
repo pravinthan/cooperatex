@@ -25,9 +25,7 @@ export class AuthenticationGuard implements CanActivate {
     this.snackBar.open(
       "Unauthorized or forbidden access to this resource, try signing in",
       "OK",
-      {
-        duration: 3000
-      }
+      { duration: 3000 }
     );
 
     return false;

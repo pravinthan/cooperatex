@@ -13,6 +13,6 @@ export class HomeComponent {
     private authenticationService: AuthenticationService
   ) {
     if (this.authenticationService.currentUserValue)
-      this.router.navigate(["/projects"]);
+      this.router.navigateByUrl("/projects", { skipLocationChange: true });
   }
 }

@@ -52,7 +52,11 @@
           >Owner</mat-header-cell
         >
         <mat-cell *matCellDef="let project">
-          {{ project.owner === currentUsername ? "You" : project.owner }}
+          {{
+            project.owner._id == currentUser._id
+              ? "You"
+              : project.owner.username
+          }}
         </mat-cell>
       </ng-container>
 
@@ -67,9 +71,9 @@
           >
             {{ project.lastUpdated | timeAgo }} by
             {{
-              project.lastUpdatedBy === currentUsername
+              project.lastUpdatedBy._id == currentUser._id
                 ? "You"
-                : project.lastUpdatedBy
+                : project.lastUpdatedBy.username
             }}
           </span>
         </mat-cell>
@@ -86,13 +90,22 @@
             <mat-icon>cloud_download</mat-icon>
           </button>
           <button
-            *ngIf="project.owner.username == currentUsername"
+            *ngIf="project.owner._id == currentUser._id"
             mat-icon-button
-            (click)="openDeleteProjectDialog(project._id, project.title)"
+            (click)="openDeleteProjectDialog(project)"
             matTooltip="Delete"
             matTooltipPosition="above"
           >
             <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            *ngIf="project.owner._id != currentUser._id"
+            mat-icon-button
+            (click)="openLeaveProjectDialog(project)"
+            matTooltip="Leave project"
+            matTooltipPosition="above"
+          >
+            <mat-icon>clear</mat-icon>
           </button>
         </mat-cell>
       </ng-container>

@@ -4,11 +4,12 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { SocketService } from "./socket.service";
+import { User } from "./models/user.model";
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<any>;
-  public currentUser: Observable<any>;
+  public currentUserObservable: Observable<any>;
 
   constructor(private http: HttpClient, private socketService: SocketService) {
     this.currentUserSubject = new BehaviorSubject<any>(
@@ -18,10 +19,10 @@ export class AuthenticationService {
     if (this.currentUserSubject.value && this.currentUserSubject.value.token)
       this.socketService.joinUserSession(this.currentUserId);
 
-    this.currentUser = this.currentUserSubject.asObservable();
+    this.currentUserObservable = this.currentUserSubject.asObservable();
 
-    this.currentUser.subscribe(user => {
-      if (user) this.socketService.joinUserSession(this.currentUserId);
+    this.currentUserObservable.subscribe(token => {
+      if (token) this.socketService.joinUserSession(this.currentUserId);
     });
   }
 
@@ -33,11 +34,20 @@ export class AuthenticationService {
     }
   }
 
-  public get currentUserId() {
+  public get currentUser(): User {
+    if (this.currentUserSubject.value) {
+      const token = this.parseJWT(this.currentUserSubject.value.token);
+      if (token) return new User(token._id, token.username);
+    }
+
+    return null;
+  }
+
+  public get currentUserId(): string {
     return this.parseJWT(this.currentUserSubject.value.token)._id;
   }
 
-  public get currentUsername() {
+  public get currentUsername(): string {
     return this.parseJWT(this.currentUserSubject.value.token).username;
   }
 

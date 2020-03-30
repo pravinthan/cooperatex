@@ -2,10 +2,11 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Collaborator } from "src/app/shared/models/Project.model";
 import { MatTableDataSource } from "@angular/material/table";
 import { SocketService } from "src/app/shared/socket.service";
 import { Subscription } from "rxjs";
+import { Collaborator } from "src/app/shared/models/collaborator.model";
+import { User } from "src/app/shared/models/user.model";
 
 @Component({
   selector: "app-invite-collaborators-dialog",
@@ -29,7 +30,7 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
       projectTitle: string;
     }
   ) {
-    const getCollaborators = () => {
+    const refreshCollaborators = () => {
       this.projectService
         .getCollaborators(this.data.projectId)
         .toPromise()
@@ -39,11 +40,11 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
         });
     };
 
-    getCollaborators();
+    refreshCollaborators();
 
-    this.socketService.onCollaboratorChange().subscribe(() => {
-      getCollaborators();
-    });
+    this.onCollaboratorChangeSubscription = this.socketService
+      .onCollaboratorChange()
+      .subscribe(() => refreshCollaborators());
   }
 
   ngOnDestroy() {
@@ -67,7 +68,8 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
         .then(collaborator => {
           this.collaborators.push(collaborator);
           this.dataSource.data = this.collaborators;
-          this.socketService.notifyInvitationChange(collaborator.user._id);
+          this.socketService.notifyInvitationChange(collaborator.user);
+          this.socketService.notifyProjectAvailabilityChange(collaborator.user);
         })
         .catch(err => {
           this.snackBar.open(`User ${username} does not exist`, "OK", {
@@ -77,26 +79,35 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
     }
   }
 
-  removeCollaborator(id: string) {
-    if (!this.collaborators.find(collaborator => collaborator.user._id == id)) {
+  removeCollaborator(user: User) {
+    if (
+      !this.collaborators.find(
+        collaborator => collaborator.user._id == user._id
+      )
+    ) {
       this.snackBar.open(`Collaborator does not exist`, "OK", {
         duration: 3000
       });
     } else {
       this.projectService
-        .removeCollaborator(this.data.projectId, id)
+        .removeCollaborator(this.data.projectId, user._id)
         .toPromise()
         .then(() => {
           this.collaborators = this.collaborators.filter(
-            collaborator => collaborator.user._id != id
+            collaborator => collaborator.user._id != user._id
           );
           this.dataSource.data = this.collaborators;
-          this.socketService.notifyInvitationChange(id);
+          this.socketService.notifyInvitationChange(user);
+          this.socketService.notifyProjectAvailabilityChange(user);
         })
         .catch(err => {
-          this.snackBar.open(`Error removing collaborator`, "OK", {
-            duration: 3000
-          });
+          this.snackBar.open(
+            `Error removing collaborator ${user.username}`,
+            "OK",
+            {
+              duration: 3000
+            }
+          );
         });
     }
   }
