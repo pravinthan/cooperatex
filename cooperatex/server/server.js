@@ -52,12 +52,32 @@ server.listen(port, () =>
 const io = socketIO(server);
 io.sockets.on("connection", socket => {
   socket.on("joinUserSession", userId => {
-    if (!socket.rooms[userId]) socket.join(userId);
+    if (!socket.rooms[userId]) socket.join("user-" + userId);
   });
 
   socket.on("joinProjectSession", (projectId, user) => {
     socket.join(projectId, () => {
       socket.to(projectId).emit("joinedProjectSession", user);
+
+      let activeUserIds = [];
+      Object.keys(io.sockets.adapter.rooms[projectId].sockets).forEach(
+        socketId => {
+          if (
+            Object.keys(io.sockets.adapter.sids[socketId]).includes(projectId)
+          ) {
+            const userId = Object.keys(
+              io.sockets.adapter.sids[socketId]
+            ).find(room => room.includes("user-"));
+            activeUserIds.push(
+              userId.substring(userId.indexOf("user-") + "user-".length)
+            );
+          }
+        }
+      );
+
+      io.sockets
+        .to(projectId)
+        .emit("activeUserIdsInProjectSession", activeUserIds);
     });
   });
 

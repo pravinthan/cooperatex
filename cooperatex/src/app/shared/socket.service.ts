@@ -33,15 +33,21 @@ export class SocketService {
     });
   }
 
+  onActiveUserIdsInProjectSession(): Observable<string[]> {
+    return new Observable(observer => {
+      this.socket.on("activeUserIdsInProjectSession", (userIds: string[]) => {
+        observer.next(userIds);
+      });
+    });
+  }
+
   leaveProjectSession(projectId: string, user: User) {
-    console.log(projectId, user.username);
     this.socket.emit("leaveProjectSession", projectId, user);
   }
 
   onLeftProjectSession(): Observable<User> {
     return new Observable(observer => {
       this.socket.on("leftProjectSession", (user: User) => {
-        console.log("left");
         observer.next(user);
       });
     });

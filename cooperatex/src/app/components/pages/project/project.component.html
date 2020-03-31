@@ -1,99 +1,117 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened>
-    <div id="file-list-header" *ngIf="this.project">
-      <span
-        id="title"
-        [matTooltip]="this.project.title"
-        matTooltipPosition="right"
-        >{{ this.project.title | truncate: 15 }}</span
-      >
-
+    <div>
+      <div id="file-list-header" *ngIf="this.project">
+        <span
+          id="title"
+          [matTooltip]="this.project.title"
+          matTooltipPosition="right"
+          >{{ this.project.title | truncate: 15 }}</span
+        >
+        <div>
+          <button
+            *ngIf="this.project.owner._id == this.currentUser._id"
+            (click)="openInviteCollaboratorsDialog()"
+            mat-icon-button
+            matTooltip="Invite Collaborators"
+            matTooltipPosition="below"
+          >
+            <mat-icon>group_add</mat-icon>
+          </button>
+          <button
+            (click)="openUploadFilesDialog()"
+            mat-icon-button
+            matTooltip="Upload Files"
+            matTooltipPosition="below"
+          >
+            <mat-icon>cloud_upload</mat-icon>
+          </button>
+        </div>
+      </div>
       <div>
-        <button
-          *ngIf="this.project.owner._id == this.currentUser._id"
-          (click)="openInviteCollaboratorsDialog()"
-          mat-icon-button
-          matTooltip="Invite Collaborators"
-          matTooltipPosition="below"
-        >
-          <mat-icon>group_add</mat-icon>
-        </button>
-        <button
-          (click)="openUploadFilesDialog()"
-          mat-icon-button
-          matTooltip="Upload Files"
-          matTooltipPosition="below"
-        >
-          <mat-icon>cloud_upload</mat-icon>
-        </button>
+        <mat-list>
+          <mat-list-item
+            *ngFor="let displayFile of displayFiles; trackBy: trackFile"
+          >
+            <div class="file-container">
+              <div>
+                <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
+                <mat-icon *ngIf="!displayFile.isImage && !displayFile.isMain"
+                  >insert_drive_file</mat-icon
+                >
+                <mat-icon
+                  *ngIf="displayFile.isMain"
+                  matTooltip="Main file to compile"
+                  matTooltipPosition="below"
+                  >flag</mat-icon
+                >
+                <span
+                  class="file-name"
+                  [matTooltip]="displayFile.fileName"
+                  matTooltipPosition="below"
+                >
+                  {{
+                    displayFile.fileName
+                      | truncate
+                        : (displayFile.isMain || displayFile.canMain ? 15 : 20)
+                  }}
+                </span>
+              </div>
+              <div class="file-context-buttons">
+                <button
+                  *ngIf="!displayFile.isMain && displayFile.canMain"
+                  (click)="markAsMain(displayFile._id)"
+                  mat-icon-button
+                  matTooltip="Mark as main file to compile"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>flag</mat-icon>
+                </button>
+                <button
+                  (click)="renameFile(displayFile._id, displayFile.fileName)"
+                  mat-icon-button
+                  matTooltip="Rename"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  (click)="deleteFile(displayFile._id, displayFile.fileName)"
+                  mat-icon-button
+                  matTooltip="Delete"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+        <mat-divider *ngIf="displayFiles.length > 0"></mat-divider>
+        <div id="files-hint">
+          {{
+            displayFiles.length > 0
+              ? "Hover over a file to rename or delete"
+              : "Upload files to view them here"
+          }}
+        </div>
       </div>
     </div>
-    <div>
-      <mat-list>
-        <mat-list-item
-          *ngFor="let displayFile of displayFiles; trackBy: trackFile"
+    <div id="live-collaborators-container" *ngIf="liveCollaborators.length > 0">
+      <div id="live-collaborators-hint">Collaborators in session:</div>
+      <div id="live-collaborators">
+        <div
+          *ngFor="let liveCollaborator of liveCollaborators"
+          [style.fontSize]="'32px'"
         >
-          <div class="file-container">
-            <div>
-              <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
-              <mat-icon *ngIf="!displayFile.isImage && !displayFile.isMain"
-                >insert_drive_file</mat-icon
-              >
-              <mat-icon
-                *ngIf="displayFile.isMain"
-                matTooltip="Main file to compile"
-                matTooltipPosition="below"
-                >flag</mat-icon
-              >
-              <span
-                class="file-name"
-                [matTooltip]="displayFile.fileName"
-                matTooltipPosition="below"
-              >
-                {{
-                  displayFile.fileName
-                    | truncate
-                      : (displayFile.isMain || displayFile.canMain ? 15 : 20)
-                }}
-              </span>
-            </div>
-            <div class="file-context-buttons">
-              <button
-                *ngIf="!displayFile.isMain && displayFile.canMain"
-                (click)="markAsMain(displayFile._id)"
-                mat-icon-button
-                matTooltip="Mark as main file to compile"
-                matTooltipPosition="below"
-              >
-                <mat-icon>flag</mat-icon>
-              </button>
-              <button
-                (click)="renameFile(displayFile._id, displayFile.fileName)"
-                mat-icon-button
-                matTooltip="Rename"
-                matTooltipPosition="below"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                (click)="deleteFile(displayFile._id, displayFile.fileName)"
-                mat-icon-button
-                matTooltip="Delete"
-                matTooltipPosition="below"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </div>
-        </mat-list-item>
-      </mat-list>
-      <mat-divider *ngIf="displayFiles.length > 0"></mat-divider>
-      <div id="files-hint">
-        {{
-          displayFiles.length > 0
-            ? "Hover over a file to rename or delete"
-            : "Upload files to view them here"
-        }}
+          <mat-icon
+            [matTooltip]="liveCollaborator.user.username"
+            matTooltipPosition="below"
+            [inline]="true"
+            [ngClass]="liveCollaborator.colour"
+            >person</mat-icon
+          >
+        </div>
       </div>
     </div>
   </mat-sidenav>
@@ -108,7 +126,6 @@
       <ngx-codemirror
         *ngIf="!initialLoading"
         #editor
-        [(ngModel)]="latex"
         [options]="{
           lineNumbers: 'true',
           mode: 'stex',

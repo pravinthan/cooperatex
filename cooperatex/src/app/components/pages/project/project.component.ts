@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, HostListener } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  HostListener,
+  OnDestroy
+} from "@angular/core";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
@@ -14,6 +20,7 @@ import { SocketService } from "src/app/shared/socket.service";
 import { AuthenticationService } from "src/app/shared/authentication.service";
 import { User } from "src/app/shared/models/user.model";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { Subscription } from "rxjs";
 
 export class DisplayFile {
   _id: string;
@@ -24,12 +31,64 @@ export class DisplayFile {
   canMain: boolean;
 }
 
+type Colour =
+  | "red"
+  | "orange"
+  | "green"
+  | "violet"
+  | "yellow"
+  | "darkcyan"
+  | "salmon"
+  | "lightblue"
+  | "springgreen"
+  | "white";
+
+class ColourHandler {
+  private availableColours: Colour[] = [
+    "red",
+    "orange",
+    "green",
+    "violet",
+    "yellow",
+    "darkcyan",
+    "salmon",
+    "lightblue",
+    "springgreen",
+    "white"
+  ];
+  private nextColourIndex = 0;
+
+  getNextColour() {
+    const currentColourIndex = this.nextColourIndex;
+    this.nextColourIndex = Math.min(
+      this.nextColourIndex + 1,
+      this.availableColours.length - 1
+    );
+
+    return this.availableColours[currentColourIndex];
+  }
+
+  decrementColour() {
+    this.nextColourIndex = Math.max(this.nextColourIndex - 1, 0);
+  }
+}
+
+class LiveCollaborator {
+  user: User;
+  colour: Colour;
+}
+
+class CollaboratorCursor {
+  user: User;
+  cursor: CodeMirror.TextMarker;
+}
+
 @Component({
   selector: "app-project",
   templateUrl: "./project.component.html",
   styleUrls: ["./project.component.css"]
 })
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnInit, OnDestroy {
   @ViewChild("editor") editor: CodemirrorComponent;
   @ViewChild("pdfViewer") pdfViewer: PdfJsViewerComponent;
   currentUser = this.authenticationService.currentUser;
@@ -37,23 +96,19 @@ export class ProjectComponent implements OnInit {
   project: Project;
   displayFiles: DisplayFile[] = [];
   initialLoading = true;
-  latex: string;
   latexErrorLog: string;
   mainLatexError: string;
   showErrorLog = false;
   autoCompile = true;
   compiling = false;
-  collaboratorColours = [
-    "orange",
-    "green",
-    "purple",
-    "yellow",
-    "gray",
-    "brown",
-    "lightblue"
-  ];
-  liveCollaborators: User[] = [];
-  marker: CodeMirror.TextMarker;
+  colourHandler = new ColourHandler();
+  liveCollaborators: LiveCollaborator[] = [];
+  collaboratorCursors: CollaboratorCursor[] = [];
+  onJoinedProjectSessionSubscription: Subscription;
+  onLeftProjectSessionSubscription: Subscription;
+  onFileContentsChangeSubscription: Subscription;
+  onCursorChangeSubscription: Subscription;
+  onActiveUserIdsInProjectSessionSubscription: Subscription;
   get mainFile() {
     return this.displayFiles.find(displayFile => displayFile.isMain);
   }
@@ -113,10 +168,11 @@ export class ProjectComponent implements OnInit {
     if (mainFile) {
       this.projectService
         .getFileStream(this.projectId, mainFile._id)
-        .subscribe(fileStream => {
+        .toPromise()
+        .then(fileStream => {
           this.initialLoading = false;
           new Response(fileStream).text().then(text => {
-            this.latex = text;
+            this.editor.codeMirror.setValue(text);
             this.editor.codeMirror.setSize("100%", "100%");
             this.editor.codeMirror.on("change", this.updateLatex);
             this.editor.codeMirror.on("cursorActivity", this.updateCursor);
@@ -125,83 +181,138 @@ export class ProjectComponent implements OnInit {
         });
     } else {
       this.initialLoading = false;
-      this.latex = "";
+      this.editor.codeMirror.setValue("");
     }
   }
 
   ngOnInit() {
     this.projectId = this.route.snapshot.paramMap.get("id");
 
-    this.socketService.joinProjectSession(this.projectId, this.currentUser);
+    this.onJoinedProjectSessionSubscription = this.socketService
+      .onJoinedProjectSession()
+      .subscribe(user => {
+        this.snackBar.open(`${user.username} has joined the session`, null, {
+          duration: 3000
+        });
+      });
 
-    this.socketService.onJoinedProjectSession().subscribe(collaborator => {
-      this.liveCollaborators.push(collaborator);
+    this.onActiveUserIdsInProjectSessionSubscription = this.socketService
+      .onActiveUserIdsInProjectSession()
+      .subscribe(userIds => {
+        userIds.forEach(userId => {
+          if (this.currentUser._id != userId) {
+            const collaborator = this.project.collaborators.find(
+              collaborator => collaborator.user._id == userId
+            );
+            const user = collaborator ? collaborator.user : this.project.owner;
 
-      this.snackBar.open(
-        `${collaborator.username} has joined the session`,
-        null,
-        { duration: 3000 }
-      );
-    });
+            if (
+              user &&
+              !this.liveCollaborators.find(
+                liveCollaborator => liveCollaborator.user._id == user._id
+              )
+            )
+              this.liveCollaborators.push({
+                user,
+                colour: this.colourHandler.getNextColour()
+              });
+          }
+        });
+      });
 
-    // this.socketService.leaveProjectSession(this.projectId, this.currentUser);
+    this.onLeftProjectSessionSubscription = this.socketService
+      .onLeftProjectSession()
+      .subscribe(user => {
+        this.liveCollaborators = this.liveCollaborators.filter(
+          liveCollaborator => liveCollaborator.user._id != user._id
+        );
 
-    this.socketService.onLeftProjectSession().subscribe(collaborator => {
-      this.liveCollaborators = this.liveCollaborators.filter(
-        liveCollaborator => liveCollaborator._id != collaborator._id
-      );
+        this.colourHandler.decrementColour();
 
-      this.snackBar.open(
-        `${collaborator.username} has left the session`,
-        null,
-        { duration: 3000 }
-      );
-    });
+        this.snackBar.open(`${user.username} has left the session`, null, {
+          duration: 3000
+        });
+      });
 
     this.projectService
       .getProjectById(this.projectId)
       .toPromise()
       .then(project => {
         this.project = project;
+
+        this.socketService.joinProjectSession(this.projectId, this.currentUser);
+
         this.displayFiles = project.files.map(file =>
           this.convertFileToDisplayFile(file)
         );
 
         this.setEditorContentToMainFile();
 
-        this.socketService.onFileContentsChange().subscribe(newContents => {
-          this.latex = newContents;
-        });
+        this.onFileContentsChangeSubscription = this.socketService
+          .onFileContentsChange()
+          .subscribe(newContents => {
+            // Save cursor position
+            const cursorPos = this.editor.codeMirror.getCursor();
 
-        this.socketService.onCursorChange().subscribe(cursorChange => {
-          // Create collaborator's cursor
-          if (this.marker) this.marker.clear();
-          const cursorCoords = this.editor.codeMirror.cursorCoords(
-            cursorChange.cursorPos
-          );
-          let cursorElement = document.createElement("span");
-          cursorElement.style.position = "absolute";
-          cursorElement.style.borderLeftStyle = "solid";
-          cursorElement.style.borderLeftWidth = "2px";
-          cursorElement.style.borderLeftColor = "#ff0000";
-          cursorElement.style.backgroundColor = "#ff0000";
-          cursorElement.style.height = `${cursorCoords.bottom -
-            cursorCoords.top}px`;
-          cursorElement.onmouseover = event => {
-            cursorElement.style.width = "auto";
-            cursorElement.style.paddingRight = "5px";
-            cursorElement.innerText = cursorChange.updatedBy.username;
-          };
-          cursorElement.onmouseout = event => {
-            cursorElement.style.width = "0px";
-            cursorElement.style.paddingRight = "0";
-            cursorElement.innerText = "";
-          };
-          this.marker = this.editor.codeMirror.setBookmark(
-            cursorChange.cursorPos,
-            { widget: cursorElement }
-          );
-        });
+            // Update contents
+            this.editor.codeMirror.setValue(newContents);
+
+            // Load cursor position
+            this.editor.codeMirror.setCursor(cursorPos);
+          });
+
+        this.onCursorChangeSubscription = this.socketService
+          .onCursorChange()
+          .subscribe(cursorChange => {
+            const liveCollaborator = this.liveCollaborators.find(
+              liveCollaborator =>
+                liveCollaborator.user._id == cursorChange.updatedBy._id
+            );
+
+            if (liveCollaborator) {
+              // Remove previous cursor
+              const collaboratorCursorIndex = this.collaboratorCursors.findIndex(
+                collaboratorCursor =>
+                  collaboratorCursor.user._id == liveCollaborator.user._id
+              );
+              if (collaboratorCursorIndex != -1) {
+                this.collaboratorCursors[
+                  collaboratorCursorIndex
+                ].cursor.clear();
+                this.collaboratorCursors.splice(collaboratorCursorIndex, 1);
+              }
+
+              // Create collaborator's cursor
+              const cursorCoords = this.editor.codeMirror.cursorCoords(
+                cursorChange.cursorPos
+              );
+              let cursorElement = document.createElement("span");
+              cursorElement.style.position = "absolute";
+              cursorElement.style.borderLeftStyle = "solid";
+              cursorElement.style.borderLeftWidth = "2px";
+              cursorElement.style.borderLeftColor = liveCollaborator.colour;
+              cursorElement.style.backgroundColor = liveCollaborator.colour;
+              cursorElement.style.height = `${cursorCoords.bottom -
+                cursorCoords.top}px`;
+              cursorElement.onmouseover = event => {
+                cursorElement.style.width = "auto";
+                cursorElement.style.paddingRight = "5px";
+                cursorElement.innerText = liveCollaborator.user.username;
+              };
+              cursorElement.onmouseout = event => {
+                cursorElement.style.width = "0px";
+                cursorElement.style.paddingRight = "0";
+                cursorElement.innerText = "";
+              };
+              this.collaboratorCursors.push({
+                user: liveCollaborator.user,
+                cursor: this.editor.codeMirror.setBookmark(
+                  cursorChange.cursorPos,
+                  { widget: cursorElement }
+                )
+              });
+            }
+          });
       })
       .catch(err => this.router.navigate(["/404"]));
   }
@@ -210,6 +321,19 @@ export class ProjectComponent implements OnInit {
   beforeUnload() {
     this.socketService.leaveProjectSession(this.projectId, this.currentUser);
     return true;
+  }
+
+  ngOnDestroy() {
+    if (this.onJoinedProjectSessionSubscription)
+      this.onJoinedProjectSessionSubscription.unsubscribe();
+    if (this.onActiveUserIdsInProjectSessionSubscription)
+      this.onActiveUserIdsInProjectSessionSubscription.unsubscribe();
+    if (this.onLeftProjectSessionSubscription)
+      this.onLeftProjectSessionSubscription.unsubscribe();
+    if (this.onFileContentsChangeSubscription)
+      this.onFileContentsChangeSubscription.unsubscribe();
+    if (this.onCursorChangeSubscription)
+      this.onCursorChangeSubscription.unsubscribe();
   }
 
   openInviteCollaboratorsDialog() {
@@ -243,12 +367,6 @@ export class ProjectComponent implements OnInit {
         this.displayFiles = [];
         files.forEach(file => {
           this.displayFiles.push(this.convertFileToDisplayFile(file));
-
-          // this.projectService
-          //   .getFileStream(this.projectId, file._id)
-          //   .subscribe(fileStream => {
-          //     console.log(file);
-          //   });
         });
       }
     });

@@ -9,8 +9,8 @@ mat-sidenav {
   padding-top: 64px;
   background-color: #2f3c83;
   color: white;
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
 }
 
 #file-list-header {
@@ -54,12 +54,75 @@ mat-sidenav {
   visibility: hidden;
 }
 
-#files-hint {
+#files-hint,
+#live-collaborators-hint {
   margin: 0.5rem auto 0 auto;
   font-size: small;
   color: rgba(255, 255, 255, 0.4);
   width: max-content;
   user-select: none;
+}
+
+#live-collaborators-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: stretch;
+  margin-bottom: 2rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#live-collaborators {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+#live-collaborators mat-icon {
+  cursor: default;
+}
+
+mat-icon.red {
+  color: red;
+}
+
+mat-icon.orange {
+  color: orange;
+}
+
+mat-icon.green {
+  color: green;
+}
+
+mat-icon.violet {
+  color: violet;
+}
+
+mat-icon.yellow {
+  color: yellow;
+}
+
+mat-icon.darkcyan {
+  color: darkcyan;
+}
+
+mat-icon.salmon {
+  color: salmon;
+}
+
+mat-icon.lightblue {
+  color: lightblue;
+}
+
+mat-icon.springgreen {
+  color: springgreen;
+}
+
+mat-icon.white {
+  color: white;
 }
 
 mat-sidenav-content > div {
