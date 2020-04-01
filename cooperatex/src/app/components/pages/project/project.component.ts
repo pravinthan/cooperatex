@@ -83,6 +83,11 @@ class CollaboratorCursor {
   cursor: CodeMirror.TextMarker;
 }
 
+class CollaboratorSelection {
+  user: User;
+  selection: CodeMirror.TextMarker;
+}
+
 @Component({
   selector: "app-project",
   templateUrl: "./project.component.html",
@@ -104,10 +109,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
   colourHandler = new ColourHandler();
   liveCollaborators: LiveCollaborator[] = [];
   collaboratorCursors: CollaboratorCursor[] = [];
+  collaboratorSelections: CollaboratorSelection[] = [];
   onJoinedProjectSessionSubscription: Subscription;
   onLeftProjectSessionSubscription: Subscription;
   onFileContentsChangeSubscription: Subscription;
   onCursorChangeSubscription: Subscription;
+  onSelectionChangeSubscription: Subscription;
   onActiveUserIdsInProjectSessionSubscription: Subscription;
   get mainFile() {
     return this.displayFiles.find(displayFile => displayFile.isMain);
@@ -154,11 +161,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
   };
 
-  private updateCursor = (editor: CodeMirror.Editor) => {
+  private onCursorActivity = (editor: CodeMirror.Editor) => {
     this.socketService.notifyCursorChange(this.projectId, {
       updatedBy: this.currentUser,
       cursorPos: editor.getCursor()
     });
+
+    const anchor = editor.getCursor("from");
+    const head = editor.getCursor("to");
+    if (anchor != head) {
+      console.log(anchor, head);
+      this.socketService.notifySelectionChange(this.projectId, {
+        updatedBy: this.currentUser,
+        from: anchor,
+        to: head
+      });
+    }
   };
 
   // Link the main file to the editor
@@ -175,13 +193,25 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.editor.codeMirror.setValue(text);
             this.editor.codeMirror.setSize("100%", "100%");
             this.editor.codeMirror.on("change", this.updateLatex);
-            this.editor.codeMirror.on("cursorActivity", this.updateCursor);
+            this.editor.codeMirror.on("cursorActivity", this.onCursorActivity);
             this.compilePdf();
           });
         });
     } else {
       this.initialLoading = false;
       this.editor.codeMirror.setValue("");
+    }
+  }
+
+  private removeSelection(liveCollaborator: LiveCollaborator) {
+    const collaboratorSelectionIndex = this.collaboratorSelections.findIndex(
+      collaboratorSelection =>
+        collaboratorSelection.user._id == liveCollaborator.user._id
+    );
+
+    if (collaboratorSelectionIndex != -1) {
+      this.collaboratorSelections[collaboratorSelectionIndex].selection.clear();
+      this.collaboratorSelections.splice(collaboratorSelectionIndex, 1);
     }
   }
 
@@ -251,14 +281,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.onFileContentsChangeSubscription = this.socketService
           .onFileContentsChange()
           .subscribe(newContents => {
-            // Save cursor position
-            const cursorPos = this.editor.codeMirror.getCursor();
+            // Save cursor position and current selection (if it exists)
+            const anchor = this.editor.codeMirror.getCursor("from");
+            const head = this.editor.codeMirror.getCursor();
 
             // Update contents
             this.editor.codeMirror.setValue(newContents);
 
-            // Load cursor position
-            this.editor.codeMirror.setCursor(cursorPos);
+            // Load cursor position and current selection
+            this.editor.codeMirror.setCursor(head);
+            this.editor.codeMirror.setSelection(anchor, head);
           });
 
         this.onCursorChangeSubscription = this.socketService
@@ -282,10 +314,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 this.collaboratorCursors.splice(collaboratorCursorIndex, 1);
               }
 
+              // Remove previous selection
+              this.removeSelection(liveCollaborator);
+
               // Create collaborator's cursor
               const cursorCoords = this.editor.codeMirror.cursorCoords(
                 cursorChange.cursorPos
               );
+
               let cursorElement = document.createElement("span");
               cursorElement.style.position = "absolute";
               cursorElement.style.borderLeftStyle = "solid";
@@ -294,21 +330,49 @@ export class ProjectComponent implements OnInit, OnDestroy {
               cursorElement.style.backgroundColor = liveCollaborator.colour;
               cursorElement.style.height = `${cursorCoords.bottom -
                 cursorCoords.top}px`;
-              cursorElement.onmouseover = event => {
-                cursorElement.style.width = "auto";
-                cursorElement.style.paddingRight = "5px";
-                cursorElement.innerText = liveCollaborator.user.username;
-              };
-              cursorElement.onmouseout = event => {
-                cursorElement.style.width = "0px";
-                cursorElement.style.paddingRight = "0";
-                cursorElement.innerText = "";
-              };
+              cursorElement.classList.add("cursor");
+
+              let cursorInfoElement = document.createElement("span");
+              cursorInfoElement.style.position = "absolute";
+              cursorInfoElement.style.bottom = cursorElement.style.height;
+              cursorInfoElement.style.width = "auto";
+              cursorInfoElement.style.backgroundColor = liveCollaborator.colour;
+              cursorInfoElement.classList.add("cursor-animation");
+              cursorInfoElement.innerText = liveCollaborator.user.username;
+
+              let cursorContainer = document.createElement("span");
+              cursorContainer.appendChild(cursorElement);
+              cursorContainer.appendChild(cursorInfoElement);
+
               this.collaboratorCursors.push({
                 user: liveCollaborator.user,
                 cursor: this.editor.codeMirror.setBookmark(
                   cursorChange.cursorPos,
-                  { widget: cursorElement }
+                  { widget: cursorContainer }
+                )
+              });
+            }
+          });
+
+        this.onSelectionChangeSubscription = this.socketService
+          .onSelectionChange()
+          .subscribe(selectionChange => {
+            const liveCollaborator = this.liveCollaborators.find(
+              liveCollaborator =>
+                liveCollaborator.user._id == selectionChange.updatedBy._id
+            );
+
+            if (liveCollaborator) {
+              // Remove previous selection
+              this.removeSelection(liveCollaborator);
+
+              // Create collaborator's selection
+              this.collaboratorSelections.push({
+                user: liveCollaborator.user,
+                selection: this.editor.codeMirror.markText(
+                  selectionChange.from,
+                  selectionChange.to,
+                  { className: liveCollaborator.colour }
                 )
               });
             }
@@ -334,6 +398,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.onFileContentsChangeSubscription.unsubscribe();
     if (this.onCursorChangeSubscription)
       this.onCursorChangeSubscription.unsubscribe();
+    if (this.onSelectionChangeSubscription)
+      this.onSelectionChangeSubscription.unsubscribe();
   }
 
   openInviteCollaboratorsDialog() {

@@ -6,7 +6,13 @@ import { User } from "./models/user.model";
 
 class CursorChange {
   updatedBy: User;
-  cursorPos: { line: number; ch: number };
+  cursorPos: CodeMirror.Position;
+}
+
+class SelectionChange {
+  updatedBy: User;
+  from: CodeMirror.Position;
+  to: CodeMirror.Position;
 }
 
 @Injectable({ providedIn: "root" })
@@ -61,6 +67,18 @@ export class SocketService {
     return new Observable(observer => {
       this.socket.on("cursorChange", (cursorChange: CursorChange) => {
         observer.next(cursorChange);
+      });
+    });
+  }
+
+  notifySelectionChange(projectId: string, selectionChange: SelectionChange) {
+    this.socket.emit("selectionChange", projectId, selectionChange);
+  }
+
+  onSelectionChange(): Observable<SelectionChange> {
+    return new Observable(observer => {
+      this.socket.on("selectionChange", (selectionChange: SelectionChange) => {
+        observer.next(selectionChange);
       });
     });
   }

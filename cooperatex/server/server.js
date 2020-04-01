@@ -91,6 +91,10 @@ io.sockets.on("connection", socket => {
     socket.to(projectId).emit("cursorChange", data);
   });
 
+  socket.on("selectionChange", (projectId, data) => {
+    socket.to(projectId).emit("selectionChange", data);
+  });
+
   socket.on("fileContentsChange", (projectId, data) => {
     socket.to(projectId).emit("fileContentsChange", data);
   });

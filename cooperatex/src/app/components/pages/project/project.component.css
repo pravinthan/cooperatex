@@ -69,7 +69,7 @@ mat-sidenav {
   justify-content: center;
   align-items: center;
   width: stretch;
-  margin-bottom: 2rem;
+  margin-bottom: 5rem;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -83,6 +83,15 @@ mat-sidenav {
 
 #live-collaborators mat-icon {
   cursor: default;
+}
+
+#fab {
+  position: fixed;
+  top: auto;
+  left: 20px;
+  right: 0;
+  bottom: 20px;
+  z-index: 99;
 }
 
 mat-icon.red {
@@ -123,6 +132,56 @@ mat-icon.springgreen {
 
 mat-icon.white {
   color: white;
+}
+
+::ng-deep .CodeMirror-line .red {
+  background-color: rgba(255, 0, 0, 0.37);
+}
+
+::ng-deep .CodeMirror-line .orange {
+  background-color: rgba(255, 166, 0, 0.493);
+}
+
+::ng-deep .CodeMirror-line .green {
+  background-color: rgba(0, 128, 0, 0.473);
+}
+
+::ng-deep .CodeMirror-line .violet {
+  background-color: rgba(238, 130, 238, 0.411);
+}
+
+::ng-deep .CodeMirror-line .yellow {
+  background-color: rgba(255, 255, 0, 0.5);
+}
+
+::ng-deep .CodeMirror-line .darkcyan {
+  background-color: rgba(0, 139, 139, 0.466);
+}
+
+::ng-deep .CodeMirror-line .salmon {
+  background-color: rgba(250, 128, 114, 0.466);
+}
+
+::ng-deep .CodeMirror-line .lightblue {
+  background-color: rgba(173, 216, 230, 0.418);
+}
+
+::ng-deep .CodeMirror-line .springgreen {
+  background-color: rgba(0, 255, 128, 0.466);
+}
+
+::ng-deep .CodeMirror-line .white {
+  background-color: rgba(255, 255, 255, 0.274);
+}
+
+::ng-deep .cursor + .cursor-animation {
+  opacity: 0;
+  transition: opacity 3s ease-in-out;
+}
+
+::ng-deep .cursor:hover + .cursor-animation {
+  opacity: 1;
+  transition: opacity 0s;
 }
 
 mat-sidenav-content > div {
