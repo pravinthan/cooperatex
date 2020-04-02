@@ -1,16 +1,19 @@
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened #sidenav>
     <div>
-      <div id="file-list-header" *ngIf="this.project">
+      <div id="file-list-header" *ngIf="project">
         <span
           id="title"
-          [matTooltip]="this.project.title"
+          [matTooltip]="project.title"
           matTooltipPosition="right"
-          >{{ this.project.title | truncate: 15 }}</span
+          >{{
+            (!hasReadWriteAccess ? "READ ONLY - " : "") +
+              (project.title | truncate: 15)
+          }}</span
         >
         <div>
           <button
-            *ngIf="this.project.owner._id == this.currentUser._id"
+            *ngIf="project.owner._id == currentUser._id"
             (click)="openInviteCollaboratorsDialog()"
             mat-icon-button
             matTooltip="Invite Collaborators"
@@ -19,6 +22,7 @@
             <mat-icon>group_add</mat-icon>
           </button>
           <button
+            *ngIf="hasReadWriteAccess"
             (click)="openUploadFilesDialog()"
             mat-icon-button
             matTooltip="Upload Files"
@@ -57,7 +61,10 @@
                   }}
                 </span>
               </div>
-              <div class="file-context-buttons">
+              <div
+                class="file-context-buttons"
+                *ngIf="project && hasReadWriteAccess"
+              >
                 <button
                   *ngIf="!displayFile.isMain && displayFile.canMain"
                   (click)="markAsMain(displayFile._id)"
@@ -87,11 +94,13 @@
             </div>
           </mat-list-item>
         </mat-list>
-        <mat-divider *ngIf="displayFiles.length > 0"></mat-divider>
-        <div id="files-hint">
+        <mat-divider
+          *ngIf="displayFiles.length > 0 && hasReadWriteAccess"
+        ></mat-divider>
+        <div id="files-hint" *ngIf="project && hasReadWriteAccess">
           {{
             displayFiles.length > 0
-              ? "Hover over a file to rename or delete"
+              ? "Hover over a file to show its options"
               : "Upload files to view them here"
           }}
         </div>
@@ -131,7 +140,8 @@
           mode: 'stex',
           theme: 'material',
           lineWrapping: 'true',
-          showCursorWhenSelecting: 'true'
+          showCursorWhenSelecting: 'true',
+          readOnly: !hasReadWriteAccess
         }"
         [autoFocus]="true"
       ></ngx-codemirror>
@@ -142,7 +152,11 @@
               <mat-icon>cached</mat-icon>
               Compile
             </button>
-            <mat-checkbox id="auto-compile-checkbox" [(ngModel)]="autoCompile">
+            <mat-checkbox
+              id="auto-compile-checkbox"
+              [(ngModel)]="autoCompile"
+              *ngIf="hasReadWriteAccess"
+            >
               Auto compile
             </mat-checkbox>
           </div>
@@ -182,7 +196,9 @@
       {{
         displayFiles.length > 0
           ? "Mark a file as main to edit it here"
-          : "Upload files to begin"
+          : project && hasReadWriteAccess
+          ? "Upload files to begin"
+          : "Waiting on files to be uploaded..."
       }}
     </div>
   </mat-sidenav-content>

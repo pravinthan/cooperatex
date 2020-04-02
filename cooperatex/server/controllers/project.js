@@ -1,6 +1,4 @@
-let path = require("path");
 let latex = require("node-latex");
-let exec = require("child_process").exec;
 let fs = require("fs");
 let mongoose = require("mongoose");
 let Project = mongoose.model("Project");
@@ -11,6 +9,15 @@ const isAllowedAccess = (project, userId) =>
   project.collaborators.find(
     collaborator =>
       collaborator.user._id.equals(userId) && collaborator.acceptedInvitation
+  );
+
+const hasReadWriteAccess = (project, userId) =>
+  project.owner._id.equals(userId) ||
+  project.collaborators.find(
+    collaborator =>
+      collaborator.user._id.equals(userId) &&
+      collaborator.acceptedInvitation &&
+      collaborator.access == "readWrite"
   );
 
 module.exports.createProject = (req, res) => {
@@ -44,18 +51,24 @@ module.exports.retrieveProjectById = (req, res) => {
 };
 
 module.exports.retrieveAllProjects = (req, res) => {
-  Project.find({
-    $or: [
-      {
-        "owner._id": req.user._id
-      },
-      {
-        "collaborators.user._id": req.user._id,
-        "collaborators.acceptedInvitation": true
-      }
-    ]
-  })
-    .then(projects => res.json(projects))
+  Project.find({})
+    .then(projects => {
+      let projectsRes = [];
+      projects.forEach(project => {
+        if (project.owner._id.equals(req.user._id)) projectsRes.push(project);
+
+        project.collaborators.forEach(collaborator => {
+          if (
+            collaborator.user._id.equals(req.user._id) &&
+            collaborator.acceptedInvitation
+          ) {
+            projectsRes.push(project);
+          }
+        });
+      });
+
+      res.json(projectsRes);
+    })
     .catch(err => res.sendStatus(500));
 };
 
@@ -80,7 +93,11 @@ module.exports.uploadFiles = (req, res) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
+      if (
+        !isAllowedAccess(project, req.user._id) ||
+        !hasReadWriteAccess(project, req.user._id)
+      )
+        return res.sendStatus(403);
 
       const existingFileNames = project.files.map(file => file.originalname);
       for (const file of req.files) {
@@ -152,7 +169,11 @@ module.exports.deleteFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
+      if (
+        !isAllowedAccess(project, req.user._id) ||
+        !hasReadWriteAccess(project, req.user._id)
+      )
+        return res.sendStatus(403);
 
       Project.findByIdAndUpdate(project._id, {
         $pull: { files: { _id: req.params.fileId } }
@@ -176,7 +197,11 @@ module.exports.patchFile = (req, res) => {
           .status(404)
           .send(`Project ${req.params.projectId} does not exist`);
 
-      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
+      if (
+        !isAllowedAccess(project, req.user._id) ||
+        !hasReadWriteAccess(project, req.user._id)
+      )
+        return res.sendStatus(403);
 
       if (req.body.operation == "replaceMain") {
         if (project.files.find(file => file.isMain)) {
@@ -249,23 +274,6 @@ module.exports.retrieveOutputPdf = (req, res) => {
       });
 
       pdf.on("finish", () => res.sendFile(outputPath));
-
-      // let afterCompile = function(err) {
-      //   if (err) console.log(err);
-
-      //   // store the logs for the user here
-      //   fs.readFile(logPath, (err, data) => {
-      //     if (err) console.log(err);
-      //     response.logs = data ? data.toString() : "";
-      //     res.sendFile(outputPath);
-      //   });
-      // };
-
-      // exec(
-      //   `pdflatex -interaction=nonstopmode -jobname=${mainFile.filename} ${mainFile.filename} > /dev/null 2>&1`,
-      //   { cwd: mainFile.destination },
-      //   afterCompile
-      // );
     })
     .catch(err => res.sendStatus(500));
 };
@@ -398,20 +406,22 @@ module.exports.patchCollaborator = (req, res) => {
 };
 
 module.exports.retrieveInvitations = (req, res) => {
-  Project.find({
-    "collaborators.user._id": req.user._id,
-    "collaborators.pendingInvitation": true
-  })
+  Project.find({})
     .then(projects => {
-      if (projects.length == 0) return res.json([]);
-
       let invitations = [];
       projects.forEach(project => {
-        invitations.push({
-          from: project.owner,
-          to: { _id: req.user._id, username: req.user.username },
-          projectId: project._id,
-          projectTitle: project.title
+        project.collaborators.forEach(collaborator => {
+          if (
+            collaborator.user._id.equals(req.user._id) &&
+            collaborator.pendingInvitation
+          ) {
+            invitations.push({
+              from: project.owner,
+              to: { _id: req.user._id, username: req.user.username },
+              projectId: project._id,
+              projectTitle: project.title
+            });
+          }
         });
       });
 

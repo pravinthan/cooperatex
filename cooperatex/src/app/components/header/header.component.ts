@@ -56,11 +56,9 @@ export class HeaderComponent implements OnDestroy {
   // Workaround for when the user decided to leave the session (CanDeactivate guard bugged in Angular 9)
   async leaveAllProjectSessions() {
     const projects = await this.projectService.getAllProjects().toPromise();
-    projects
-      .map(project => project._id)
-      .forEach(projectId => {
-        this.socketService.leaveProjectSession(projectId, this.currentUser);
-      });
+    projects.forEach(project => {
+      this.socketService.leaveProjectSession(project._id, this.currentUser);
+    });
   }
 
   openInvitationsDialog() {
@@ -104,10 +102,8 @@ export class HeaderComponent implements OnDestroy {
   }
 
   signOut() {
-    this.leaveAllProjectSessions().finally(() => {
-      this.authenticationService.signOut();
-      this.currentUser = null;
-      this.router.navigate(["/"]);
-    });
+    this.authenticationService.signOut();
+    this.currentUser = null;
+    window.location.href = "/";
   }
 }

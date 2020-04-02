@@ -59,6 +59,18 @@ export class SocketService {
     });
   }
 
+  notifyProjectChange(projectId: string) {
+    this.socket.emit("projectChange", projectId);
+  }
+
+  onProjectChange() {
+    return new Observable(observer => {
+      this.socket.on("projectChange", () => {
+        observer.next();
+      });
+    });
+  }
+
   notifyCursorChange(projectId: string, cursorChange: CursorChange) {
     this.socket.emit("cursorChange", projectId, cursorChange);
   }

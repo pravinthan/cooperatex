@@ -50,9 +50,10 @@ server.listen(port, () =>
 );
 
 const io = socketIO(server);
+const userPrefix = "user-";
 io.sockets.on("connection", socket => {
   socket.on("joinUserSession", userId => {
-    if (!socket.rooms[userId]) socket.join("user-" + userId);
+    if (!socket.rooms[userPrefix + userId]) socket.join(userPrefix + userId);
   });
 
   socket.on("joinProjectSession", (projectId, user) => {
@@ -62,16 +63,10 @@ io.sockets.on("connection", socket => {
       let activeUserIds = [];
       Object.keys(io.sockets.adapter.rooms[projectId].sockets).forEach(
         socketId => {
-          if (
-            Object.keys(io.sockets.adapter.sids[socketId]).includes(projectId)
-          ) {
-            const userId = Object.keys(
-              io.sockets.adapter.sids[socketId]
-            ).find(room => room.includes("user-"));
-            activeUserIds.push(
-              userId.substring(userId.indexOf("user-") + "user-".length)
-            );
-          }
+          const userId = Object.keys(
+            io.sockets.adapter.sids[socketId]
+          ).find(room => room.includes(userPrefix));
+          activeUserIds.push(userId.substring(userPrefix.length));
         }
       );
 
@@ -87,6 +82,10 @@ io.sockets.on("connection", socket => {
     });
   });
 
+  socket.on("projectChange", projectId => {
+    socket.to(projectId).emit("projectChange");
+  });
+
   socket.on("cursorChange", (projectId, data) => {
     socket.to(projectId).emit("cursorChange", data);
   });
@@ -100,14 +99,14 @@ io.sockets.on("connection", socket => {
   });
 
   socket.on("invitationChange", user => {
-    io.sockets.to(user._id).emit("invitationChange");
+    io.sockets.to(userPrefix + user._id).emit("invitationChange");
   });
 
   socket.on("collaboratorChange", user => {
-    io.sockets.to(user._id).emit("collaboratorChange");
+    io.sockets.to(userPrefix + user._id).emit("collaboratorChange");
   });
 
   socket.on("projectAvailabilityChange", user => {
-    io.sockets.to(user._id).emit("projectAvailabilityChange");
+    io.sockets.to(userPrefix + user._id).emit("projectAvailabilityChange");
   });
 });

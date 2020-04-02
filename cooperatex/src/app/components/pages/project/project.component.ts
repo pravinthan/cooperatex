@@ -116,8 +116,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
   onCursorChangeSubscription: Subscription;
   onSelectionChangeSubscription: Subscription;
   onActiveUserIdsInProjectSessionSubscription: Subscription;
+  onProjectChangeSubscription: Subscription;
+  onProjectAvailabilityChangeSubscription: Subscription;
   get mainFile() {
     return this.displayFiles.find(displayFile => displayFile.isMain);
+  }
+  get hasReadWriteAccess() {
+    const collaborator = this.project.collaborators.find(
+      collaborator => collaborator.user._id == this.currentUser._id
+    );
+
+    return (
+      this.currentUser._id == this.project.owner._id ||
+      (collaborator &&
+        collaborator.acceptedInvitation &&
+        collaborator.access == "readWrite")
+    );
   }
 
   constructor(
@@ -149,7 +163,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     editor: CodeMirror.Editor,
     change: CodeMirror.EditorChange
   ) => {
-    if (change.origin != "setValue") {
+    if (change.origin != "setValue" && this.hasReadWriteAccess) {
       const newContents = editor.getValue();
       this.socketService.notifyFileContentsChange(this.projectId, newContents);
       this.projectService
@@ -170,7 +184,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const anchor = editor.getCursor("from");
     const head = editor.getCursor("to");
     if (anchor != head) {
-      console.log(anchor, head);
       this.socketService.notifySelectionChange(this.projectId, {
         updatedBy: this.currentUser,
         from: anchor,
@@ -199,7 +212,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
         });
     } else {
       this.initialLoading = false;
-      this.editor.codeMirror.setValue("");
     }
   }
 
@@ -262,6 +274,20 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.snackBar.open(`${user.username} has left the session`, null, {
           duration: 3000
         });
+      });
+
+    this.onProjectChangeSubscription = this.socketService
+      .onProjectChange()
+      .subscribe(() => {
+        this.projectService
+          .getProjectById(this.projectId)
+          .toPromise()
+          .then(project => {
+            this.project = project;
+            this.displayFiles = project.files.map(file =>
+              this.convertFileToDisplayFile(file)
+            );
+          });
       });
 
     this.projectService
@@ -377,6 +403,24 @@ export class ProjectComponent implements OnInit, OnDestroy {
               });
             }
           });
+
+        this.onProjectAvailabilityChangeSubscription = this.socketService
+          .onProjectAvailabilityChange()
+          .subscribe(() => {
+            // Check to see if user still has access
+            this.projectService
+              .getAllFiles(this.projectId)
+              .toPromise()
+              .catch(err => {
+                this.snackBar.open(
+                  `Your access to ${this.project.title} has been revoked`,
+                  "OK",
+                  { duration: 3000 }
+                );
+
+                this.router.navigate(["/"]);
+              });
+          });
       })
       .catch(err => this.router.navigate(["/404"]));
   }
@@ -394,12 +438,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.onActiveUserIdsInProjectSessionSubscription.unsubscribe();
     if (this.onLeftProjectSessionSubscription)
       this.onLeftProjectSessionSubscription.unsubscribe();
+    if (this.onProjectChangeSubscription)
+      this.onProjectChangeSubscription.unsubscribe();
     if (this.onFileContentsChangeSubscription)
       this.onFileContentsChangeSubscription.unsubscribe();
     if (this.onCursorChangeSubscription)
       this.onCursorChangeSubscription.unsubscribe();
     if (this.onSelectionChangeSubscription)
       this.onSelectionChangeSubscription.unsubscribe();
+    if (this.onProjectAvailabilityChangeSubscription)
+      this.onProjectAvailabilityChangeSubscription.unsubscribe();
   }
 
   openInviteCollaboratorsDialog() {
@@ -430,6 +478,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((files: MulterFile[]) => {
       if (files && files.length > 0) {
+        this.socketService.notifyProjectChange(this.projectId);
+
         this.displayFiles = [];
         files.forEach(file => {
           this.displayFiles.push(this.convertFileToDisplayFile(file));
@@ -450,6 +500,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
           .deleteFile(this.projectId, fileId)
           .toPromise()
           .then(() => {
+            this.socketService.notifyProjectChange(this.projectId);
+
             this.displayFiles = this.displayFiles.filter(
               displayFile => displayFile._id != fileId
             );
@@ -473,6 +525,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(newName => {
       if (newName) {
+        this.socketService.notifyProjectChange(this.projectId);
+
         const newNameIndex = this.displayFiles.findIndex(
           displayFile => displayFile._id == fileId
         );
@@ -489,6 +543,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .assignMainFile(this.projectId, fileId)
       .toPromise()
       .then(() => {
+        this.socketService.notifyProjectChange(this.projectId);
+
         const oldMainIndex = this.displayFiles.findIndex(
           displayFile => displayFile.isMain
         );

@@ -9,11 +9,10 @@ mat-sidenav {
   padding-top: 64px;
   background-color: #2f3c83;
   color: white;
-  /* display: flex;
-  flex-direction: column; */
 }
 
 #file-list-header {
+  height: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
