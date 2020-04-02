@@ -114,7 +114,14 @@ module.exports.uploadFiles = (req, res) => {
           Project.findByIdAndUpdate(
             project._id,
             {
-              $push: { files: { ...req.files[i], isMain: false } }
+              $push: { files: { ...req.files[i], isMain: false } },
+              $set: {
+                lastUpdated: Date.now(),
+                lastUpdatedBy: {
+                  _id: req.user._id,
+                  username: req.user.username
+                }
+              }
             },
             { new: true }
           )
@@ -176,16 +183,34 @@ module.exports.deleteFile = (req, res) => {
         return res.sendStatus(403);
 
       Project.findByIdAndUpdate(project._id, {
-        $pull: { files: { _id: req.params.fileId } }
+        $pull: {
+          files: { _id: req.params.fileId }
+        },
+        $set: {
+          lastUpdated: Date.now(),
+          lastUpdatedBy: {
+            _id: req.user._id,
+            username: req.user.username
+          }
+        }
       }).then(project => res.sendStatus(200));
     })
     .catch(err => res.sendStatus(500));
 };
 
-const assignMain = (projectId, fileId) => {
+const assignMain = (req, projectId) => {
   return Project.findOneAndUpdate(
-    { _id: projectId, "files._id": fileId },
-    { $set: { "files.$.isMain": true } }
+    { _id: projectId, "files._id": req.params.fileId },
+    {
+      $set: {
+        "files.$.isMain": true,
+        lastUpdated: Date.now(),
+        lastUpdatedBy: {
+          _id: req.user._id,
+          username: req.user.username
+        }
+      }
+    }
   );
 };
 
@@ -209,14 +234,10 @@ module.exports.patchFile = (req, res) => {
             { _id: project._id, "files.isMain": true },
             { $set: { "files.$.isMain": false } }
           ).then(project => {
-            assignMain(project._id, req.params.fileId).then(project =>
-              res.sendStatus(200)
-            );
+            assignMain(req, project._id).then(project => res.sendStatus(200));
           });
         } else {
-          assignMain(project._id, req.params.fileId).then(project =>
-            res.sendStatus(200)
-          );
+          assignMain(req, project._id).then(project => res.sendStatus(200));
         }
       } else if (req.body.operation == "replaceName") {
         if (project.files.find(file => file.originalname == req.body.newName))
@@ -229,7 +250,16 @@ module.exports.patchFile = (req, res) => {
           req.body.newName + oldName.substring(oldName.indexOf("."));
         Project.findOneAndUpdate(
           { _id: project._id, "files._id": req.params.fileId },
-          { $set: { "files.$.originalname": newName } }
+          {
+            $set: {
+              "files.$.originalname": newName,
+              lastUpdated: Date.now(),
+              lastUpdatedBy: {
+                _id: req.user._id,
+                username: req.user.username
+              }
+            }
+          }
         ).then(project => res.sendStatus(200));
       } else if (req.body.operation == "replaceContents") {
         const fileToUpdate = project.files.find(
@@ -242,7 +272,15 @@ module.exports.patchFile = (req, res) => {
           fs.writeFile(fileToUpdate.path, req.body.newContents, "utf8", err => {
             if (err) return res.sendStatus(500);
 
-            return res.sendStatus(200);
+            Project.findByIdAndUpdate(project._id, {
+              $set: {
+                lastUpdated: Date.now(),
+                lastUpdatedBy: {
+                  _id: req.user._id,
+                  username: req.user.username
+                }
+              }
+            }).then(project => res.sendStatus(200));
           });
         });
       }
