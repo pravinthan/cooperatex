@@ -29,11 +29,11 @@ router.post(
   "/users/signup",
   [
     body("username")
-      .isLength({ min: 3, max: 20 })
-      .isAlphanumeric()
       .trim()
+      .isAlphanumeric()
+      .isLength({ min: 3, max: 20 })
       .escape(),
-    body("password").isLength({ min: 8, max: 20 }).trim().escape(),
+    body("password").trim().isLength({ min: 8, max: 20 }).escape(),
   ],
   authenticationController.signUp
 );
@@ -41,62 +41,206 @@ router.post(
   "/users/signin",
   [
     body("username")
+      .trim()
       .isLength({ min: 3, max: 20 })
       .isAlphanumeric()
-      .trim()
       .escape(),
-    body("password").isLength({ min: 8, max: 20 }).trim().escape(),
+    body("password").trim().isLength({ min: 8, max: 20 }).escape(),
   ],
   authenticationController.signIn
 );
 
-// Project
-router.post("/projects", auth, projectController.createProject);
+// Projects
+router.post(
+  "/projects",
+  auth,
+  [
+    body("title")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .escape(),
+  ],
+  projectController.createProject
+);
 router.get("/projects", auth, projectController.retrieveAllProjects);
-router.get("/projects/:id", auth, projectController.retrieveProjectById);
-router.delete("/projects/:id", auth, projectController.deleteProjectById);
+router.get(
+  "/projects/:id",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
+  projectController.retrieveProjectById
+);
+router.delete(
+  "/projects/:id",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
+  projectController.deleteProjectById
+);
 router.post(
   "/projects/:id/files",
   auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
   upload.array("files"),
   projectController.uploadFiles
 );
-router.get("/projects/:id/files", auth, projectController.retrieveAllFiles);
+router.get(
+  "/projects/:id/files",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
+  projectController.retrieveAllFiles
+);
 router.get(
   "/projects/:projectId/files/:fileId",
   auth,
+  [
+    param("projectId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    param("fileId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
   projectController.retrieveFile
 );
 router.delete(
   "/projects/:projectId/files/:fileId",
   auth,
+  [
+    param("projectId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    param("fileId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
   projectController.deleteFile
 );
 router.patch(
   "/projects/:projectId/files/:fileId",
   auth,
+  [
+    param("projectId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    param("fileId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    body("operation")
+      .exists({ checkNull: true, checkFalsy: true })
+      .isIn(["replaceMain", "replaceName", "replaceContents"]),
+    body("newName")
+      .if(body("newName").exists({ checkNull: true, checkFalsy: true }))
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .escape(),
+  ],
   projectController.patchFile
 );
-router.get("/projects/:id/output", auth, projectController.retrieveOutputPdf);
+router.get(
+  "/projects/:id/output",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
+  projectController.retrieveOutputPdf
+);
 router.get(
   "/projects/:id/collaborators",
   auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
   projectController.retrieveCollaborators
 );
 router.post(
   "/projects/:id/collaborators",
   auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    body("username")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .escape(),
+    body("access")
+      .exists({ checkNull: true, checkFalsy: true })
+      .isIn(["read", "readWrite"]),
+  ],
   projectController.inviteCollaborator
-);
-router.patch(
-  "/projects/:id/collaborators",
-  auth,
-  projectController.patchCollaborator
 );
 router.delete(
   "/projects/:projectId/collaborators/:userId",
   auth,
+  [
+    param("projectId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
   projectController.removeCollaborator
+);
+router.patch(
+  "/projects/:id/collaborators",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+    body("operation")
+      .exists({ checkNull: true, checkFalsy: true })
+      .isIn(["accept", "reject"]),
+  ],
+  projectController.patchCollaborator
 );
 
 // Invitations

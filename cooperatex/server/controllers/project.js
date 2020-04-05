@@ -3,6 +3,7 @@ let path = require("path");
 let fs = require("fs");
 let os = require("os");
 let mongoose = require("mongoose");
+let { validationResult } = require("express-validator");
 let Project = mongoose.model("Project");
 let User = mongoose.model("User");
 
@@ -22,11 +23,10 @@ const hasReadWriteAccess = (project, userId) =>
       collaborator.access == "readWrite"
   );
 
+const isBadRequest = (req) => !validationResult(req).isEmpty();
+
 module.exports.createProject = (req, res) => {
-  if (!req.body.title || req.body.title.length > 50)
-    return res
-      .status(400)
-      .json("Title required and must be less than or equal to 50 characters");
+  if (isBadRequest(req)) return res.sendStatus(400);
 
   Project.create({
     owner: { _id: req.user._id, username: req.user.username },
@@ -40,6 +40,8 @@ module.exports.createProject = (req, res) => {
 };
 
 module.exports.retrieveProjectById = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -75,6 +77,8 @@ module.exports.retrieveAllProjects = (req, res) => {
 };
 
 module.exports.deleteProjectById = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -90,6 +94,8 @@ module.exports.deleteProjectById = (req, res) => {
 };
 
 module.exports.uploadFiles = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -138,6 +144,8 @@ module.exports.uploadFiles = (req, res) => {
 };
 
 module.exports.retrieveAllFiles = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -151,6 +159,8 @@ module.exports.retrieveAllFiles = (req, res) => {
 };
 
 module.exports.retrieveFile = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.projectId)
     .then((project) => {
       if (!project)
@@ -167,9 +177,7 @@ module.exports.retrieveFile = (req, res) => {
 };
 
 module.exports.deleteFile = (req, res) => {
-  if (!req.params.fileId || !req.params.projectId) {
-    return res.status(400).send("File id and project id required");
-  }
+  if (isBadRequest(req)) return res.sendStatus(400);
 
   Project.findById(req.params.projectId)
     .then((project) => {
@@ -217,6 +225,8 @@ const assignMain = (req, projectId) => {
 };
 
 module.exports.patchFile = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.projectId)
     .then((project) => {
       if (!project)
@@ -296,6 +306,8 @@ module.exports.patchFile = (req, res) => {
 };
 
 module.exports.retrieveOutputPdf = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -344,6 +356,8 @@ module.exports.retrieveOutputPdf = (req, res) => {
 };
 
 module.exports.retrieveCollaborators = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -357,6 +371,8 @@ module.exports.retrieveCollaborators = (req, res) => {
 };
 
 module.exports.inviteCollaborator = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
@@ -395,6 +411,8 @@ module.exports.inviteCollaborator = (req, res) => {
 };
 
 module.exports.removeCollaborator = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.projectId)
     .then((project) => {
       if (!project)
@@ -441,6 +459,8 @@ module.exports.removeCollaborator = (req, res) => {
 };
 
 module.exports.patchCollaborator = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
