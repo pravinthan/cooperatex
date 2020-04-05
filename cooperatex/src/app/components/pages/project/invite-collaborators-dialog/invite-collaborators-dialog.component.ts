@@ -11,7 +11,7 @@ import { User } from "src/app/shared/models/user.model";
 @Component({
   selector: "app-invite-collaborators-dialog",
   templateUrl: "./invite-collaborators-dialog.component.html",
-  styleUrls: ["./invite-collaborators-dialog.component.css"]
+  styleUrls: ["./invite-collaborators-dialog.component.css"],
 })
 export class InviteCollaboratorsDialogComponent implements OnDestroy {
   displayedColumns: string[] = ["username", "access", "action"];
@@ -34,7 +34,7 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
       this.projectService
         .getCollaborators(this.data.projectId)
         .toPromise()
-        .then(collaborators => {
+        .then((collaborators) => {
           this.collaborators = collaborators;
           this.dataSource.data = this.collaborators;
         });
@@ -55,25 +55,25 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
   inviteCollaborator(username: string, access: "read" | "readWrite") {
     if (
       this.collaborators.find(
-        collaborator => collaborator.user.username == username
+        (collaborator) => collaborator.user.username == username
       )
     ) {
       this.snackBar.open(`Collaborator ${username} exists already`, "OK", {
-        duration: 3000
+        duration: 3000,
       });
     } else {
       this.projectService
         .inviteCollaborator(this.data.projectId, username, access)
         .toPromise()
-        .then(collaborator => {
+        .then((collaborator) => {
           this.collaborators.push(collaborator);
           this.dataSource.data = this.collaborators;
           this.socketService.notifyInvitationChange(collaborator.user);
           this.socketService.notifyProjectAvailabilityChange(collaborator.user);
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackBar.open(`User ${username} does not exist`, "OK", {
-            duration: 3000
+            duration: 3000,
           });
         });
     }
@@ -82,11 +82,11 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
   removeCollaborator(user: User) {
     if (
       !this.collaborators.find(
-        collaborator => collaborator.user._id == user._id
+        (collaborator) => collaborator.user._id == user._id
       )
     ) {
       this.snackBar.open(`Collaborator does not exist`, "OK", {
-        duration: 3000
+        duration: 3000,
       });
     } else {
       this.projectService
@@ -94,18 +94,18 @@ export class InviteCollaboratorsDialogComponent implements OnDestroy {
         .toPromise()
         .then(() => {
           this.collaborators = this.collaborators.filter(
-            collaborator => collaborator.user._id != user._id
+            (collaborator) => collaborator.user._id != user._id
           );
           this.dataSource.data = this.collaborators;
           this.socketService.notifyInvitationChange(user);
           this.socketService.notifyProjectAvailabilityChange(user);
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackBar.open(
             `Error removing collaborator ${user.username}`,
             "OK",
             {
-              duration: 3000
+              duration: 3000,
             }
           );
         });

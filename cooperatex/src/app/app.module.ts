@@ -70,7 +70,7 @@ import "codemirror/mode/stex/stex";
     DeleteFileDialogComponent,
     InviteCollaboratorsDialogComponent,
     InvitationsDialogComponent,
-    LeaveProjectDialogComponent
+    LeaveProjectDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -97,11 +97,11 @@ import "codemirror/mode/stex/stex";
     MatCheckboxModule,
     PdfJsViewerModule,
     MatSelectModule,
-    MatBadgeModule
+    MatBadgeModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

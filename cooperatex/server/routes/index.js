@@ -18,7 +18,7 @@ const fileFilter = (req, file, callback) => {
 let upload = require("multer")({
   dest: path.join(__dirname, "../../uploads"),
   fileFilter: fileFilter,
-  limits: { fileSize: 1024 * 1024 * 20 }
+  limits: { fileSize: 1024 * 1024 * 20 },
 });
 
 let authenticationController = require("../controllers/authentication");
@@ -33,10 +33,7 @@ router.post(
       .isAlphanumeric()
       .trim()
       .escape(),
-    body("password")
-      .isLength({ min: 8, max: 20 })
-      .trim()
-      .escape()
+    body("password").isLength({ min: 8, max: 20 }).trim().escape(),
   ],
   authenticationController.signUp
 );
@@ -48,10 +45,7 @@ router.post(
       .isAlphanumeric()
       .trim()
       .escape(),
-    body("password")
-      .isLength({ min: 8, max: 20 })
-      .trim()
-      .escape()
+    body("password").isLength({ min: 8, max: 20 }).trim().escape(),
   ],
   authenticationController.signIn
 );

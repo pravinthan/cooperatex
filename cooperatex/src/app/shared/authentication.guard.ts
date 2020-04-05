@@ -3,13 +3,13 @@ import {
   CanActivate,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
-  Router
+  Router,
 } from "@angular/router";
 import { AuthenticationService } from "./authentication.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class AuthenticationGuard implements CanActivate {
   constructor(

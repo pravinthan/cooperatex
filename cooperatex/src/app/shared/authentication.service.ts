@@ -21,7 +21,7 @@ export class AuthenticationService {
 
     this.currentUserObservable = this.currentUserSubject.asObservable();
 
-    this.currentUserObservable.subscribe(token => {
+    this.currentUserObservable.subscribe((token) => {
       if (token) this.socketService.joinUserSession(this.currentUserId);
     });
   }
@@ -59,7 +59,7 @@ export class AuthenticationService {
     return this.http
       .post<any>(`${environment.apiUrl}/users/signup`, { username, password })
       .pipe(
-        map(user => {
+        map((user) => {
           localStorage.setItem("currentUser", JSON.stringify(user));
           this.currentUserSubject.next(user);
           return user;
@@ -71,7 +71,7 @@ export class AuthenticationService {
     return this.http
       .post<any>(`${environment.apiUrl}/users/signin`, { username, password })
       .pipe(
-        map(user => {
+        map((user) => {
           localStorage.setItem("currentUser", JSON.stringify(user));
           this.currentUserSubject.next(user);
           return user;

@@ -7,7 +7,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 @Component({
   selector: "app-sign-in",
   templateUrl: "./sign-in.component.html",
-  styleUrls: ["./sign-in.component.css"]
+  styleUrls: ["./sign-in.component.css"],
 })
 export class SignInComponent {
   loading = false;
@@ -28,20 +28,20 @@ export class SignInComponent {
     this.authenticationService
       .signIn(form.value.username, form.value.password)
       .subscribe(
-        data => {
+        (data) => {
           this.signedIn.emit(true);
 
           const returnUrl = this.route.snapshot.queryParams.returnUrl;
           if (returnUrl) this.router.navigate([returnUrl]);
           else this.router.navigate(["/projects"]);
         },
-        error => {
+        (error) => {
           this.loading = false;
 
           const message =
             error.status == 401 ? error.error : "Sign in failed, try again.";
           this.snackBar.open(message, "OK", {
-            duration: 3000
+            duration: 3000,
           });
         }
       );

@@ -9,7 +9,7 @@ import { Subscription } from "rxjs";
 @Component({
   selector: "app-invitations-dialog",
   templateUrl: "./invitations-dialog.component.html",
-  styleUrls: ["./invitations-dialog.component.css"]
+  styleUrls: ["./invitations-dialog.component.css"],
 })
 export class InvitationsDialogComponent implements OnDestroy {
   onInvitationChangeSubscription: Subscription;
@@ -27,7 +27,7 @@ export class InvitationsDialogComponent implements OnDestroy {
       this.projectService
         .getInvitations()
         .toPromise()
-        .then(invitations => (this.invitations = invitations));
+        .then((invitations) => (this.invitations = invitations));
     };
 
     refreshInvitations();
@@ -50,18 +50,18 @@ export class InvitationsDialogComponent implements OnDestroy {
       .toPromise()
       .then(() => {
         this.invitations = this.invitations.filter(
-          acceptedInvitation =>
+          (acceptedInvitation) =>
             acceptedInvitation.projectId != invitation.projectId
         );
         this.socketService.notifyCollaboratorChange(invitation.from);
         this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
-      .catch(err => {
+      .catch((err) => {
         this.snackBar.open(
           "Error accepting invitation (it may have been revoked)",
           "OK",
           {
-            duration: 3000
+            duration: 3000,
           }
         );
       });
@@ -73,25 +73,25 @@ export class InvitationsDialogComponent implements OnDestroy {
       .toPromise()
       .then(() => {
         this.invitations = this.invitations.filter(
-          rejectedInvitation =>
+          (rejectedInvitation) =>
             rejectedInvitation.projectId != invitation.projectId
         );
         this.socketService.notifyCollaboratorChange(invitation.from);
         this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
-      .catch(err => {
+      .catch((err) => {
         this.snackBar.open(
           "Error rejecting invitation (it may have already been revoked)",
           "OK",
           {
-            duration: 3000
+            duration: 3000,
           }
         );
       });
   }
 
   rejectAllInvitations() {
-    this.invitations.forEach(invitation => {
+    this.invitations.forEach((invitation) => {
       this.rejectInvitation(invitation);
     });
   }

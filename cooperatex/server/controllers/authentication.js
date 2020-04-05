@@ -7,7 +7,7 @@ module.exports.signUp = (req, res) => {
   if (validationResult(req).array().length > 0) return res.sendStatus(400);
 
   User.findOne({ username: req.body.username })
-    .then(user => {
+    .then((user) => {
       if (user)
         return res
           .status(409)
@@ -17,9 +17,9 @@ module.exports.signUp = (req, res) => {
       newUser.username = req.body.username;
       newUser.setPassword(req.body.password);
 
-      newUser.save(err => res.json({ token: newUser.generateJWT() }));
+      newUser.save((err) => res.json({ token: newUser.generateJWT() }));
     })
-    .catch(err => res.sendStatus(500));
+    .catch((err) => res.sendStatus(500));
 };
 
 module.exports.signIn = (req, res) => {

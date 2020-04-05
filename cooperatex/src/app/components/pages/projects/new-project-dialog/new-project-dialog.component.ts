@@ -8,7 +8,7 @@ import { Router } from "@angular/router";
 @Component({
   selector: "app-new-project-dialog",
   templateUrl: "./new-project-dialog.component.html",
-  styleUrls: ["./new-project-dialog.component.css"]
+  styleUrls: ["./new-project-dialog.component.css"],
 })
 export class NewProjectDialogComponent {
   constructor(
@@ -20,13 +20,13 @@ export class NewProjectDialogComponent {
 
   onSubmit(form: NgForm) {
     this.projectService.createProject(form.value.title).subscribe(
-      data => {
+      (data) => {
         this.dialogRef.close();
         this.router.navigate([`/projects/${data._id}`]);
       },
-      error => {
+      (error) => {
         this.snackBar.open("Failed to create project, try again later.", "OK", {
-          duration: 3000
+          duration: 3000,
         });
       }
     );

@@ -32,7 +32,7 @@ export class SocketService {
   }
 
   onJoinedProjectSession(): Observable<User> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("joinedProjectSession", (user: User) => {
         observer.next(user);
       });
@@ -40,7 +40,7 @@ export class SocketService {
   }
 
   onActiveUserIdsInProjectSession(): Observable<string[]> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("activeUserIdsInProjectSession", (userIds: string[]) => {
         observer.next(userIds);
       });
@@ -52,7 +52,7 @@ export class SocketService {
   }
 
   onLeftProjectSession(): Observable<User> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("leftProjectSession", (user: User) => {
         observer.next(user);
       });
@@ -64,7 +64,7 @@ export class SocketService {
   }
 
   onProjectChange() {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("projectChange", () => {
         observer.next();
       });
@@ -76,7 +76,7 @@ export class SocketService {
   }
 
   onCursorChange(): Observable<CursorChange> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("cursorChange", (cursorChange: CursorChange) => {
         observer.next(cursorChange);
       });
@@ -88,7 +88,7 @@ export class SocketService {
   }
 
   onSelectionChange(): Observable<SelectionChange> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("selectionChange", (selectionChange: SelectionChange) => {
         observer.next(selectionChange);
       });
@@ -100,7 +100,7 @@ export class SocketService {
   }
 
   onFileContentsChange(): Observable<string> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("fileContentsChange", (newContents: string) => {
         observer.next(newContents);
       });
@@ -112,7 +112,7 @@ export class SocketService {
   }
 
   onInvitationChange() {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("invitationChange", () => {
         observer.next();
       });
@@ -124,7 +124,7 @@ export class SocketService {
   }
 
   onCollaboratorChange() {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("collaboratorChange", () => {
         observer.next();
       });
@@ -136,7 +136,7 @@ export class SocketService {
   }
 
   onProjectAvailabilityChange() {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       this.socket.on("projectAvailabilityChange", () => {
         observer.next();
       });

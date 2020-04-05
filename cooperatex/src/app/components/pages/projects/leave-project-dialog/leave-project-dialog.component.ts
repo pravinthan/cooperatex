@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 @Component({
   selector: "app-leave-project-dialog",
-  templateUrl: "./leave-project-dialog.component.html"
+  templateUrl: "./leave-project-dialog.component.html",
 })
 export class LeaveProjectDialogComponent {
   constructor(

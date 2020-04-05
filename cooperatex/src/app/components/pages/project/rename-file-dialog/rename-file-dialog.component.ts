@@ -8,7 +8,7 @@ import { DisplayFile } from "../project.component";
 @Component({
   selector: "app-rename-file-dialog",
   templateUrl: "./rename-file-dialog.component.html",
-  styleUrls: ["./rename-file-dialog.component.css"]
+  styleUrls: ["./rename-file-dialog.component.css"],
 })
 export class RenameFileDialogComponent {
   constructor(
@@ -28,12 +28,12 @@ export class RenameFileDialogComponent {
     this.projectService
       .renameFile(this.data.projectId, this.data.fileId, form.value.newName)
       .subscribe(
-        data => {
+        (data) => {
           this.dialogRef.close(form.value.newName);
         },
-        error => {
+        (error) => {
           this.snackBar.open("File name exists already.", "OK", {
-            duration: 3000
+            duration: 3000,
           });
         }
       );

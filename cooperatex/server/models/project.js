@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 let projectSchema = new Schema({
   owner: {
     _id: {
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
     },
-    username: String
+    username: String,
   },
   title: String,
   collaborators: [
@@ -15,15 +15,15 @@ let projectSchema = new Schema({
       acceptedInvitation: { type: Boolean, default: false },
       access: {
         type: String,
-        enum: ["read", "readWrite"]
+        enum: ["read", "readWrite"],
       },
       user: {
         _id: {
-          type: Schema.Types.ObjectId
+          type: Schema.Types.ObjectId,
         },
-        username: String
-      }
-    }
+        username: String,
+      },
+    },
   ],
   files: [
     {
@@ -36,17 +36,17 @@ let projectSchema = new Schema({
       filename: String,
       path: String,
       buffer: Array,
-      isMain: Boolean
-    }
+      isMain: Boolean,
+    },
   ],
   dateCreated: { type: Date, default: Date.now },
   lastUpdated: Date,
   lastUpdatedBy: {
     _id: {
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
     },
-    username: String
-  }
+    username: String,
+  },
 });
 
 mongoose.model("Project", projectSchema);

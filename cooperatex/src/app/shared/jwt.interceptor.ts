@@ -3,7 +3,7 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor,
 } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { AuthenticationService } from "./authentication.service";
@@ -20,8 +20,8 @@ export class JwtInterceptor implements HttpInterceptor {
     if (currentUser && currentUser.token) {
       request = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${currentUser.token}`
-        }
+          Authorization: `Bearer ${currentUser.token}`,
+        },
       });
     }
 

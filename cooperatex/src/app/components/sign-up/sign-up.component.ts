@@ -7,7 +7,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 @Component({
   selector: "app-sign-up",
   templateUrl: "./sign-up.component.html",
-  styleUrls: ["./sign-up.component.css"]
+  styleUrls: ["./sign-up.component.css"],
 })
 export class SignUpComponent {
   loading = false;
@@ -28,14 +28,14 @@ export class SignUpComponent {
     this.authenticationService
       .signUp(form.value.username, form.value.password)
       .subscribe(
-        data => {
+        (data) => {
           this.signedUp.emit(true);
 
           const returnUrl = this.route.snapshot.queryParams.returnUrl;
           if (returnUrl) this.router.navigate([returnUrl]);
           else this.router.navigate(["/projects"]);
         },
-        error => {
+        (error) => {
           this.loading = false;
 
           const message =

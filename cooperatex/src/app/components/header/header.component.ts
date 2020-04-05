@@ -13,7 +13,7 @@ import { Subscription } from "rxjs";
 @Component({
   selector: "app-header",
   templateUrl: "./header.component.html",
-  styleUrls: ["./header.component.css"]
+  styleUrls: ["./header.component.css"],
 })
 export class HeaderComponent implements OnDestroy {
   currentUser = this.authenticationService.currentUser;
@@ -45,7 +45,7 @@ export class HeaderComponent implements OnDestroy {
     this.projectService
       .getInvitations()
       .toPromise()
-      .then(invitations => (this.invitations = invitations));
+      .then((invitations) => (this.invitations = invitations));
   };
 
   ngOnDestroy() {
@@ -56,14 +56,14 @@ export class HeaderComponent implements OnDestroy {
   // Workaround for when the user decided to leave the session (CanDeactivate guard bugged in Angular 9)
   async leaveAllProjectSessions() {
     const projects = await this.projectService.getAllProjects().toPromise();
-    projects.forEach(project => {
+    projects.forEach((project) => {
       this.socketService.leaveProjectSession(project._id, this.currentUser);
     });
   }
 
   openInvitationsDialog() {
     let dialogRef = this.dialog.open(InvitationsDialogComponent, {
-      width: "600px"
+      width: "600px",
     });
 
     dialogRef.afterClosed().subscribe(() => this.refreshInvitations());

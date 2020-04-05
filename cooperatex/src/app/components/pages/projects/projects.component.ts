@@ -14,7 +14,7 @@ import { Project } from "src/app/shared/models/Project.model";
 @Component({
   selector: "app-projects",
   templateUrl: "./projects.component.html",
-  styleUrls: ["./projects.component.css"]
+  styleUrls: ["./projects.component.css"],
 })
 export class ProjectsComponent implements OnInit, OnDestroy {
   currentUser = this.authenticationService.currentUser;
@@ -57,7 +57,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.projectService
       .getAllProjects()
       .toPromise()
-      .then(projects => {
+      .then((projects) => {
         this.projects = projects;
 
         // Update table
@@ -91,7 +91,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   // Show projects owned by signed in user
   filterByYourProjects() {
     this.dataSource.data = this.projects.filter(
-      project => project.owner._id === this.currentUser._id
+      (project) => project.owner._id === this.currentUser._id
     );
     this.dataSource.sort = this.sort;
     this.selected = "mine";
@@ -100,7 +100,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   // Show projects shared with signed in user
   filterByProjectsSharedWithYou() {
     this.dataSource.data = this.projects.filter(
-      project => project.owner._id !== this.currentUser._id
+      (project) => project.owner._id !== this.currentUser._id
     );
     this.dataSource.sort = this.sort;
     this.selected = "shared";
@@ -110,18 +110,18 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   openDeleteProjectDialog(project: Project) {
     const dialogRef = this.dialog.open(DeleteProjectDialogComponent, {
       width: "400px",
-      data: { title: project.title }
+      data: { title: project.title },
     });
 
     // Delete project by id and update table
-    dialogRef.afterClosed().subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.projectService
           .deleteProjectById(project._id)
           .toPromise()
           .then(() => {
             // Notify collaborators currently editing that their access has been revoked
-            project.collaborators.forEach(collaborator => {
+            project.collaborators.forEach((collaborator) => {
               if (collaborator.acceptedInvitation) {
                 this.socketService.notifyProjectAvailabilityChange(
                   collaborator.user
@@ -139,11 +139,11 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   openLeaveProjectDialog(project: Project) {
     const dialogRef = this.dialog.open(LeaveProjectDialogComponent, {
       width: "500px",
-      data: { title: project.title }
+      data: { title: project.title },
     });
 
     // Remove the collaborator from the project and update table
-    dialogRef.afterClosed().subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.projectService
           .removeCollaborator(project._id, this.currentUser._id)

@@ -6,7 +6,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 @Component({
   selector: "app-upload-files-dialog",
   templateUrl: "./upload-files-dialog.component.html",
-  styleUrls: ["./upload-files-dialog.component.css"]
+  styleUrls: ["./upload-files-dialog.component.css"],
 })
 export class UploadFilesDialogComponent {
   filesToUpload: File[] = [];
@@ -32,7 +32,7 @@ export class UploadFilesDialogComponent {
     let largeFiles: File[] = [];
     let longNameFiles: File[] = [];
     let existingFiles: File[] = [];
-    filesArray = filesArray.filter(file => {
+    filesArray = filesArray.filter((file) => {
       if (file.size > 20971520) {
         largeFiles.push(file);
         return false;
@@ -57,7 +57,7 @@ export class UploadFilesDialogComponent {
         }`,
         "OK",
         {
-          duration: 3000
+          duration: 3000,
         }
       );
     } else if (largeFiles.length > 0) {
@@ -67,7 +67,7 @@ export class UploadFilesDialogComponent {
         } too large (Maximum file size is 20MB)`,
         "OK",
         {
-          duration: 3000
+          duration: 3000,
         }
       );
     } else if (longNameFiles.length > 0) {
@@ -77,7 +77,7 @@ export class UploadFilesDialogComponent {
         } longer than 50 characters`,
         "OK",
         {
-          duration: 3000
+          duration: 3000,
         }
       );
     }
@@ -94,7 +94,7 @@ export class UploadFilesDialogComponent {
   uploadFiles() {
     this.projectService
       .uploadFiles(this.data.projectId, this.filesToUpload)
-      .subscribe(files => {
+      .subscribe((files) => {
         this.dialogRef.close(files);
       });
   }

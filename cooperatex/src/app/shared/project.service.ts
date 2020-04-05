@@ -25,7 +25,7 @@ export class ProjectService {
 
   deleteProjectById(id: string) {
     return this.http.delete(`${environment.apiUrl}/projects/${id}`, {
-      responseType: "text"
+      responseType: "text",
     });
   }
 
@@ -34,7 +34,7 @@ export class ProjectService {
     filesToUpload: File[]
   ): Observable<MulterFile[]> {
     let formData = new FormData();
-    filesToUpload.forEach(fileToUpload => {
+    filesToUpload.forEach((fileToUpload) => {
       formData.append("files", fileToUpload, fileToUpload.name);
     });
     return this.http.post<any>(
@@ -97,7 +97,7 @@ export class ProjectService {
 
   getOutputFile(projectId: string): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
-      responseType: "blob"
+      responseType: "blob",
     });
   }
 
