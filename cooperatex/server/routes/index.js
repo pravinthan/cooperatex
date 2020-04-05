@@ -3,7 +3,7 @@ let router = express.Router();
 let path = require("path");
 let { param, body } = require("express-validator");
 let jwt = require("express-jwt");
-let auth = jwt({ secret: "MY_SECRET" });
+let auth = jwt({ secret: process.env.JWT_SECRET });
 const fileFilter = (req, file, callback) => {
   if (
     file.mimetype === "image/png" ||

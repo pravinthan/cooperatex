@@ -1,3 +1,4 @@
+require("dotenv").config();
 let http = require("http");
 let path = require("path");
 let cors = require("cors"); // delete when ready to deploy
@@ -55,7 +56,7 @@ const io = socketIO(server);
 
 // Authentication middleware
 io.use(
-  jwtAuth.authenticate({ secret: "MY_SECRET" }, (payload, done) => {
+  jwtAuth.authenticate({ secret: process.env.JWT_SECRET }, (payload, done) => {
     User.findById(payload._id, (err, user) => {
       if (err) return done(err);
       if (!user) return done(null, false, "User does not exist");
