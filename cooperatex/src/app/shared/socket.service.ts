@@ -3,6 +3,7 @@ import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 import * as io from "socket.io-client";
 import { User } from "./models/user.model";
+import { AuthenticationService } from "./authentication.service";
 
 class CursorChange {
   updatedBy: User;
@@ -19,16 +20,32 @@ class SelectionChange {
 export class SocketService {
   private socket: SocketIOClient.Socket;
 
-  constructor() {
-    this.socket = io(environment.serverUrl);
+  constructor(private authenticationService: AuthenticationService) {
+    const connect = (token: string) => {
+      if (token) {
+        this.socket = io(environment.serverUrl, {
+          query: { auth_token: token },
+        });
+
+        this.joinUserSession();
+      }
+    };
+
+    this.authenticationService.currentUserObservable.subscribe(
+      (currentUser) => {
+        if (currentUser && (!this.socket || this.socket.disconnected))
+          connect(currentUser.token);
+        else if (this.socket) this.socket.close();
+      }
+    );
   }
 
-  joinUserSession(userId: string) {
-    this.socket.emit("joinUserSession", userId);
+  joinUserSession() {
+    this.socket.emit("joinUserSession");
   }
 
-  joinProjectSession(projectId: string, user: User) {
-    this.socket.emit("joinProjectSession", projectId, user);
+  joinProjectSession(projectId: string) {
+    this.socket.emit("joinProjectSession", projectId);
   }
 
   onJoinedProjectSession(): Observable<User> {
@@ -47,8 +64,8 @@ export class SocketService {
     });
   }
 
-  leaveProjectSession(projectId: string, user: User) {
-    this.socket.emit("leaveProjectSession", projectId, user);
+  leaveProjectSession(projectId: string) {
+    this.socket.emit("leaveProjectSession", projectId);
   }
 
   onLeftProjectSession(): Observable<User> {

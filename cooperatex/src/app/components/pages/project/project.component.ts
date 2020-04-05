@@ -300,7 +300,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .then((project) => {
         this.project = project;
 
-        this.socketService.joinProjectSession(this.projectId, this.currentUser);
+        this.socketService.joinProjectSession(this.projectId);
 
         this.displayFiles = project.files.map((file) =>
           this.convertFileToDisplayFile(file)
@@ -430,7 +430,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   @HostListener("window:beforeunload")
   beforeUnload() {
-    this.socketService.leaveProjectSession(this.projectId, this.currentUser);
+    this.socketService.leaveProjectSession(this.projectId);
     return true;
   }
 

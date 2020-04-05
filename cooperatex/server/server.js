@@ -6,9 +6,11 @@ let bodyParser = require("body-parser");
 let mongoose = require("mongoose");
 let passport = require("passport");
 let socketIO = require("socket.io");
+let jwtAuth = require("socketio-jwt-auth");
 require("./models/project");
 require("./models/user");
 require("./config/passport");
+let User = mongoose.model("User");
 let apiRoute = require("./routes/index");
 let app = express();
 
@@ -50,15 +52,28 @@ server.listen(port, () =>
 );
 
 const io = socketIO(server);
+
+// Authentication middleware
+io.use(
+  jwtAuth.authenticate({ secret: "MY_SECRET" }, (payload, done) => {
+    User.findById(payload._id, (err, user) => {
+      if (err) return done(err);
+      if (!user) return done(null, false, "User does not exist");
+      return done(null, { _id: user._id, username: user.username });
+    });
+  })
+);
+
 const userPrefix = "user-";
 io.sockets.on("connection", (socket) => {
-  socket.on("joinUserSession", (userId) => {
-    if (!socket.rooms[userPrefix + userId]) socket.join(userPrefix + userId);
+  socket.on("joinUserSession", () => {
+    const prefixedUserId = userPrefix + socket.request.user._id;
+    if (!socket.rooms[prefixedUserId]) socket.join(prefixedUserId);
   });
 
-  socket.on("joinProjectSession", (projectId, user) => {
+  socket.on("joinProjectSession", (projectId) => {
     socket.join(projectId, () => {
-      socket.to(projectId).emit("joinedProjectSession", user);
+      socket.to(projectId).emit("joinedProjectSession", socket.request.user);
 
       let activeUserIds = [];
       Object.keys(io.sockets.adapter.rooms[projectId].sockets).forEach(
@@ -76,9 +91,10 @@ io.sockets.on("connection", (socket) => {
     });
   });
 
-  socket.on("leaveProjectSession", (projectId, user) => {
+  socket.on("leaveProjectSession", (projectId) => {
     socket.leave(projectId, (err) => {
-      if (!err) socket.to(projectId).emit("leftProjectSession", user);
+      if (!err)
+        socket.to(projectId).emit("leftProjectSession", socket.request.user);
     });
   });
 

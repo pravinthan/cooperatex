@@ -19,6 +19,7 @@ export class HeaderComponent implements OnDestroy {
   currentUser = this.authenticationService.currentUser;
   invitations: Invitation[] = [];
   onInvitationChangeSubscription: Subscription;
+  signingOut = false;
 
   constructor(
     public dialog: MatDialog,
@@ -55,10 +56,12 @@ export class HeaderComponent implements OnDestroy {
 
   // Workaround for when the user decided to leave the session (CanDeactivate guard bugged in Angular 9)
   async leaveAllProjectSessions() {
-    const projects = await this.projectService.getAllProjects().toPromise();
-    projects.forEach((project) => {
-      this.socketService.leaveProjectSession(project._id, this.currentUser);
-    });
+    if (this.authenticationService.currentUserValue) {
+      const projects = await this.projectService.getAllProjects().toPromise();
+      projects.forEach((project) => {
+        this.socketService.leaveProjectSession(project._id);
+      });
+    }
   }
 
   openInvitationsDialog() {
@@ -102,8 +105,11 @@ export class HeaderComponent implements OnDestroy {
   }
 
   signOut() {
-    this.authenticationService.signOut();
-    this.currentUser = null;
-    window.location.href = "/";
+    this.signingOut = true;
+    this.leaveAllProjectSessions().then(() => {
+      this.authenticationService.signOut();
+      this.currentUser = null;
+      window.location.href = "/";
+    });
   }
 }

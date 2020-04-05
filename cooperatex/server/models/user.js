@@ -37,7 +37,7 @@ userSchema.methods.generateJWT = function () {
       exp: parseInt(expiry.getTime() / 1000),
     },
     "MY_SECRET"
-  ); // DO NOT KEEP YOUR SECRET IN THE CODE!
+  );
 };
 
 mongoose.model("User", userSchema);

@@ -3,7 +3,6 @@ import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { SocketService } from "./socket.service";
 import { User } from "./models/user.model";
 
 @Injectable({ providedIn: "root" })
@@ -11,19 +10,12 @@ export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<any>;
   public currentUserObservable: Observable<any>;
 
-  constructor(private http: HttpClient, private socketService: SocketService) {
+  constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<any>(
       JSON.parse(localStorage.getItem("currentUser"))
     );
 
-    if (this.currentUserSubject.value && this.currentUserSubject.value.token)
-      this.socketService.joinUserSession(this.currentUserId);
-
     this.currentUserObservable = this.currentUserSubject.asObservable();
-
-    this.currentUserObservable.subscribe((token) => {
-      if (token) this.socketService.joinUserSession(this.currentUserId);
-    });
   }
 
   private parseJWT(token: string) {

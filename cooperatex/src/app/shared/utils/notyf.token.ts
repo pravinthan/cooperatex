@@ -14,7 +14,7 @@ export function notyfFactory(): Notyf {
         duration: 3000,
         dismissible: true,
         position: { x: "center", y: "top" },
-        background: "linear-gradient(to right, #414663, #1b2453)",
+        background: "linear-gradient(to right, #9ea6cd, #2f4ded)",
         icon: false,
       },
     ],
