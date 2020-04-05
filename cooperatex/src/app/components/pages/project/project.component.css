@@ -29,6 +29,7 @@ mat-sidenav {
 }
 
 .file-name {
+  font-size: 15px;
   padding-left: 0.5rem;
 }
 

@@ -54,11 +54,7 @@
                   [matTooltip]="displayFile.fileName"
                   matTooltipPosition="below"
                 >
-                  {{
-                    displayFile.fileName
-                      | truncate
-                        : (displayFile.isMain || displayFile.canMain ? 15 : 20)
-                  }}
+                  {{ displayFile.fileName | truncate: 15 }}
                 </span>
               </div>
               <div

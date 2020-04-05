@@ -36,7 +36,7 @@ app.use((err, req, res, next) => {
 mongoose.connect("mongodb://localhost/cooperatex", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 mongoose.connection.on(
   "error",
@@ -51,8 +51,8 @@ server.listen(port, () =>
 
 const io = socketIO(server);
 const userPrefix = "user-";
-io.sockets.on("connection", socket => {
-  socket.on("joinUserSession", userId => {
+io.sockets.on("connection", (socket) => {
+  socket.on("joinUserSession", (userId) => {
     if (!socket.rooms[userPrefix + userId]) socket.join(userPrefix + userId);
   });
 
@@ -62,11 +62,11 @@ io.sockets.on("connection", socket => {
 
       let activeUserIds = [];
       Object.keys(io.sockets.adapter.rooms[projectId].sockets).forEach(
-        socketId => {
+        (socketId) => {
           const userId = Object.keys(
             io.sockets.adapter.sids[socketId]
-          ).find(room => room.includes(userPrefix));
-          activeUserIds.push(userId.substring(userPrefix.length));
+          ).find((room) => room.includes(userPrefix));
+          if (userId) activeUserIds.push(userId.substring(userPrefix.length));
         }
       );
 
@@ -77,12 +77,12 @@ io.sockets.on("connection", socket => {
   });
 
   socket.on("leaveProjectSession", (projectId, user) => {
-    socket.leave(projectId, err => {
+    socket.leave(projectId, (err) => {
       if (!err) socket.to(projectId).emit("leftProjectSession", user);
     });
   });
 
-  socket.on("projectChange", projectId => {
+  socket.on("projectChange", (projectId) => {
     socket.to(projectId).emit("projectChange");
   });
 
@@ -98,15 +98,15 @@ io.sockets.on("connection", socket => {
     socket.to(projectId).emit("fileContentsChange", data);
   });
 
-  socket.on("invitationChange", user => {
+  socket.on("invitationChange", (user) => {
     io.sockets.to(userPrefix + user._id).emit("invitationChange");
   });
 
-  socket.on("collaboratorChange", user => {
+  socket.on("collaboratorChange", (user) => {
     io.sockets.to(userPrefix + user._id).emit("collaboratorChange");
   });
 
-  socket.on("projectAvailabilityChange", user => {
+  socket.on("projectAvailabilityChange", (user) => {
     io.sockets.to(userPrefix + user._id).emit("projectAvailabilityChange");
   });
 });

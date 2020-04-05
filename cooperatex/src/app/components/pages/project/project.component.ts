@@ -3,7 +3,7 @@ import {
   OnInit,
   ViewChild,
   HostListener,
-  OnDestroy
+  OnDestroy,
 } from "@angular/core";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
@@ -54,7 +54,7 @@ class ColourHandler {
     "salmon",
     "lightblue",
     "springgreen",
-    "white"
+    "white",
   ];
   private nextColourIndex = 0;
 
@@ -91,7 +91,7 @@ class CollaboratorSelection {
 @Component({
   selector: "app-project",
   templateUrl: "./project.component.html",
-  styleUrls: ["./project.component.css"]
+  styleUrls: ["./project.component.css"],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   @ViewChild("editor") editor: CodemirrorComponent;
@@ -119,11 +119,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   onProjectChangeSubscription: Subscription;
   onProjectAvailabilityChangeSubscription: Subscription;
   get mainFile() {
-    return this.displayFiles.find(displayFile => displayFile.isMain);
+    return this.displayFiles.find((displayFile) => displayFile.isMain);
   }
   get hasReadWriteAccess() {
     const collaborator = this.project.collaborators.find(
-      collaborator => collaborator.user._id == this.currentUser._id
+      (collaborator) => collaborator.user._id == this.currentUser._id
     );
 
     return (
@@ -153,7 +153,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       isImage: /^image\/(jpeg|png)$/i.test(file.mimetype),
       canMain: /^application\/(octet-stream|x-tex|x-latex)$/i.test(
         file.mimetype
-      )
+      ),
     };
 
     return displayFile;
@@ -178,7 +178,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private onCursorActivity = (editor: CodeMirror.Editor) => {
     this.socketService.notifyCursorChange(this.projectId, {
       updatedBy: this.currentUser,
-      cursorPos: editor.getCursor()
+      cursorPos: editor.getCursor(),
     });
 
     const anchor = editor.getCursor("from");
@@ -187,7 +187,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.socketService.notifySelectionChange(this.projectId, {
         updatedBy: this.currentUser,
         from: anchor,
-        to: head
+        to: head,
       });
     }
   };
@@ -200,9 +200,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.projectService
         .getFileStream(this.projectId, mainFile._id)
         .toPromise()
-        .then(fileStream => {
+        .then((fileStream) => {
           this.initialLoading = false;
-          new Response(fileStream).text().then(text => {
+          new Response(fileStream).text().then((text) => {
             this.editor.codeMirror.setValue(text);
             this.editor.codeMirror.setSize("100%", "100%");
             this.editor.codeMirror.on("change", this.updateLatex);
@@ -217,7 +217,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private removeSelection(liveCollaborator: LiveCollaborator) {
     const collaboratorSelectionIndex = this.collaboratorSelections.findIndex(
-      collaboratorSelection =>
+      (collaboratorSelection) =>
         collaboratorSelection.user._id == liveCollaborator.user._id
     );
 
@@ -232,31 +232,31 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     this.onJoinedProjectSessionSubscription = this.socketService
       .onJoinedProjectSession()
-      .subscribe(user => {
+      .subscribe((user) => {
         this.snackBar.open(`${user.username} has joined the session`, null, {
-          duration: 3000
+          duration: 3000,
         });
       });
 
     this.onActiveUserIdsInProjectSessionSubscription = this.socketService
       .onActiveUserIdsInProjectSession()
-      .subscribe(userIds => {
-        userIds.forEach(userId => {
+      .subscribe((userIds) => {
+        userIds.forEach((userId) => {
           if (this.currentUser._id != userId) {
             const collaborator = this.project.collaborators.find(
-              collaborator => collaborator.user._id == userId
+              (collaborator) => collaborator.user._id == userId
             );
             const user = collaborator ? collaborator.user : this.project.owner;
 
             if (
               user &&
               !this.liveCollaborators.find(
-                liveCollaborator => liveCollaborator.user._id == user._id
+                (liveCollaborator) => liveCollaborator.user._id == user._id
               )
             )
               this.liveCollaborators.push({
                 user,
-                colour: this.colourHandler.getNextColour()
+                colour: this.colourHandler.getNextColour(),
               });
           }
         });
@@ -264,15 +264,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     this.onLeftProjectSessionSubscription = this.socketService
       .onLeftProjectSession()
-      .subscribe(user => {
+      .subscribe((user) => {
         this.liveCollaborators = this.liveCollaborators.filter(
-          liveCollaborator => liveCollaborator.user._id != user._id
+          (liveCollaborator) => liveCollaborator.user._id != user._id
         );
 
         this.colourHandler.decrementColour();
 
         this.snackBar.open(`${user.username} has left the session`, null, {
-          duration: 3000
+          duration: 3000,
         });
       });
 
@@ -282,9 +282,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.projectService
           .getProjectById(this.projectId)
           .toPromise()
-          .then(project => {
+          .then((project) => {
             this.project = project;
-            this.displayFiles = project.files.map(file =>
+            this.displayFiles = project.files.map((file) =>
               this.convertFileToDisplayFile(file)
             );
           });
@@ -293,12 +293,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.projectService
       .getProjectById(this.projectId)
       .toPromise()
-      .then(project => {
+      .then((project) => {
         this.project = project;
 
         this.socketService.joinProjectSession(this.projectId, this.currentUser);
 
-        this.displayFiles = project.files.map(file =>
+        this.displayFiles = project.files.map((file) =>
           this.convertFileToDisplayFile(file)
         );
 
@@ -306,7 +306,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
         this.onFileContentsChangeSubscription = this.socketService
           .onFileContentsChange()
-          .subscribe(newContents => {
+          .subscribe((newContents) => {
             // Save cursor position and current selection (if it exists)
             const anchor = this.editor.codeMirror.getCursor("from");
             const head = this.editor.codeMirror.getCursor();
@@ -321,16 +321,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
         this.onCursorChangeSubscription = this.socketService
           .onCursorChange()
-          .subscribe(cursorChange => {
+          .subscribe((cursorChange) => {
             const liveCollaborator = this.liveCollaborators.find(
-              liveCollaborator =>
+              (liveCollaborator) =>
                 liveCollaborator.user._id == cursorChange.updatedBy._id
             );
 
             if (liveCollaborator) {
               // Remove previous cursor
               const collaboratorCursorIndex = this.collaboratorCursors.findIndex(
-                collaboratorCursor =>
+                (collaboratorCursor) =>
                   collaboratorCursor.user._id == liveCollaborator.user._id
               );
               if (collaboratorCursorIndex != -1) {
@@ -354,8 +354,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
               cursorElement.style.borderLeftWidth = "2px";
               cursorElement.style.borderLeftColor = liveCollaborator.colour;
               cursorElement.style.backgroundColor = liveCollaborator.colour;
-              cursorElement.style.height = `${cursorCoords.bottom -
-                cursorCoords.top}px`;
+              cursorElement.style.height = `${
+                cursorCoords.bottom - cursorCoords.top
+              }px`;
               cursorElement.classList.add("cursor");
 
               let cursorInfoElement = document.createElement("span");
@@ -375,16 +376,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
                 cursor: this.editor.codeMirror.setBookmark(
                   cursorChange.cursorPos,
                   { widget: cursorContainer }
-                )
+                ),
               });
             }
           });
 
         this.onSelectionChangeSubscription = this.socketService
           .onSelectionChange()
-          .subscribe(selectionChange => {
+          .subscribe((selectionChange) => {
             const liveCollaborator = this.liveCollaborators.find(
-              liveCollaborator =>
+              (liveCollaborator) =>
                 liveCollaborator.user._id == selectionChange.updatedBy._id
             );
 
@@ -399,7 +400,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
                   selectionChange.from,
                   selectionChange.to,
                   { className: liveCollaborator.colour }
-                )
+                ),
               });
             }
           });
@@ -411,7 +412,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.projectService
               .getAllFiles(this.projectId)
               .toPromise()
-              .catch(err => {
+              .catch((err) => {
                 this.snackBar.open(
                   `Your access to ${this.project.title} has been revoked`,
                   "OK",
@@ -422,7 +423,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
               });
           });
       })
-      .catch(err => this.router.navigate(["/404"]));
+      .catch((err) => this.router.navigate(["/404"]));
   }
 
   @HostListener("window:beforeunload")
@@ -455,15 +456,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
       width: "600px",
       data: {
         projectId: this.projectId,
-        projectTitle: this.project.title
-      }
+        projectTitle: this.project.title,
+      },
     });
 
     dialogRef.afterClosed().subscribe(() => {
       this.projectService
         .getCollaborators(this.projectId)
         .toPromise()
-        .then(collaborators => (this.project.collaborators = collaborators));
+        .then((collaborators) => (this.project.collaborators = collaborators));
     });
   }
 
@@ -472,18 +473,23 @@ export class ProjectComponent implements OnInit, OnDestroy {
       width: "400px",
       data: {
         projectId: this.projectId,
-        fileNames: this.displayFiles.map(displayFile => displayFile.fileName)
-      }
+        fileNames: this.displayFiles.map((displayFile) => displayFile.fileName),
+      },
     });
 
     dialogRef.afterClosed().subscribe((files: MulterFile[]) => {
       if (files && files.length > 0) {
         this.socketService.notifyProjectChange(this.projectId);
 
-        this.displayFiles = [];
-        files.forEach(file => {
-          this.displayFiles.push(this.convertFileToDisplayFile(file));
-        });
+        this.projectService
+          .getAllFiles(this.projectId)
+          .toPromise()
+          .then((files) => {
+            this.displayFiles = [];
+            files.forEach((file) => {
+              this.displayFiles.push(this.convertFileToDisplayFile(file));
+            });
+          });
       }
     });
   }
@@ -491,10 +497,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   deleteFile(fileId: string, fileName: string) {
     let dialogRef = this.dialog.open(DeleteFileDialogComponent, {
       width: "400px",
-      data: { fileName }
+      data: { fileName },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService
           .deleteFile(this.projectId, fileId)
@@ -503,7 +509,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.socketService.notifyProjectChange(this.projectId);
 
             this.displayFiles = this.displayFiles.filter(
-              displayFile => displayFile._id != fileId
+              (displayFile) => displayFile._id != fileId
             );
 
             this.setEditorContentToMainFile();
@@ -519,16 +525,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
         projectId: this.projectId,
         fileId: fileId,
         oldFileName,
-        displayFiles: this.displayFiles
-      }
+        displayFiles: this.displayFiles,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(newName => {
+    dialogRef.afterClosed().subscribe((newName) => {
       if (newName) {
         this.socketService.notifyProjectChange(this.projectId);
 
         const newNameIndex = this.displayFiles.findIndex(
-          displayFile => displayFile._id == fileId
+          (displayFile) => displayFile._id == fileId
         );
         const suffix = this.displayFiles[newNameIndex].fileName.substring(
           this.displayFiles[newNameIndex].fileName.indexOf(".")
@@ -546,10 +552,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
         this.socketService.notifyProjectChange(this.projectId);
 
         const oldMainIndex = this.displayFiles.findIndex(
-          displayFile => displayFile.isMain
+          (displayFile) => displayFile.isMain
         );
         const newMainIndex = this.displayFiles.findIndex(
-          displayFile => displayFile._id == fileId
+          (displayFile) => displayFile._id == fileId
         );
 
         if (oldMainIndex != -1) {
@@ -575,12 +581,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.projectService
         .getOutputFile(this.projectId)
         .toPromise()
-        .then(outputPdf => {
+        .then((outputPdf) => {
           this.pdfViewer.pdfSrc = outputPdf;
           this.pdfViewer.refresh();
         })
-        .catch(err => {
-          new Response(err.error).text().then(text => {
+        .catch((err) => {
+          new Response(err.error).text().then((text) => {
             this.latexErrorLog = text;
             const indexOfMainError = this.latexErrorLog.indexOf("!") + 1;
             this.mainLatexError = this.latexErrorLog.substring(
@@ -597,7 +603,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.projectService
       .getOutputFile(this.projectId)
       .toPromise()
-      .then(outputPdf => {
+      .then((outputPdf) => {
         var link = document.createElement("a");
         link.href = window.URL.createObjectURL(outputPdf);
         link.click();
