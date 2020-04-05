@@ -4,6 +4,7 @@ import {
   ViewChild,
   HostListener,
   OnDestroy,
+  Inject,
 } from "@angular/core";
 import { ProjectService } from "src/app/shared/project.service";
 import { MatDialog } from "@angular/material/dialog";
@@ -19,8 +20,9 @@ import { InviteCollaboratorsDialogComponent } from "./invite-collaborators-dialo
 import { SocketService } from "src/app/shared/socket.service";
 import { AuthenticationService } from "src/app/shared/authentication.service";
 import { User } from "src/app/shared/models/user.model";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { Subscription } from "rxjs";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
+import { Notyf } from "notyf";
 
 export class DisplayFile {
   _id: string;
@@ -138,7 +140,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private socketService: SocketService,
     private authenticationService: AuthenticationService,
-    private snackBar: MatSnackBar,
+    @Inject(NOTYF) private notyf: Notyf,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router
@@ -233,8 +235,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.onJoinedProjectSessionSubscription = this.socketService
       .onJoinedProjectSession()
       .subscribe((user) => {
-        this.snackBar.open(`${user.username} has joined the session`, null, {
-          duration: 3000,
+        this.notyf.open({
+          type: "info",
+          message: `${user.username} has joined the session`,
         });
       });
 
@@ -271,8 +274,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
         this.colourHandler.decrementColour();
 
-        this.snackBar.open(`${user.username} has left the session`, null, {
-          duration: 3000,
+        this.notyf.open({
+          type: "info",
+          message: `${user.username} has left the session`,
         });
       });
 
@@ -413,10 +417,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
               .getAllFiles(this.projectId)
               .toPromise()
               .catch((err) => {
-                this.snackBar.open(
-                  `Your access to ${this.project.title} has been revoked`,
-                  "OK",
-                  { duration: 3000 }
+                this.notyf.error(
+                  `Your access to ${this.project.title} has been revoked`
                 );
 
                 this.router.navigate(["/"]);

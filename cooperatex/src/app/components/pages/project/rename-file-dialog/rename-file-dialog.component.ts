@@ -2,8 +2,9 @@ import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { NgForm } from "@angular/forms";
 import { ProjectService } from "src/app/shared/project.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { DisplayFile } from "../project.component";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
+import { Notyf } from "notyf";
 
 @Component({
   selector: "app-rename-file-dialog",
@@ -14,7 +15,7 @@ export class RenameFileDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<RenameFileDialogComponent>,
     private projectService: ProjectService,
-    private snackBar: MatSnackBar,
+    @Inject(NOTYF) private notyf: Notyf,
     @Inject(MAT_DIALOG_DATA)
     public data: {
       projectId: string;
@@ -32,9 +33,7 @@ export class RenameFileDialogComponent {
           this.dialogRef.close(form.value.newName);
         },
         (error) => {
-          this.snackBar.open("File name exists already.", "OK", {
-            duration: 3000,
-          });
+          this.notyf.error("File name exists already.");
         }
       );
   }

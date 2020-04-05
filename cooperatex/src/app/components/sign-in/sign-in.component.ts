@@ -1,8 +1,9 @@
-import { Component, Output, EventEmitter } from "@angular/core";
+import { Component, Output, EventEmitter, Inject } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import { AuthenticationService } from "src/app/shared/authentication.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
+import { Notyf } from "notyf";
 
 @Component({
   selector: "app-sign-in",
@@ -17,7 +18,7 @@ export class SignInComponent {
     private router: Router,
     private authenticationService: AuthenticationService,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    @Inject(NOTYF) private notyf: Notyf
   ) {
     if (this.authenticationService.currentUserValue)
       this.router.navigate(["/"]);
@@ -38,11 +39,9 @@ export class SignInComponent {
         (error) => {
           this.loading = false;
 
-          const message =
-            error.status == 401 ? error.error : "Sign in failed, try again.";
-          this.snackBar.open(message, "OK", {
-            duration: 3000,
-          });
+          this.notyf.error(
+            error.status == 401 ? error.error : "Sign in failed, try again."
+          );
         }
       );
   }

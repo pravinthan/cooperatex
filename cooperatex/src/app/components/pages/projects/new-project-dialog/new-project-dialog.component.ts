@@ -1,9 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { NgForm } from "@angular/forms";
 import { ProjectService } from "src/app/shared/project.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router } from "@angular/router";
+import { Notyf } from "notyf";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
 
 @Component({
   selector: "app-new-project-dialog",
@@ -14,7 +15,7 @@ export class NewProjectDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<NewProjectDialogComponent>,
     private projectService: ProjectService,
-    private snackBar: MatSnackBar,
+    @Inject(NOTYF) private notyf: Notyf,
     private router: Router
   ) {}
 
@@ -25,9 +26,7 @@ export class NewProjectDialogComponent {
         this.router.navigate([`/projects/${data._id}`]);
       },
       (error) => {
-        this.snackBar.open("Failed to create project, try again later.", "OK", {
-          duration: 3000,
-        });
+        this.notyf.error("Failed to create project, try again later.");
       }
     );
   }

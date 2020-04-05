@@ -3,8 +3,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ProjectService } from "src/app/shared/project.service";
 import { Invitation } from "src/app/shared/models/invitation.model";
 import { SocketService } from "src/app/shared/socket.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { Subscription } from "rxjs";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
+import { Notyf } from "notyf";
 
 @Component({
   selector: "app-invitations-dialog",
@@ -19,7 +20,7 @@ export class InvitationsDialogComponent implements OnDestroy {
     public dialogRef: MatDialogRef<InvitationsDialogComponent>,
     private projectService: ProjectService,
     private socketService: SocketService,
-    private snackBar: MatSnackBar,
+    @Inject(NOTYF) private notyf: Notyf,
     @Inject(MAT_DIALOG_DATA)
     public data: any
   ) {
@@ -57,13 +58,7 @@ export class InvitationsDialogComponent implements OnDestroy {
         this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
       .catch((err) => {
-        this.snackBar.open(
-          "Error accepting invitation (it may have been revoked)",
-          "OK",
-          {
-            duration: 3000,
-          }
-        );
+        this.notyf.error("Error accepting invitation");
       });
   }
 
@@ -80,13 +75,7 @@ export class InvitationsDialogComponent implements OnDestroy {
         this.socketService.notifyProjectAvailabilityChange(invitation.to);
       })
       .catch((err) => {
-        this.snackBar.open(
-          "Error rejecting invitation (it may have already been revoked)",
-          "OK",
-          {
-            duration: 3000,
-          }
-        );
+        this.notyf.error("Error rejecting invitation");
       });
   }
 

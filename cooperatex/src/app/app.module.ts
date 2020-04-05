@@ -16,7 +16,6 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableModule } from "@angular/material/table";
 import { FormsModule } from "@angular/forms";
-import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
@@ -45,10 +44,11 @@ import { LeaveProjectDialogComponent } from "./components/pages/projects/leave-p
 
 import { JwtInterceptor } from "./shared/jwt.interceptor";
 
-import { TimeAgoPipeExtension } from "./shared/helpers/time-ago-pipe-extension.pipe";
-import { TruncatePipe } from "./shared/helpers/truncate.pipe";
+import { TimeAgoPipeExtension } from "./shared/utils/time-ago-pipe-extension.pipe";
+import { TruncatePipe } from "./shared/utils/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
+import { NOTYF, notyfFactory } from "./shared/utils/notyf.token";
 
 @NgModule({
   declarations: [
@@ -90,7 +90,6 @@ import "codemirror/mode/stex/stex";
     MatProgressSpinnerModule,
     MatTableModule,
     FormsModule,
-    MatSnackBarModule,
     MatSortModule,
     MatTooltipModule,
     CodemirrorModule,
@@ -101,6 +100,7 @@ import "codemirror/mode/stex/stex";
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: NOTYF, useFactory: notyfFactory },
   ],
   bootstrap: [AppComponent],
 })

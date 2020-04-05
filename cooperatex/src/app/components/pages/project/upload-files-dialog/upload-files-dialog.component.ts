@@ -1,7 +1,8 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ProjectService } from "src/app/shared/project.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { NOTYF } from "src/app/shared/utils/notyf.token";
+import { Notyf } from "notyf";
 
 @Component({
   selector: "app-upload-files-dialog",
@@ -17,11 +18,11 @@ export class UploadFilesDialogComponent {
     @Inject(MAT_DIALOG_DATA)
     public data: { projectId: string; fileNames: string },
     private projectService: ProjectService,
-    public snackBar: MatSnackBar
+    @Inject(NOTYF) private notyf: Notyf
   ) {}
 
   handleInput(files: FileList) {
-    this.snackBar.dismiss();
+    this.notyf.dismissAll();
 
     // Convert FileList to array
     let filesArray: File[] = [];
@@ -47,38 +48,26 @@ export class UploadFilesDialogComponent {
       return true;
     });
 
-    // Show snackbars for respective errors
+    // Show messages for respective errors
     if (existingFiles.length > 0) {
-      this.snackBar.open(
+      this.notyf.error(
         `${existingFiles.length} ${
           existingFiles.length == 1
             ? "file already exists"
             : "files already exist"
-        }`,
-        "OK",
-        {
-          duration: 3000,
-        }
+        }`
       );
     } else if (largeFiles.length > 0) {
-      this.snackBar.open(
+      this.notyf.error(
         `${largeFiles.length} ${
           largeFiles.length == 1 ? "file is" : "files are"
-        } too large (Maximum file size is 20MB)`,
-        "OK",
-        {
-          duration: 3000,
-        }
+        } too large (Maximum file size is 20MB)`
       );
     } else if (longNameFiles.length > 0) {
-      this.snackBar.open(
+      this.notyf.error(
         `${longNameFiles.length} ${
           longNameFiles.length == 1 ? "file has a name" : "files have names"
-        } longer than 50 characters`,
-        "OK",
-        {
-          duration: 3000,
-        }
+        } longer than 50 characters`
       );
     }
 

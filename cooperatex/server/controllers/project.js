@@ -252,14 +252,15 @@ module.exports.patchFile = (req, res) => {
           assignMain(req, project._id).then((project) => res.sendStatus(200));
         }
       } else if (req.body.operation == "replaceName") {
-        if (project.files.find((file) => file.originalname == req.body.newName))
-          return res.status(409).send("File name exists");
-
         const oldName = project.files.find(
           (file) => file._id == req.params.fileId
         ).originalname;
         const newName =
           req.body.newName + oldName.substring(oldName.indexOf("."));
+
+        if (project.files.find((file) => file.originalname == newName))
+          return res.status(409).send("File name exists");
+
         Project.findOneAndUpdate(
           { _id: project._id, "files._id": req.params.fileId },
           {
@@ -319,6 +320,18 @@ module.exports.retrieveOutputPdf = (req, res) => {
       const folderPath = path.join(os.tmpdir(), project.owner._id.toString());
       fs.mkdir(folderPath, { recursive: true }, async () => {
         try {
+          // Remove files that are no longer in the project
+          const existingFiles = await fs.promises.readdir(folderPath);
+          for (const file of existingFiles) {
+            if (
+              !project.files.find(
+                (projectFile) => projectFile.originalname == file
+              )
+            )
+              await fs.promises.unlink(path.join(folderPath, file));
+          }
+
+          // Copy files over to temp directory
           for (const file of project.files) {
             if (file.path != mainFile.path) {
               await fs.promises.copyFile(
