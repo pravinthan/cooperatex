@@ -7,15 +7,24 @@
   box-sizing: unset;
 }
 
-#toolbar-title {
-  text-decoration: none;
-  color: white;
-}
-
 mat-toolbar-row {
   height: 64px !important;
   display: flex;
   justify-content: space-between;
+}
+
+#app-name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+}
+
+#app-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 0.5rem;
 }
 
 #context-buttons {
