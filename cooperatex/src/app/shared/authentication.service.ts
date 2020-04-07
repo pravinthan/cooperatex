@@ -49,7 +49,7 @@ export class AuthenticationService {
 
   signUp(username: string, password: string) {
     return this.http
-      .post<any>(`${environment.serverUrl}/api/users/signup`, {
+      .post<any>(`/api/users/signup`, {
         username,
         password,
       })
@@ -64,7 +64,7 @@ export class AuthenticationService {
 
   signIn(username: string, password: string) {
     return this.http
-      .post<any>(`${environment.serverUrl}/api/users/signin`, {
+      .post<any>(`/api/users/signin`, {
         username,
         password,
       })
