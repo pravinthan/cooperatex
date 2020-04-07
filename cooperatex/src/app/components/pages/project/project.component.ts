@@ -12,7 +12,7 @@ import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-d
 import { RenameFileDialogComponent } from "./rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Project } from "src/app/shared/models/Project.model";
+import { Project } from "src/app/shared/models/project.model";
 import { MulterFile } from "src/app/shared/models/multer-file.model";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 import { CodemirrorComponent } from "@ctrl/ngx-codemirror";

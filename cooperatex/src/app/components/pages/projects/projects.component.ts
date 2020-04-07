@@ -9,7 +9,7 @@ import { DeleteProjectDialogComponent } from "./delete-project-dialog/delete-pro
 import { Subscription } from "rxjs";
 import { SocketService } from "src/app/shared/socket.service";
 import { LeaveProjectDialogComponent } from "./leave-project-dialog/leave-project-dialog.component";
-import { Project } from "src/app/shared/models/Project.model";
+import { Project } from "src/app/shared/models/project.model";
 
 @Component({
   selector: "app-projects",

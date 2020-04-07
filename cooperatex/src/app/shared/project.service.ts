@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
-import { Project } from "./models/Project.model";
+import { Project } from "./models/project.model";
 import { Invitation } from "./models/invitation.model";
 import { MulterFile } from "./models/multer-file.model";
 import { Collaborator } from "./models/collaborator.model";
