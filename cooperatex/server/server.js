@@ -38,7 +38,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-mongoose.connect("mongodb://localhost/cooperatex", {
+mongoose.connect(process.env.DB_URI || "mongodb://localhost/cooperatex", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
