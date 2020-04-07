@@ -12,19 +12,21 @@ export class ProjectService {
   constructor(private http: HttpClient) {}
 
   createProject(title: string): Observable<Project> {
-    return this.http.post<any>(`${environment.apiUrl}/projects`, { title });
+    return this.http.post<any>(`${environment.serverUrl}/api/projects`, {
+      title,
+    });
   }
 
   getAllProjects(): Observable<Project[]> {
-    return this.http.get<any>(`${environment.apiUrl}/projects`);
+    return this.http.get<any>(`${environment.serverUrl}/api/projects`);
   }
 
   getProjectById(id: string): Observable<Project> {
-    return this.http.get<any>(`${environment.apiUrl}/projects/${id}`);
+    return this.http.get<any>(`${environment.serverUrl}/api/projects/${id}`);
   }
 
   deleteProjectById(id: string) {
-    return this.http.delete(`${environment.apiUrl}/projects/${id}`, {
+    return this.http.delete(`${environment.serverUrl}/api/projects/${id}`, {
       responseType: "text",
     });
   }
@@ -38,27 +40,27 @@ export class ProjectService {
       formData.append("files", fileToUpload, fileToUpload.name);
     });
     return this.http.post<any>(
-      `${environment.apiUrl}/projects/${projectId}/files`,
+      `${environment.serverUrl}/api/projects/${projectId}/files`,
       formData
     );
   }
 
   getAllFiles(projectId: string): Observable<MulterFile[]> {
     return this.http.get<any>(
-      `${environment.apiUrl}/projects/${projectId}/files`
+      `${environment.serverUrl}/api/projects/${projectId}/files`
     );
   }
 
   getFileStream(projectId: string, fileId: string): Observable<Blob> {
     return this.http.get(
-      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      `${environment.serverUrl}/api/projects/${projectId}/files/${fileId}`,
       { responseType: "blob" }
     );
   }
 
   deleteFile(projectId: string, fileId: string) {
     return this.http.delete(
-      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      `${environment.serverUrl}/api/projects/${projectId}/files/${fileId}`,
       { responseType: "text" }
     );
   }
@@ -71,7 +73,7 @@ export class ProjectService {
     newContents?: string
   ) {
     return this.http.patch(
-      `${environment.apiUrl}/projects/${projectId}/files/${fileId}`,
+      `${environment.serverUrl}/api/projects/${projectId}/files/${fileId}`,
       { operation, newName, newContents },
       { responseType: "text" }
     );
@@ -96,14 +98,17 @@ export class ProjectService {
   }
 
   getOutputFile(projectId: string): Observable<Blob> {
-    return this.http.get(`${environment.apiUrl}/projects/${projectId}/output`, {
-      responseType: "blob",
-    });
+    return this.http.get(
+      `${environment.serverUrl}/api/projects/${projectId}/output`,
+      {
+        responseType: "blob",
+      }
+    );
   }
 
   getCollaborators(projectId: string): Observable<Collaborator[]> {
     return this.http.get<any>(
-      `${environment.apiUrl}/projects/${projectId}/collaborators`
+      `${environment.serverUrl}/api/projects/${projectId}/collaborators`
     );
   }
 
@@ -113,21 +118,21 @@ export class ProjectService {
     access: "read" | "readWrite"
   ): Observable<Collaborator> {
     return this.http.post<any>(
-      `${environment.apiUrl}/projects/${projectId}/collaborators`,
+      `${environment.serverUrl}/api/projects/${projectId}/collaborators`,
       { username: username, access }
     );
   }
 
   removeCollaborator(projectId: string, userId: string) {
     return this.http.delete(
-      `${environment.apiUrl}/projects/${projectId}/collaborators/${userId}`,
+      `${environment.serverUrl}/api/projects/${projectId}/collaborators/${userId}`,
       { responseType: "text" }
     );
   }
 
   private patchCollaborator(projectId: string, operation: "accept" | "reject") {
     return this.http.patch(
-      `${environment.apiUrl}/projects/${projectId}/collaborators`,
+      `${environment.serverUrl}/api/projects/${projectId}/collaborators`,
       { operation },
       { responseType: "text" }
     );
@@ -142,6 +147,6 @@ export class ProjectService {
   }
 
   getInvitations(): Observable<Invitation[]> {
-    return this.http.get<any>(`${environment.apiUrl}/invitations`);
+    return this.http.get<any>(`${environment.serverUrl}/api/invitations`);
   }
 }

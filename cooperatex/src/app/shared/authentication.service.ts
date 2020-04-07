@@ -49,7 +49,10 @@ export class AuthenticationService {
 
   signUp(username: string, password: string) {
     return this.http
-      .post<any>(`${environment.apiUrl}/users/signup`, { username, password })
+      .post<any>(`${environment.serverUrl}/api/users/signup`, {
+        username,
+        password,
+      })
       .pipe(
         map((user) => {
           localStorage.setItem("currentUser", JSON.stringify(user));
@@ -61,7 +64,10 @@ export class AuthenticationService {
 
   signIn(username: string, password: string) {
     return this.http
-      .post<any>(`${environment.apiUrl}/users/signin`, { username, password })
+      .post<any>(`${environment.serverUrl}/api/users/signin`, {
+        username,
+        password,
+      })
       .pipe(
         map((user) => {
           localStorage.setItem("currentUser", JSON.stringify(user));

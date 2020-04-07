@@ -15,10 +15,12 @@ let User = mongoose.model("User");
 let apiRoute = require("./routes/index");
 let app = express();
 
-// UNCOMMENT WHEN READY TO DEPLOY
-// app.use(express.static(path.join(__dirname, "../dist/cooperatex")));
-// app.get("/*", (req, res) => res.sendFile(path.join(__dirname)));
-app.use(cors()); // delete when rdy to deploy
+if (process.env.PORT) {
+  app.use(express.static(path.join(__dirname, "../dist/cooperatex")));
+  app.get("/*", (req, res) => res.sendFile(path.join(__dirname)));
+} else {
+  app.use(cors());
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
