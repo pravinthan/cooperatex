@@ -22,6 +22,15 @@
             <mat-icon>group_add</mat-icon>
           </button>
           <button
+            *ngIf="displayFiles.length != 0"
+            (click)="openDownloadFilesDialog()"
+            mat-icon-button
+            matTooltip="Download"
+            matTooltipPosition="below"
+          >
+            <mat-icon>get_app</mat-icon>
+          </button>
+          <button
             *ngIf="hasReadWriteAccess"
             (click)="openUploadFilesDialog()"
             mat-icon-button
@@ -156,14 +165,7 @@
               Auto compile
             </mat-checkbox>
           </div>
-          <button
-            (click)="downloadOutputPdf()"
-            mat-icon-button
-            matTooltip="Download PDF"
-            matTooltipPosition="below"
-          >
-            <mat-icon>get_app</mat-icon>
-          </button>
+
         </div>
         <ng2-pdfjs-viewer
           #pdfViewer

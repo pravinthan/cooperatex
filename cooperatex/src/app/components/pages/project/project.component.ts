@@ -11,6 +11,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { UploadFilesDialogComponent } from "./upload-files-dialog/upload-files-dialog.component";
 import { RenameFileDialogComponent } from "./rename-file-dialog/rename-file-dialog.component";
 import { DeleteFileDialogComponent } from "./delete-file-dialog/delete-file-dialog.component";
+import { DownloadFilesDialogComponent } from "./download-files-dialog/download-files-dialog.component";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Project } from "src/app/shared/models/project.model";
 import { MulterFile } from "src/app/shared/models/multer-file.model";
@@ -601,14 +602,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  downloadOutputPdf() {
-    this.projectService
-      .getOutputFile(this.projectId)
-      .toPromise()
-      .then((outputPdf) => {
-        var link = document.createElement("a");
-        link.href = window.URL.createObjectURL(outputPdf);
-        link.click();
-      });
+  openDownloadFilesDialog() {
+    this.dialog.open(DownloadFilesDialogComponent, {
+      width: "400px",
+      data: { project: this.project }
+    });
   }
 }

@@ -49,6 +49,7 @@ import { TruncatePipe } from "./shared/utils/truncate.pipe";
 
 import "codemirror/mode/stex/stex";
 import { NOTYF, notyfFactory } from "./shared/utils/notyf.token";
+import { DownloadFilesDialogComponent } from './components/pages/project/download-files-dialog/download-files-dialog.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { NOTYF, notyfFactory } from "./shared/utils/notyf.token";
     InviteCollaboratorsDialogComponent,
     InvitationsDialogComponent,
     LeaveProjectDialogComponent,
+    DownloadFilesDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -96,6 +96,12 @@ export class ProjectService {
     });
   }
 
+  getZipFile(projectId: string) {
+    return this.http.get(`/api/projects/${projectId}/zip`, {
+      responseType: "arraybuffer"
+    });
+  }
+
   getCollaborators(projectId: string): Observable<Collaborator[]> {
     return this.http.get<any>(`/api/projects/${projectId}/collaborators`);
   }

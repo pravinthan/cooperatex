@@ -185,6 +185,18 @@ router.get(
   projectController.retrieveOutputPdf
 );
 router.get(
+  "/projects/:id/zip",
+  auth,
+  [
+    param("id")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
+  ],
+  projectController.downloadFiles
+);
+router.get(
   "/projects/:id/collaborators",
   auth,
   [
