@@ -2,6 +2,7 @@ let latex = require("node-latex");
 let path = require("path");
 let fs = require("fs");
 let os = require("os");
+let archiver = require('archiver');
 let mongoose = require("mongoose");
 let { validationResult } = require("express-validator");
 let Project = mongoose.model("Project");
@@ -366,6 +367,43 @@ module.exports.retrieveOutputPdf = (req, res) => {
       });
     })
     .catch((err) => res.sendStatus(500));
+};
+
+module.exports.downloadFiles = (req, res) => {
+  Project.findById(req.params.id)
+  .then(project => {
+    
+    if (!project)
+      return res.status(404).send(`Project ${req.params.id} does not exist`);
+
+    if (project.owner._id != req.user._id) return res.sendStatus(403);
+
+    let archive = archiver('zip');
+    let downloadPath = path.join(__dirname, "../../uploads", project._id + '.zip' )
+    let output = fs.createWriteStream(downloadPath);
+
+    output.on('close', function() {
+      return res.download(downloadPath, project.title + '.zip');
+    });
+    
+    archive.on('error', function(err) {
+      console.log(err);
+      return res.sendStatus(500);
+    });
+
+    archive.pipe(output);
+
+    project.files.forEach(file => {
+      let name = file.originalname;
+      let path = file.path;
+      archive.file(path, { name });
+
+    });
+
+    archive.finalize();
+    
+  })
+  .catch(err => {console.log(err);res.sendStatus(500)});
 };
 
 module.exports.retrieveCollaborators = (req, res) => {
