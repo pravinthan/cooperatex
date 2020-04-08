@@ -48,3 +48,4 @@ Thumbs.db
 uploads
 
 .env
+prod.env
