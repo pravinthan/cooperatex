@@ -18,6 +18,7 @@
   "dependencies": {
     "@angular/animations": "~9.0.2",
     "@angular/cdk": "^9.1.0",
+    "@angular/cli": "^9.1.0",
     "@angular/common": "~9.0.2",
     "@angular/compiler": "~9.0.2",
     "@angular/core": "~9.0.2",
@@ -55,7 +56,6 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.901.0",
-    "@angular/cli": "^9.1.0",
     "@angular/compiler-cli": "~9.0.2",
     "@angular/language-service": "~9.0.2",
     "@types/codemirror": "0.0.88",
