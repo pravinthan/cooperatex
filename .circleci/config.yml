@@ -3,6 +3,7 @@ orbs:
   node: circleci/node@1.1.6
 jobs:
   build:
+    working_directory: ~/cooperatex
     executor:
       name: node/default
     steps:
@@ -12,6 +13,5 @@ jobs:
             - run: npm install
 workflows:
     build:
-      working_directory: ~/cooperatex
       jobs:
         - build
