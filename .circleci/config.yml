@@ -3,7 +3,7 @@ orbs:
   node: circleci/node@1.1.6
 jobs:
   build:
-    working_directory: ~/cooperatex
+    working_directory: ~/project-c09-prav-tommy/cooperatex
     executor:
       name: node/default
     steps:
