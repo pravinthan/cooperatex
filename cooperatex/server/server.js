@@ -1,7 +1,7 @@
 require("dotenv").config();
 let http = require("http");
 let path = require("path");
-let cors = require("cors"); // delete when ready to deploy
+let cors = require("cors");
 let express = require("express");
 let bodyParser = require("body-parser");
 let mongoose = require("mongoose");
