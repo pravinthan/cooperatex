@@ -28,5 +28,6 @@ COPY --chown=node:node . .
 
 EXPOSE 3000
 
+RUN npm run build-prod
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start-server" ]
