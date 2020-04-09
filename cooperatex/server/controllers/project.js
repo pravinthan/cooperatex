@@ -2,9 +2,16 @@ let latex = require("node-latex");
 let path = require("path");
 let fs = require("fs");
 let os = require("os");
-let archiver = require('archiver');
+let archiver = require("archiver");
 let mongoose = require("mongoose");
 let { validationResult } = require("express-validator");
+let aws = require("aws-sdk");
+aws.config.update({
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  region: process.env.S3_BUCKET_REGION,
+});
+let s3 = new aws.S3();
 let Project = mongoose.model("Project");
 let User = mongoose.model("User");
 
@@ -87,10 +94,21 @@ module.exports.deleteProjectById = (req, res) => {
 
       if (project.owner._id != req.user._id) return res.sendStatus(403);
 
-      Project.findByIdAndDelete(project._id).then((project) =>
-        res.sendStatus(200)
-      );
+      return Project.findByIdAndDelete(project._id);
     })
+    .then((project) =>
+      s3
+        .deleteObjects({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Delete: {
+            Objects: project.files.map(
+              (file) => (file = { Key: `${project._id}/${file.originalname}` })
+            ),
+          },
+        })
+        .promise()
+    )
+    .then((data) => res.sendStatus(200))
     .catch((err) => res.sendStatus(500));
 };
 
@@ -172,7 +190,24 @@ module.exports.retrieveFile = (req, res) => {
       if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       const file = project.files.find((file) => file._id == req.params.fileId);
-      res.sendFile(file.path);
+      const folderPath = path.join(os.tmpdir(), project._id.toString());
+      const filePath = path.join(folderPath, `./${file.originalname}`);
+      fs.mkdir(folderPath, { recursive: true }, () => {
+        let fileStream = fs.createWriteStream(filePath);
+        s3.getObject(
+          {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: `${project._id}/${file.originalname}`,
+          },
+          (err, data) => {
+            if (err) return res.sendStatus(500);
+          }
+        )
+          .createReadStream()
+          .pipe(fileStream);
+
+        fileStream.on("finish", () => res.sendFile(filePath));
+      });
     })
     .catch((err) => res.sendStatus(500));
 };
@@ -193,10 +228,14 @@ module.exports.deleteFile = (req, res) => {
       )
         return res.sendStatus(403);
 
-      Project.findByIdAndUpdate(project._id, {
-        $pull: {
-          files: { _id: req.params.fileId },
-        },
+      const fileToDelete = project.files.find(
+        (file) => file._id == req.params.fileId
+      );
+      if (!fileToDelete)
+        return res.status(404).send(`File ${req.params.fileId} does not exist`);
+
+      return Project.findByIdAndUpdate(project._id, {
+        $pull: { files: { _id: fileToDelete._id } },
         $set: {
           lastUpdated: Date.now(),
           lastUpdatedBy: {
@@ -204,8 +243,20 @@ module.exports.deleteFile = (req, res) => {
             username: req.user.username,
           },
         },
-      }).then((project) => res.sendStatus(200));
+      });
     })
+    .then((project) => {
+      const fileToDelete = project.files.find(
+        (file) => file._id == req.params.fileId
+      );
+      return s3
+        .deleteObject({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: `${project._id}/${fileToDelete.originalname}`,
+        })
+        .promise();
+    })
+    .then((data) => res.sendStatus(200))
     .catch((err) => res.sendStatus(500));
 };
 
@@ -274,34 +325,52 @@ module.exports.patchFile = (req, res) => {
               },
             },
           }
-        ).then((project) => res.sendStatus(200));
+        )
+          .then((project) =>
+            // Copy object over to a new object (to rename)
+            s3
+              .copyObject({
+                Bucket: process.env.S3_BUCKET_NAME,
+                CopySource: `${process.env.S3_BUCKET_NAME}/${project._id}/${oldName}`,
+                Key: `${project._id}/${newName}`,
+              })
+              .promise()
+          )
+          .then((data) =>
+            // Delete the old object
+            s3
+              .deleteObject({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: `${project._id}/${oldName}`,
+              })
+              .promise()
+          )
+          .then((data) => res.sendStatus(200))
+          .catch((err) => res.sendStatus(500));
       } else if (req.body.operation == "replaceContents") {
         const fileToUpdate = project.files.find(
           (file) => file._id == req.params.fileId
         );
 
-        fs.readFile(fileToUpdate.path, "utf8", (err, data) => {
-          if (err) return res.sendStatus(500);
-
-          fs.writeFile(
-            fileToUpdate.path,
-            req.body.newContents,
-            "utf8",
-            (err) => {
-              if (err) return res.sendStatus(500);
-
-              Project.findByIdAndUpdate(project._id, {
-                $set: {
-                  lastUpdated: Date.now(),
-                  lastUpdatedBy: {
-                    _id: req.user._id,
-                    username: req.user.username,
-                  },
+        s3.putObject({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: `${project._id}/${fileToUpdate.originalname}`,
+          Body: req.body.newContents,
+        })
+          .promise()
+          .then((data) =>
+            Project.findByIdAndUpdate(project._id, {
+              $set: {
+                lastUpdated: Date.now(),
+                lastUpdatedBy: {
+                  _id: req.user._id,
+                  username: req.user.username,
                 },
-              }).then((project) => res.sendStatus(200));
-            }
-          );
-        });
+              },
+            })
+          )
+          .then((project) => res.sendStatus(200))
+          .catch((err) => res.sendStatus(500));
       }
     })
     .catch((err) => res.sendStatus(500));
@@ -318,7 +387,7 @@ module.exports.retrieveOutputPdf = (req, res) => {
       if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
       const mainFile = project.files.find((file) => file.isMain);
-      const folderPath = path.join(os.tmpdir(), project.owner._id.toString());
+      const folderPath = path.join(os.tmpdir(), project._id.toString());
       fs.mkdir(folderPath, { recursive: true }, async () => {
         try {
           // Remove files that are no longer in the project
@@ -334,20 +403,41 @@ module.exports.retrieveOutputPdf = (req, res) => {
 
           // Copy files over to temp directory
           for (const file of project.files) {
-            if (file.path != mainFile.path) {
-              await fs.promises.copyFile(
-                file.path,
-                path.join(folderPath, `./${file.originalname}`)
-              );
+            if (file._id != mainFile._id) {
+              s3.getObject(
+                {
+                  Bucket: process.env.S3_BUCKET_NAME,
+                  Key: `${project._id}/${file.originalname}`,
+                },
+                (err, data) => {
+                  if (err) return res.sendStatus(500);
+                }
+              )
+                .createReadStream()
+                .pipe(
+                  fs.createWriteStream(
+                    path.join(folderPath, `./${file.originalname}`)
+                  )
+                );
             }
           }
         } catch (err) {
           return res.sendStatus(500);
         }
 
-        const outputPath = mainFile.path + ".pdf";
-        const logPath = mainFile.path + ".log";
-        let input = fs.createReadStream(mainFile.path);
+        const outputPath = path.join(folderPath, `./${mainFile._id}.pdf`);
+        const logPath = path.join(folderPath, `./${mainFile._id}.log`);
+        let input = s3
+          .getObject(
+            {
+              Bucket: process.env.S3_BUCKET_NAME,
+              Key: `${project._id}/${mainFile.originalname}`,
+            },
+            (err, data) => {
+              if (err) return res.sendStatus(500);
+            }
+          )
+          .createReadStream();
         let output = fs.createWriteStream(outputPath);
         let pdf = latex(input, {
           inputs: folderPath,
@@ -358,7 +448,7 @@ module.exports.retrieveOutputPdf = (req, res) => {
 
         pdf.on("error", (err) => {
           fs.readFile(logPath, (err, data) => {
-            if (err) res.sendStatus(500);
+            if (err || !data) res.sendStatus(500);
             return res.status(409).send(data.toString());
           });
         });
@@ -369,41 +459,51 @@ module.exports.retrieveOutputPdf = (req, res) => {
     .catch((err) => res.sendStatus(500));
 };
 
-module.exports.downloadFiles = (req, res) => {
+module.exports.retrieveSourceFiles = (req, res) => {
   Project.findById(req.params.id)
-  .then(project => {
-    
-    if (!project)
-      return res.status(404).send(`Project ${req.params.id} does not exist`);
+    .then((project) => {
+      if (!project)
+        return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-    if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (project.owner._id != req.user._id) return res.sendStatus(403);
 
-    let archive = archiver('zip');
-    let downloadPath = path.join(__dirname, "../../uploads", project._id + '.zip' )
-    let output = fs.createWriteStream(downloadPath);
+      let archive = archiver("zip");
+      const folderPath = path.join(os.tmpdir(), project._id.toString());
+      const downloadPath = path.join(folderPath, `./${project._id}.zip`);
+      fs.mkdir(folderPath, { recursive: true }, () => {
+        let output = fs.createWriteStream(downloadPath);
+        output.on("close", () =>
+          res.download(downloadPath, project.title + ".zip")
+        );
 
-    output.on('close', function() {
-      return res.download(downloadPath, project.title + '.zip');
-    });
-    
-    archive.on('error', function(err) {
-      console.log(err);
-      return res.sendStatus(500);
-    });
+        archive.on("error", (err) => res.sendStatus(500));
 
-    archive.pipe(output);
+        archive.pipe(output);
 
-    project.files.forEach(file => {
-      let name = file.originalname;
-      let path = file.path;
-      archive.file(path, { name });
+        for (const file of project.files) {
+          let fileStream = s3
+            .getObject(
+              {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: `${project._id}/${file.originalname}`,
+              },
+              (err, data) => {
+                if (err) return res.sendStatus(500);
+              }
+            )
+            .createReadStream();
 
-    });
+          fileStream.on("end", () => {
+            archive.append(fileStream, {
+              name: file.originalname,
+            });
+          });
+        }
 
-    archive.finalize();
-    
-  })
-  .catch(err => {console.log(err);res.sendStatus(500)});
+        archive.finalize();
+      });
+    })
+    .catch((err) => res.sendStatus(500));
 };
 
 module.exports.retrieveCollaborators = (req, res) => {
