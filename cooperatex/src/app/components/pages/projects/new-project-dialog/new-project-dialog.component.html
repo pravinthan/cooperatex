@@ -14,9 +14,25 @@
       />
       <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
     </mat-form-field>
+    <h2>Template:</h2>
+    <mat-radio-group
+      class="template-group"
+      name="selectedTemplate"
+      [(ngModel)]="selectedTemplate"
+    >
+      <mat-radio-button
+        class="template-buttons"
+        *ngFor="let option of template"
+        [value]="option.title"
+        [checked]="option.checked"
+      >
+        {{option.title}}
+      </mat-radio-button>
+    </mat-radio-group>
+    {{selectedTemplate}}
   </div>
   <div mat-dialog-actions>
-    <button mat-button (click)="this.dialogRef.close()">Cancel</button>
+    <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button color="primary" [disabled]="form.invalid">
       Create
     </button>

@@ -17,7 +17,31 @@ export class NewProjectDialogComponent {
     private projectService: ProjectService,
     @Inject(NOTYF) private notyf: Notyf,
     private router: Router
-  ) {}
+  ) {
+    this.selectedTemplate = 'No Template';
+  }
+  
+
+    template = [
+      {
+        title: 'No Template',
+        checked: true
+      },
+      {
+        title: 'A',
+        checked: false
+      },
+      {
+        title: 'B',
+        checked: false
+      },
+      {
+        title: 'C',
+        checked: false
+      }
+    ]
+
+    selectedTemplate = 'No Template';
 
   onSubmit(form: NgForm) {
     this.projectService.createProject(form.value.title).subscribe(
