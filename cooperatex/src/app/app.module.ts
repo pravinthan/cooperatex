@@ -23,6 +23,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
 import { MatSelectModule } from "@angular/material/select";
 import { MatBadgeModule } from "@angular/material/badge";
+import { MatRadioModule } from "@angular/material/radio";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/pages/home/home.component";
@@ -99,6 +100,7 @@ import { DownloadFilesDialogComponent } from './components/pages/project/downloa
     PdfJsViewerModule,
     MatSelectModule,
     MatBadgeModule,
+    MatRadioModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
