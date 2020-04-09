@@ -1,7 +1,6 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ProjectService } from "src/app/shared/project.service";
-import { Project } from "src/app/shared/models/project.model";
 import { saveAs } from "file-saver";
 
 @Component({
@@ -13,26 +12,31 @@ export class DownloadFilesDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<DownloadFilesDialogComponent>,
     private projectService: ProjectService,
-    @Inject(MAT_DIALOG_DATA) public data: { project: Project }
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      projectId: string;
+      projectTitle: string;
+      canDownloadPdf: boolean;
+    }
   ) {}
 
   downloadPdfFile() {
     this.projectService
-      .getOutputFile(this.data.project._id)
+      .getOutputFile(this.data.projectId)
       .toPromise()
       .then((outputPdf) => {
         const blob = new Blob([outputPdf], { type: "application/pdf" });
-        saveAs(blob, this.data.project.title + ".pdf");
+        saveAs(blob, this.data.projectTitle + ".pdf");
       });
   }
 
   downloadAllFiles() {
     this.projectService
-      .getSourceFiles(this.data.project._id)
+      .getSourceFiles(this.data.projectId)
       .toPromise()
       .then((file) => {
         const blob = new Blob([file], { type: "application/zip" });
-        saveAs(blob, this.data.project.title + ".zip");
+        saveAs(blob, this.data.projectTitle + ".zip");
       });
   }
 }

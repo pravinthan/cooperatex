@@ -2,10 +2,10 @@ let latex = require("node-latex");
 let path = require("path");
 let fs = require("fs");
 let os = require("os");
-let archiver = require("archiver");
 let mongoose = require("mongoose");
 let { validationResult } = require("express-validator");
 let aws = require("aws-sdk");
+let s3Zip = require("s3-zip");
 aws.config.update({
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
@@ -460,47 +460,34 @@ module.exports.retrieveOutputPdf = (req, res) => {
 };
 
 module.exports.retrieveSourceFiles = (req, res) => {
+  if (isBadRequest(req)) return res.sendStatus(400);
+
   Project.findById(req.params.id)
     .then((project) => {
       if (!project)
         return res.status(404).send(`Project ${req.params.id} does not exist`);
 
-      if (project.owner._id != req.user._id) return res.sendStatus(403);
+      if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
-      let archive = archiver("zip");
+      const fileNames = project.files.map((file) => (file = file.originalname));
       const folderPath = path.join(os.tmpdir(), project._id.toString());
-      const downloadPath = path.join(folderPath, `./${project._id}.zip`);
+      const downloadPath = path.join(folderPath, `${project._id}.zip`);
       fs.mkdir(folderPath, { recursive: true }, () => {
         let output = fs.createWriteStream(downloadPath);
         output.on("close", () =>
           res.download(downloadPath, project.title + ".zip")
         );
 
-        archive.on("error", (err) => res.sendStatus(500));
-
-        archive.pipe(output);
-
-        for (const file of project.files) {
-          let fileStream = s3
-            .getObject(
-              {
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: `${project._id}/${file.originalname}`,
-              },
-              (err, data) => {
-                if (err) return res.sendStatus(500);
-              }
-            )
-            .createReadStream();
-
-          fileStream.on("end", () => {
-            archive.append(fileStream, {
-              name: file.originalname,
-            });
-          });
-        }
-
-        archive.finalize();
+        s3Zip
+          .archive(
+            {
+              region: process.env.S3_BUCKET_REGION,
+              bucket: process.env.S3_BUCKET_NAME,
+            },
+            project._id + "/",
+            fileNames
+          )
+          .pipe(output);
       });
     })
     .catch((err) => res.sendStatus(500));

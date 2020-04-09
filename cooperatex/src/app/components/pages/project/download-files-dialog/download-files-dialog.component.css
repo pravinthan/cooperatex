@@ -32,5 +32,19 @@
 .download-icon {
   width: 64px;
   height: 64px;
+  background-size: 64px;
+  background-repeat: no-repeat;
   padding-bottom: 1rem;
+}
+
+.zip-icon {
+  background-image: url(/assets/zip.png);
+}
+
+.pdf-icon {
+  background-image: url(/assets/pdf.png);
+}
+
+.disabled-icon {
+  filter: opacity(0.25);
 }

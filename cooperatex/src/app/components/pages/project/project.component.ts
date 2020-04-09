@@ -471,6 +471,18 @@ export class ProjectComponent implements OnInit, OnDestroy {
     });
   }
 
+  openDownloadFilesDialog() {
+    this.dialog.open(DownloadFilesDialogComponent, {
+      width: "350px",
+      data: {
+        projectId: this.projectId,
+        projectTitle: this.project.title,
+        canDownloadPdf:
+          this.mainFile && !this.mainLatexError && !this.compiling,
+      },
+    });
+  }
+
   openUploadFilesDialog() {
     let dialogRef = this.dialog.open(UploadFilesDialogComponent, {
       width: "400px",
@@ -600,12 +612,5 @@ export class ProjectComponent implements OnInit, OnDestroy {
         })
         .finally(() => (this.compiling = false));
     }
-  }
-
-  openDownloadFilesDialog() {
-    this.dialog.open(DownloadFilesDialogComponent, {
-      width: "350px",
-      data: { project: this.project },
-    });
   }
 }
