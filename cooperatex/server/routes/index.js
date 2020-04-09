@@ -29,14 +29,9 @@ let upload = multer({
     s3,
     bucket: process.env.S3_BUCKET_NAME,
     key: (req, file, cb) => {
-      // let newFileName = Date.now() + "-" + file.originalname;
-      let newFileName = file.originalname;
-      let fullPath = `${req.params.id}/${newFileName}`;
-      console.log(fullPath);
-      cb(null, fullPath);
+      cb(null, `${req.params.id}/${file.originalname}`);
     },
   }),
-  // dest: path.join(__dirname, "../../uploads"),
   fileFilter: fileFilter,
   limits: { fileSize: 1024 * 1024 * 20 },
 });

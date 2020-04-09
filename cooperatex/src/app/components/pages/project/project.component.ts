@@ -604,8 +604,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   openDownloadFilesDialog() {
     this.dialog.open(DownloadFilesDialogComponent, {
-      width: "400px",
-      data: { project: this.project }
+      width: "350px",
+      data: { project: this.project },
     });
   }
 }
