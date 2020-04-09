@@ -7,7 +7,7 @@
     "server": "nodemon server/server.js",
     "start-dev": "npm-run-all -p client server",
     "start": "ng build --prod && node server/server.js",
-    "build-prod": "ng build --prod",
+    "build-prod": "node --max_old_space_size=5048 ./node_modules/@angular/cli/bin/ng build --prod",
     "start-server": "node server/server.js",
     "build": "ng build",
     "test": "ng test",
