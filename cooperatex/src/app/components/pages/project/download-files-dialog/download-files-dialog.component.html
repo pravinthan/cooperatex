@@ -1,6 +1,18 @@
 <h2 mat-dialog-title>Download</h2>
-<button mat-icon-button (click)="downloadAllFiles()"><mat-icon>folder</mat-icon></button>
-<button mat-icon-button (click)="downloadOutputPdf()"><mat-icon>description</mat-icon></button>
+<div id="download-container">
+  <div>
+    <button mat-button (click)="downloadAllFiles()">
+      <img class="download-icon" src="/assets/zip.png" />
+      Source
+    </button>
+  </div>
+  <div>
+    <button mat-button (click)="downloadPdfFile()">
+      <img class="download-icon" src="/assets/pdf.png" />
+      PDF
+    </button>
+  </div>
+</div>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>Cancel</button>
 </mat-dialog-actions>

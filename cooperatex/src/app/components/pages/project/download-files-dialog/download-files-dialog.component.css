@@ -1,0 +1,36 @@
+.mat-dialog-title {
+  text-align: center;
+}
+
+#download-container {
+  height: 150px;
+  width: 100%;
+  display: flex;
+}
+
+#download-container > div {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#download-container > div > button {
+  width: stretch;
+  height: stretch;
+  padding: 1rem;
+}
+
+::ng-deep #download-container > div > button > .mat-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0px;
+}
+
+.download-icon {
+  width: 64px;
+  height: 64px;
+  padding-bottom: 1rem;
+}

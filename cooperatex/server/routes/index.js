@@ -3,6 +3,15 @@ let router = express.Router();
 let path = require("path");
 let { param, body } = require("express-validator");
 let jwt = require("express-jwt");
+let multer = require("multer");
+let multerS3 = require("multer-s3");
+let aws = require("aws-sdk");
+aws.config.update({
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  region: process.env.S3_BUCKET_REGION,
+});
+let s3 = new aws.S3();
 let auth = jwt({ secret: process.env.JWT_SECRET });
 const fileFilter = (req, file, callback) => {
   if (
@@ -15,8 +24,14 @@ const fileFilter = (req, file, callback) => {
     callback(null, true);
   else callback(null, false);
 };
-let upload = require("multer")({
-  dest: path.join(__dirname, "../../uploads"),
+let upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: process.env.S3_BUCKET_NAME,
+    key: (req, file, cb) => {
+      cb(null, `${req.params.id}/${file.originalname}`);
+    },
+  }),
   fileFilter: fileFilter,
   limits: { fileSize: 1024 * 1024 * 20 },
 });
@@ -185,7 +200,7 @@ router.get(
   projectController.retrieveOutputPdf
 );
 router.get(
-  "/projects/:id/zip",
+  "/projects/:id/source",
   auth,
   [
     param("id")
@@ -194,7 +209,7 @@ router.get(
       .isMongoId()
       .escape(),
   ],
-  projectController.downloadFiles
+  projectController.retrieveSourceFiles
 );
 router.get(
   "/projects/:id/collaborators",

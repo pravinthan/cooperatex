@@ -96,9 +96,9 @@ export class ProjectService {
     });
   }
 
-  getZipFile(projectId: string) {
-    return this.http.get(`/api/projects/${projectId}/zip`, {
-      responseType: "arraybuffer"
+  getSourceFiles(projectId: string): Observable<ArrayBuffer> {
+    return this.http.get(`/api/projects/${projectId}/source`, {
+      responseType: "arraybuffer",
     });
   }
 
