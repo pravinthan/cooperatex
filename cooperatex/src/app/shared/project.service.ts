@@ -1,19 +1,21 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 import { Project } from "./models/project.model";
 import { Invitation } from "./models/invitation.model";
 import { MulterFile } from "./models/multer-file.model";
 import { Collaborator } from "./models/collaborator.model";
 
+export type LatexTemplate = "default" | "cover-letter" | "title-page";
+
 @Injectable({ providedIn: "root" })
 export class ProjectService {
   constructor(private http: HttpClient) {}
 
-  createProject(title: string): Observable<Project> {
+  createProject(title: string, template: LatexTemplate): Observable<Project> {
     return this.http.post<any>(`/api/projects`, {
       title,
+      template,
     });
   }
 

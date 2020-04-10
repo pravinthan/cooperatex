@@ -2,7 +2,8 @@ mat-form-field {
   width: 100%;
 }
 
-.mat-dialog-title {
+.mat-dialog-title,
+h2 {
   text-align: center;
 }
 

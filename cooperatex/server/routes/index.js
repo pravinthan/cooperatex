@@ -75,6 +75,9 @@ router.post(
       .trim()
       .isLength({ min: 1, max: 50 })
       .escape(),
+    body("template")
+      .exists({ checkNull: true, checkFalsy: true })
+      .isIn(["default", "cover-letter", "title-page"]),
   ],
   projectController.createProject
 );

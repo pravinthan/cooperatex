@@ -14,7 +14,7 @@
       />
       <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
     </mat-form-field>
-    <h2>Template:</h2>
+    <h2>Select a Template</h2>
     <mat-radio-group
       class="template-group"
       name="selectedTemplate"
@@ -22,14 +22,13 @@
     >
       <mat-radio-button
         class="template-buttons"
-        *ngFor="let option of template"
-        [value]="option.title"
-        [checked]="option.checked"
+        *ngFor="let template of templates"
+        [value]="template.value"
+        [checked]="template.checked"
       >
-        {{option.title}}
+        {{ template.title }}
       </mat-radio-button>
     </mat-radio-group>
-    {{selectedTemplate}}
   </div>
   <div mat-dialog-actions>
     <button mat-button mat-dialog-close>Cancel</button>
