@@ -292,6 +292,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this.displayFiles = project.files.map((file) =>
               this.convertFileToDisplayFile(file)
             );
+
+            this.setEditorContentToMainFile();
           });
       });
 
