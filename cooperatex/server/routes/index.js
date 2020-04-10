@@ -77,7 +77,7 @@ router.post(
       .escape(),
     body("template")
       .exists({ checkNull: true, checkFalsy: true })
-      .isIn(["default", "cover-letter", "title-page"]),
+      .isIn(["default", "cover-letter", "title-page", "resume"]),
   ],
   projectController.createProject
 );

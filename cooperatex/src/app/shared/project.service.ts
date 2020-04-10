@@ -6,7 +6,11 @@ import { Invitation } from "./models/invitation.model";
 import { MulterFile } from "./models/multer-file.model";
 import { Collaborator } from "./models/collaborator.model";
 
-export type LatexTemplate = "default" | "cover-letter" | "title-page";
+export type LatexTemplate =
+  | "default"
+  | "cover-letter"
+  | "title-page"
+  | "resume";
 
 @Injectable({ providedIn: "root" })
 export class ProjectService {

@@ -8,7 +8,7 @@ import { NOTYF } from "src/app/shared/utils/notyf.token";
 
 interface RadioButtonTemplate {
   title: string;
-  value: string;
+  value: LatexTemplate;
   checked: boolean;
 }
 
@@ -30,13 +30,13 @@ export class NewProjectDialogComponent {
       checked: false,
     },
     {
-      title: "Academic Title Page",
-      value: "title-page",
+      title: "Resume",
+      value: "resume",
       checked: false,
     },
     {
-      title: "TBD",
-      value: "TBD",
+      title: "Academic Title Page",
+      value: "title-page",
       checked: false,
     },
   ];
