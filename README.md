@@ -2,6 +2,12 @@ project Title: CooperaTeX
 
 team Members: Pravinthan Prabagaran (prabaga2), Thomas Lo (lothoma2)
 
+**App URL**: https://cooperatex.me
+
+**Documentation URL**: [cooperatex/docs/README.md](cooperatex/docs)
+
+**Demo video URL**: https://youtu.be/YQSpjoTv2oI
+
 a description of the web application:
 
 - compiles LaTeX code into a pdf
