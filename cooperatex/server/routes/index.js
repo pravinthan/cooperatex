@@ -254,6 +254,11 @@ router.delete(
       .trim()
       .isMongoId()
       .escape(),
+    param("userId")
+      .exists({ checkNull: true, checkFalsy: true })
+      .trim()
+      .isMongoId()
+      .escape(),
   ],
   projectController.removeCollaborator
 );

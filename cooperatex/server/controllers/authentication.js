@@ -26,7 +26,7 @@ module.exports.signIn = (req, res) => {
   if (validationResult(req).array().length > 0) return res.sendStatus(400);
 
   passport.authenticate("local", (err, user, info) => {
-    if (err) return res.status(404).send(err);
+    if (err) return res.status(500).send(err);
     if (!user) return res.status(401).send(info);
 
     res.json({ token: user.generateJWT() });

@@ -242,10 +242,13 @@ module.exports.retrieveFile = async (req, res) => {
 
     if (!isAllowedAccess(project, req.user._id)) return res.sendStatus(403);
 
+    const file = project.files.find((file) => file._id == req.params.fileId);
+    if (!file)
+      return res.status(404).send(`File ${req.params.fileId} does not exist`);
+
     const folderPath = path.join(os.tmpdir(), project._id.toString());
     await fs.promises.mkdir(folderPath, { recursive: true });
 
-    const file = project.files.find((file) => file._id == req.params.fileId);
     const filePath = path.join(folderPath, `./${file.originalname}`);
     let fileStream = fs.createWriteStream(filePath);
 
