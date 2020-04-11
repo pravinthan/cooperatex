@@ -1,12 +1,24 @@
-# CooperaTeX Documentation
+<h1 style="text-align: center">CooperaTeX Documentation</h1>
 
-# Table of Contents
+<h2>Table of Contents</h2>
 
-1. [REST API Documentation](#rest-api-documentation)
-   1. [Users API](#users-api)
-   2. [Projects API](#projects-api)
-   3. [Invitations API](#invitations-api)
-2. [WebSocket API Documentation](#websocket-api-documentation)
+- [REST API Documentation](#rest-api-documentation)
+  - [Users API](#users-api)
+    - [Create](#create)
+  - [Projects API](#projects-api)
+    - [Create](#create-1)
+    - [Read](#read)
+    - [Update](#update)
+    - [Delete](#delete)
+    - [Index](#index)
+      - [User](#user)
+      - [File](#file)
+      - [Collaborator](#collaborator)
+      - [Project](#project)
+  - [Invitations API](#invitations-api)
+    - [Create](#create-2)
+- [WebSocket API Documentation](#websocket-api-documentation)
+  - [Events](#events)
 
 ---
 
@@ -63,46 +75,6 @@ $ curl -X POST
 ---
 
 ## Projects API
-
-### Index
-
-#### User
-
-- user: (object)
-  - \_id: (object) MongoDB Object ID for the user
-  - username: (string) user's username
-
-#### File
-
-- file: (object) file metadata for the project
-  - fieldname: (string) field name specified in the form
-  - originalname: (string) name of the file on the user's computer
-  - encoding: (string) encoding type of the file
-  - mimetype: (string) mime type of the file
-  - size: (string) size of the file in bytes
-  - isMain: (boolean) indicates the file to be compiled
-
-#### Collaborator
-
-- collaborator: (object) users who have access to project
-  - pendingInvitation: (boolean) whether or not the invitation has been accepted or rejected,
-  - acceptedInvitation: (boolean) whether or not the invitation has been accepted,
-  - access: (string) access level of collaborator (one of `"read", "readWrite"`)
-  - user: ([User](#user)) user id and name of the collaborator
-
-#### Project
-
-- project: (object) all project-related data
-  - \_id: (object) MongoDB Object ID for the user
-  - owner: ([User](#user)) project creator
-  - title: (string) project title
-  - collaborators: [\[Collaborator\]](#collaborator) list of collaborators in the project
-  - lastUpdated: (Date) date project last modified
-  - lastUpdatedBy: ([User](#user)) user who modified project last
-  - files: [\[File\]](#file) list of files in project
-  - dateCreated: (Date) date project was created
-
----
 
 ### Create
 
@@ -477,6 +449,44 @@ $ curl -X DELETE
        https://cooperatex.me/api/projects/5e90460b7a1b14133f86a97d/collaborators/5e90460c8b2c22246a226a12c'
 ```
 
+### Index
+
+#### User
+
+- user: (object)
+  - \_id: (object) MongoDB Object ID for the user
+  - username: (string) user's username
+
+#### File
+
+- file: (object) file metadata for the project
+  - fieldname: (string) field name specified in the form
+  - originalname: (string) name of the file on the user's computer
+  - encoding: (string) encoding type of the file
+  - mimetype: (string) mime type of the file
+  - size: (string) size of the file in bytes
+  - isMain: (boolean) indicates the file to be compiled
+
+#### Collaborator
+
+- collaborator: (object) users who have access to project
+  - pendingInvitation: (boolean) whether or not the invitation has been accepted or rejected,
+  - acceptedInvitation: (boolean) whether or not the invitation has been accepted,
+  - access: (string) access level of collaborator (one of `"read", "readWrite"`)
+  - user: ([User](#user)) user id and name of the collaborator
+
+#### Project
+
+- project: (object) all project-related data
+  - \_id: (object) MongoDB Object ID for the user
+  - owner: ([User](#user)) project creator
+  - title: (string) project title
+  - collaborators: [\[Collaborator\]](#collaborator) list of collaborators in the project
+  - lastUpdated: (Date) date project last modified
+  - lastUpdatedBy: ([User](#user)) user who modified project last
+  - files: [\[File\]](#file) list of files in project
+  - dateCreated: (Date) date project was created
+
 ---
 
 ## Invitations API
@@ -509,7 +519,7 @@ $ curl -X GET
 
 **Note**: You must be authenticated in order to use the WebSocket API (e.g. `https://cooperatex.me/socket.io/?auth_token=<YOUR JWT GOES HERE>`)
 
-## API Events
+## Events
 
 - **Common URL Example**: `https://cooperatex.me/socket.io/?auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZTkwZWUxZDdhMWIxNDE2YTk4NmE5N2YiLCJ1c2VybmFtZSI6IjEyMzQiLCJleHAiOjE1ODcxNjEyNDUsImlhdCI6MTU4NjU1NjQ0NX0.KOgDIZvM0_KFZ3ZT1uCXbWpitmUK-ft0S7lfrIOmnV4&EIO=3&transport=polling&t=N5c9_8T&sid=2R_CwtPWICsOqoa2AAAM`
 - **Note**: `authenticatedUser` is the [User](#user) that is authenticated with the server
