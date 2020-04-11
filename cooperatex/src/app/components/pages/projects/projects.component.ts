@@ -10,6 +10,7 @@ import { Subscription } from "rxjs";
 import { SocketService } from "src/app/shared/socket.service";
 import { LeaveProjectDialogComponent } from "./leave-project-dialog/leave-project-dialog.component";
 import { Project } from "src/app/shared/models/project.model";
+import { saveAs } from "file-saver";
 
 @Component({
   selector: "app-projects",
@@ -154,5 +155,16 @@ export class ProjectsComponent implements OnInit, OnDestroy {
           });
       }
     });
+  }
+
+
+  downloadSourceFiles(project: Project){
+    this.projectService
+      .getSourceFiles(project._id)
+      .toPromise()
+      .then((file) => {
+        const blob = new Blob([file], { type: "application/zip" });
+        saveAs(blob, project.title + ".zip");
+      });
   }
 }

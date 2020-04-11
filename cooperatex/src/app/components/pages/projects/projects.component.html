@@ -83,11 +83,12 @@
         <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
         <mat-cell *matCellDef="let project">
           <button
+            (click)="downloadSourceFiles(project)"
             mat-icon-button
             matTooltip="Download"
             matTooltipPosition="above"
           >
-            <mat-icon>cloud_download</mat-icon>
+            <mat-icon>get_app</mat-icon>
           </button>
           <button
             *ngIf="project.owner._id == currentUser._id"
