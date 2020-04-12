@@ -47,13 +47,13 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/pravinthan/project-c09-prav-tommy/cooperatex/dist
+      device: /home/pravinthan/cooperatex/dist
       o: bind
   dhparam:
     driver: local
     driver_opts:
       type: none
-      device: /home/pravinthan/project-c09-prav-tommy/cooperatex/dhparam
+      device: /home/pravinthan/cooperatex/dhparam
       o: bind
 
 networks:

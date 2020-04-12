@@ -1,4 +1,4 @@
-cd /home/pravinthan/project-c09-prav-tommy/cooperatex
+cd /home/pravinthan/cooperatex
 
 git reset --hard
 git clean --force
