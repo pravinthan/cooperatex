@@ -1,10 +1,10 @@
-Collaborators: [Thomas Lo](https://github.com/tommy-lo)
-
 **App URL**: https://cooperatex.me
 
 **Documentation URL**: [docs/README.md](docs)
 
 **Demo Video URL**: https://youtu.be/YQSpjoTv2oI
+
+Collaborator: [Thomas Lo](https://github.com/tommy-lo)
 
 Features:
 - compiles LaTeX code into a pdf
