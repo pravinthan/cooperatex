@@ -4,7 +4,7 @@ team Members: Pravinthan Prabagaran (prabaga2), Thomas Lo (lothoma2)
 
 App URL: https://cooperatex.me
 
-Documentation URL: docs/README.md
+Documentation URL: [docs/README.md](docs)
 
 Demo video URL: https://youtu.be/YQSpjoTv2oI
 
