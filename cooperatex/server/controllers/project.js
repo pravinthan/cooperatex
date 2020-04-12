@@ -502,17 +502,21 @@ module.exports.retrieveSourceFiles = async (req, res) => {
     const downloadPath = path.join(folderPath, `${project._id}.zip`);
     let output = fs.createWriteStream(downloadPath);
 
-    const fileNames = project.files.map((file) => (file = file.originalname));
-    s3Zip
-      .archive(
-        {
-          region: process.env.S3_BUCKET_REGION,
-          bucket: process.env.S3_BUCKET_NAME,
-        },
-        project._id + "/",
-        fileNames
-      )
-      .pipe(output);
+    if (project.files.length > 0) {
+      const fileNames = project.files.map((file) => (file = file.originalname));
+      s3Zip
+        .archive(
+          {
+            region: process.env.S3_BUCKET_REGION,
+            bucket: process.env.S3_BUCKET_NAME,
+          },
+          project._id + "/",
+          fileNames
+        )
+        .pipe(output);
+    } else {
+      output.close();
+    }
 
     output.on("close", () =>
       res.download(downloadPath, project.title + ".zip")
