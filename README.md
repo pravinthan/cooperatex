@@ -6,12 +6,14 @@ Collaborators: [Thomas Lo](https://github.com/tommy-lo)
 
 **Demo Video URL**: https://youtu.be/YQSpjoTv2oI
 
+Features:
 - compiles LaTeX code into a pdf
 - real time collaborative editing
 - sharing projects with other users
-- sync with other cloud services (github)
 - starting templates
+- sync with other cloud services (github) (coming soon!)
 
+Tools Used:
 - Angular - frontend
 - Node - front/backend
 - Express - server
