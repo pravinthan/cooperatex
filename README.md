@@ -1,43 +1,27 @@
-project Title: CooperaTeX
+# CooperaTeX
 
-team Members: Pravinthan Prabagaran (prabaga2), Thomas Lo (lothoma2)
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.3.
 
-**App URL**: https://cooperatex.me
+## Development server
 
-**Documentation URL**: [cooperatex/docs/README.md](cooperatex/docs)
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-**Demo video URL**: https://youtu.be/YQSpjoTv2oI
+## Code scaffolding
 
-a description of the web application:
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-- compiles LaTeX code into a pdf
-- real time collaborative editing
+## Build
 
-a description of the key features that will be completed by the Beta version:
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-- user interface
-- user authentication
-- compilation of latex code
+## Running unit tests
 
-a description of additional features that will be complete by the Final version:
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-- sharing projects with other users
-- sync with other cloud services (github)
-- real time collaborative editing
-- starting templates
+## Running end-to-end tests
 
-a description of the technology that you will use:
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-- Angular - frontend
-- Node - front/backend
-- Express - server
-- MongoDB - database
-- Socket.io - for collaboration between multiple users
+## Further help
 
-a description of the top 5 technical challenges:
-
-- learning how to use Socket.io
-- learning how to use Angular framework
-- compilation of latex code
-- learning how to use MongoDB
-- syncing with other cloud services
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
