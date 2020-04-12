@@ -1,0 +1,14 @@
+version: 2.1
+orbs:
+  node: circleci/node@1.1.6
+jobs:
+  deploy:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - run: ssh -oStrictHostKeyChecking=no -v pravinthan@192.241.155.237 "./project-c09-prav-tommy/cooperatex/deploy-containers.sh"
+workflows:
+    build:
+      jobs:
+        - deploy

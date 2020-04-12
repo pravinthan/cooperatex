@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Download</h2>
+<div id="download-container">
+  <div>
+    <button mat-button (click)="downloadAllFiles()">
+      <div class="download-icon zip-icon"></div>
+      Source
+    </button>
+  </div>
+  <div
+    matTooltip="Please compile without errors before downloading"
+    [matTooltipDisabled]="data.canDownloadPdf"
+  >
+    <button
+      mat-button
+      [disabled]="!data.canDownloadPdf"
+      (click)="downloadPdfFile()"
+    >
+      <div
+        class="download-icon pdf-icon"
+        [ngClass]="{ 'disabled-icon': !data.canDownloadPdf }"
+      ></div>
+      PDF
+    </button>
+  </div>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close cdkFocusInitial>Cancel</button>
+</mat-dialog-actions>

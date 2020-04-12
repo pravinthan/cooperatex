@@ -1,0 +1,39 @@
+<h1 mat-dialog-title>New Project</h1>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <div mat-dialog-content>
+    <mat-form-field>
+      <input
+        matInput
+        #titleInput
+        name="title"
+        placeholder="Project title"
+        required
+        maxlength="50"
+        autocomplete="off"
+        ngModel
+      />
+      <mat-hint align="end">{{ titleInput.value.length }} / 50</mat-hint>
+    </mat-form-field>
+    <h2>Select a Template</h2>
+    <mat-radio-group
+      class="template-group"
+      name="selectedTemplate"
+      [(ngModel)]="selectedTemplate"
+    >
+      <mat-radio-button
+        class="template-buttons"
+        *ngFor="let template of templates"
+        [value]="template.value"
+        [checked]="template.checked"
+      >
+        {{ template.title }}
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="form.invalid">
+      Create
+    </button>
+  </div>
+</form>

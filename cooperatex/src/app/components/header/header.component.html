@@ -1,0 +1,41 @@
+<mat-toolbar color="primary" id="toolbar">
+  <mat-toolbar-row>
+    <a routerLink="/" id="app-name" (click)="leaveAllProjectSessions()">
+      <img id="app-icon" src="favicon.png" />
+      CooperaTeX
+    </a>
+
+    <div id="context-buttons">
+      <ng-container *ngIf="!currentUser">
+        <button mat-button (click)="openSignInDialog()">
+          Sign In
+        </button>
+        <button mat-raised-button (click)="openSignUpDialog()">
+          Sign Up
+        </button>
+      </ng-container>
+      <ng-container *ngIf="currentUser">
+        <button
+          mat-icon-button
+          (click)="openInvitationsDialog()"
+          matTooltip="Invitations"
+          matTooltipPosition="below"
+        >
+          <mat-icon
+            [matBadge]="invitations.length"
+            matBadgeColor="warn"
+            [matBadgeHidden]="invitations.length == 0"
+            >notifications</mat-icon
+          >
+        </button>
+        <button mat-button (click)="signOut()">
+          Sign Out
+        </button>
+      </ng-container>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div></div>
+<div id="sign-out-overlay" *ngIf="signingOut">
+  <mat-spinner></mat-spinner>
+</div>

@@ -1,0 +1,37 @@
+.full-width {
+  width: 100%;
+}
+
+.mat-dialog-title {
+  text-align: center;
+}
+
+.mat-dialog-actions {
+  justify-content: flex-end;
+}
+
+mat-table {
+  padding: 1rem;
+}
+
+.mat-header-cell:first-child,
+.mat-cell:first-child {
+  flex: 45%;
+}
+
+.mat-header-cell:nth-child(2),
+.mat-cell:nth-child(2) {
+  flex: 40%;
+}
+
+.mat-header-cell:last-child,
+.mat-cell:last-child {
+  flex: 15%;
+}
+
+.invitation-hint {
+  display: block;
+  padding-left: 0.25rem;
+  color: darkgray;
+  font-size: small;
+}

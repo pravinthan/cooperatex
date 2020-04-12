@@ -1,0 +1,206 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened #sidenav>
+    <div>
+      <div id="file-list-header" *ngIf="project">
+        <span
+          id="title"
+          [matTooltip]="project.title"
+          matTooltipPosition="right"
+          >{{
+            (!hasReadWriteAccess ? "READ ONLY: " : "") +
+              (project.title | truncate: (hasReadWriteAccess ? 10 : 8))
+          }}</span
+        >
+        <div>
+          <button
+            *ngIf="project.owner._id == currentUser._id"
+            (click)="openInviteCollaboratorsDialog()"
+            mat-icon-button
+            matTooltip="Invite Collaborators"
+            matTooltipPosition="below"
+          >
+            <mat-icon>group_add</mat-icon>
+          </button>
+          <button
+            *ngIf="displayFiles.length != 0"
+            (click)="openDownloadFilesDialog()"
+            mat-icon-button
+            matTooltip="Download"
+            matTooltipPosition="below"
+          >
+            <mat-icon>get_app</mat-icon>
+          </button>
+          <button
+            *ngIf="hasReadWriteAccess"
+            (click)="openUploadFilesDialog()"
+            mat-icon-button
+            matTooltip="Upload Files"
+            matTooltipPosition="below"
+          >
+            <mat-icon>cloud_upload</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div>
+        <mat-list>
+          <mat-list-item
+            *ngFor="let displayFile of displayFiles; trackBy: trackFile"
+          >
+            <div class="file-container">
+              <div>
+                <mat-icon *ngIf="displayFile.isImage">photo</mat-icon>
+                <mat-icon *ngIf="!displayFile.isImage && !displayFile.isMain"
+                  >insert_drive_file</mat-icon
+                >
+                <mat-icon
+                  *ngIf="displayFile.isMain"
+                  matTooltip="Main file to compile"
+                  matTooltipPosition="below"
+                  >flag</mat-icon
+                >
+                <span
+                  class="file-name"
+                  [matTooltip]="displayFile.fileName"
+                  matTooltipPosition="below"
+                >
+                  {{ displayFile.fileName | truncate: 15 }}
+                </span>
+              </div>
+              <div
+                class="file-context-buttons"
+                *ngIf="project && hasReadWriteAccess"
+              >
+                <button
+                  *ngIf="!displayFile.isMain && displayFile.canMain"
+                  (click)="markAsMain(displayFile._id)"
+                  mat-icon-button
+                  matTooltip="Mark as main file to compile"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>flag</mat-icon>
+                </button>
+                <button
+                  (click)="renameFile(displayFile._id, displayFile.fileName)"
+                  mat-icon-button
+                  matTooltip="Rename"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  (click)="deleteFile(displayFile._id, displayFile.fileName)"
+                  mat-icon-button
+                  matTooltip="Delete"
+                  matTooltipPosition="below"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+        <mat-divider
+          *ngIf="displayFiles.length > 0 && hasReadWriteAccess"
+        ></mat-divider>
+        <div id="files-hint" *ngIf="project && hasReadWriteAccess">
+          {{
+            displayFiles.length > 0
+              ? "Hover over a file to show its options"
+              : "Upload files to view them here"
+          }}
+        </div>
+      </div>
+    </div>
+    <div id="live-collaborators-container" *ngIf="liveCollaborators.length > 0">
+      <div id="live-collaborators-hint">Collaborators in session:</div>
+      <div id="live-collaborators">
+        <div
+          *ngFor="let liveCollaborator of liveCollaborators"
+          [style.fontSize]="'32px'"
+        >
+          <mat-icon
+            [matTooltip]="liveCollaborator.user.username"
+            matTooltipPosition="below"
+            [inline]="true"
+            [ngClass]="liveCollaborator.colour"
+            >person</mat-icon
+          >
+        </div>
+      </div>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div *ngIf="mainFile">
+      <div *ngIf="initialLoading" id="progress-spinner">
+        <mat-progress-spinner
+          mode="indeterminate"
+          color="warn"
+        ></mat-progress-spinner>
+      </div>
+      <ngx-codemirror
+        *ngIf="!initialLoading"
+        #editor
+        [options]="{
+          lineNumbers: 'true',
+          mode: 'stex',
+          theme: 'material',
+          lineWrapping: 'true',
+          showCursorWhenSelecting: 'true',
+          readOnly: !hasReadWriteAccess
+        }"
+        [autoFocus]="true"
+      ></ngx-codemirror>
+      <div id="output-container">
+        <div id="output-context-buttons">
+          <div>
+            <button (click)="compilePdf()" mat-flat-button color="accent">
+              <mat-icon>cached</mat-icon>
+              Compile
+            </button>
+            <mat-checkbox
+              id="auto-compile-checkbox"
+              [(ngModel)]="autoCompile"
+              *ngIf="hasReadWriteAccess"
+            >
+              Auto compile
+            </mat-checkbox>
+          </div>
+        </div>
+        <ng2-pdfjs-viewer
+          #pdfViewer
+          [hidden]="latexErrorLog"
+          [openFile]="false"
+          [viewBookmark]="false"
+          [download]="false"
+        ></ng2-pdfjs-viewer>
+        <div *ngIf="latexErrorLog" id="error-container">
+          <div id="error-header">
+            <mat-icon>error</mat-icon>
+            Compilation Error
+            <mat-icon>error</mat-icon>
+          </div>
+          <div id="main-error">
+            <span>{{ mainLatexError }}</span>
+            <button mat-flat-button (click)="showErrorLog = !showErrorLog">
+              {{ showErrorLog ? "Hide" : "Show entire" }} log
+            </button>
+          </div>
+          <span *ngIf="showErrorLog">{{ latexErrorLog }}</span>
+        </div>
+      </div>
+    </div>
+    <div id="main-hint" *ngIf="!mainFile">
+      {{
+        displayFiles.length > 0
+          ? "Mark a file as main to edit it here"
+          : project && hasReadWriteAccess
+          ? "Upload files to begin"
+          : "Waiting on files to be uploaded..."
+      }}
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+<button mat-fab id="fab" color="accent" (click)="sidenav.toggle()">
+  <mat-icon *ngIf="sidenav.opened">menu_open</mat-icon>
+  <mat-icon *ngIf="!sidenav.opened">menu</mat-icon>
+</button>

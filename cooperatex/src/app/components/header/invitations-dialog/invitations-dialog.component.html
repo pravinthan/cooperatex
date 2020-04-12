@@ -1,0 +1,47 @@
+<h1 mat-dialog-title>Invitations</h1>
+<div mat-dialog-content>
+  <div *ngIf="invitations.length != 0">
+    <div id="reject-all-button-container">
+      <button mat-button color="warn" (click)="rejectAllInvitations()">
+        <mat-icon>clear_all</mat-icon>
+        Reject all invitations
+      </button>
+    </div>
+    <div id="invitations">
+      <div *ngFor="let invitation of invitations" class="invitation">
+        <span
+          >{{ invitation.from.username }} invited you to collaborate on project:
+          {{ invitation.projectTitle }}</span
+        >
+        <div>
+          <button
+            mat-icon-button
+            (click)="acceptInvitation(invitation)"
+            matTooltip="Accept Invitation"
+            matTooltipPosition="below"
+            color="primary"
+          >
+            <mat-icon>check</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="rejectInvitation(invitation)"
+            matTooltip="Reject Invitation"
+            matTooltipPosition="below"
+            color="warn"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="invitations.length == 0" id="no-invitations-hint">
+    No invitations yet!
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="this.dialogRef.close()" cdkFocusInitial>
+    Close
+  </button>
+</div>

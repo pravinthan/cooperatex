@@ -1,0 +1,21 @@
+.mat-dialog-title {
+  text-align: center;
+}
+
+#upload-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  display: none;
+}
+
+button {
+  margin-bottom: 12px;
+}
+
+button:last-of-type {
+  margin-bottom: 0;
+}

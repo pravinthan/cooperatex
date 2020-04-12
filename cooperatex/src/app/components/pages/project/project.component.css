@@ -1,0 +1,277 @@
+mat-sidenav-container {
+  width: 100%;
+  height: 100%;
+  padding-top: 64px;
+}
+
+mat-sidenav {
+  width: 300px;
+  padding-top: 64px;
+  background-color: #2f3c83;
+  color: white;
+}
+
+#file-list-header {
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #293680;
+}
+
+#title {
+  font-size: large;
+  padding-left: 16px;
+}
+
+::ng-deep mat-sidenav .mat-list-item-content {
+  padding-right: 0 !important;
+}
+
+.file-name {
+  font-size: 15px;
+  padding-left: 0.5rem;
+}
+
+.file-container {
+  width: stretch;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.file-container > div {
+  display: flex;
+  align-items: center;
+}
+
+.file-container:hover > .file-context-buttons {
+  visibility: visible;
+}
+
+.file-context-buttons {
+  visibility: hidden;
+}
+
+#files-hint,
+#live-collaborators-hint {
+  margin: 0.5rem auto 0 auto;
+  font-size: small;
+  color: rgba(255, 255, 255, 0.4);
+  width: max-content;
+  user-select: none;
+}
+
+#live-collaborators-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: stretch;
+  margin-bottom: 5rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#live-collaborators {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+#live-collaborators mat-icon {
+  cursor: default;
+}
+
+#fab {
+  position: fixed;
+  top: auto;
+  left: 20px;
+  right: 0;
+  bottom: 20px;
+  z-index: 99;
+}
+
+mat-icon.red {
+  color: red;
+}
+
+mat-icon.orange {
+  color: orange;
+}
+
+mat-icon.green {
+  color: green;
+}
+
+mat-icon.violet {
+  color: violet;
+}
+
+mat-icon.yellow {
+  color: yellow;
+}
+
+mat-icon.darkcyan {
+  color: darkcyan;
+}
+
+mat-icon.salmon {
+  color: salmon;
+}
+
+mat-icon.lightblue {
+  color: lightblue;
+}
+
+mat-icon.springgreen {
+  color: springgreen;
+}
+
+mat-icon.white {
+  color: white;
+}
+
+::ng-deep .CodeMirror-line .red {
+  background-color: rgba(255, 0, 0, 0.37);
+}
+
+::ng-deep .CodeMirror-line .orange {
+  background-color: rgba(255, 166, 0, 0.493);
+}
+
+::ng-deep .CodeMirror-line .green {
+  background-color: rgba(0, 128, 0, 0.473);
+}
+
+::ng-deep .CodeMirror-line .violet {
+  background-color: rgba(238, 130, 238, 0.411);
+}
+
+::ng-deep .CodeMirror-line .yellow {
+  background-color: rgba(255, 255, 0, 0.5);
+}
+
+::ng-deep .CodeMirror-line .darkcyan {
+  background-color: rgba(0, 139, 139, 0.466);
+}
+
+::ng-deep .CodeMirror-line .salmon {
+  background-color: rgba(250, 128, 114, 0.466);
+}
+
+::ng-deep .CodeMirror-line .lightblue {
+  background-color: rgba(173, 216, 230, 0.418);
+}
+
+::ng-deep .CodeMirror-line .springgreen {
+  background-color: rgba(0, 255, 128, 0.466);
+}
+
+::ng-deep .CodeMirror-line .white {
+  background-color: rgba(255, 255, 255, 0.274);
+}
+
+::ng-deep .cursor + .cursor-animation {
+  opacity: 0;
+  transition: opacity 3s ease-in-out;
+}
+
+::ng-deep .cursor:hover + .cursor-animation {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+mat-sidenav-content > div {
+  display: flex;
+  height: 100%;
+}
+
+#progress-spinner {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #263238;
+  color: white;
+}
+
+ngx-codemirror {
+  width: 50%;
+}
+
+#main-hint {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.15);
+  background-color: #263238;
+  user-select: none;
+}
+
+#output-container {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+#output-context-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #293680;
+  color: white;
+}
+
+#auto-compile-checkbox {
+  margin-left: 1rem;
+}
+
+::ng-deep #auto-compile-checkbox .mat-checkbox-frame {
+  border-color: white;
+}
+
+ng2-pdfjs-viewer {
+  height: 100%;
+}
+
+::ng-deep ng2-pdfjs-viewer > iframe {
+  border: none;
+}
+
+#error-container {
+  height: 100%;
+  padding: 1rem;
+  overflow-y: scroll;
+  white-space: pre-wrap;
+  background-color: #c9453e;
+  color: white;
+  font-weight: 500;
+}
+
+#error-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+#main-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+#main-error > * {
+  margin-bottom: 1rem;
+}

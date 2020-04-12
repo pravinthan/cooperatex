@@ -1,0 +1,42 @@
+.full-width {
+  width: 100%;
+}
+
+.mat-dialog-title {
+  text-align: center;
+}
+
+.mat-dialog-actions {
+  justify-content: flex-end;
+}
+
+#reject-all-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#invitations {
+  padding: 0.25rem 0;
+}
+
+.invitation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid lightgray;
+}
+
+.invitation:first-of-type {
+  border-top: 1px solid lightgray;
+}
+
+#no-invitations-hint {
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: large;
+  color: rgb(136, 136, 136);
+  user-select: none;
+}

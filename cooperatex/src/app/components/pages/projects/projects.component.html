@@ -1,0 +1,118 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened>
+    <div id="sidenav-buttons">
+      <button mat-raised-button (click)="openNewProjectDialog()" color="accent">
+        New Project
+      </button>
+      <span id="filter-by-text">Filter by:</span>
+      <button
+        mat-button
+        (click)="filterByAllProjects()"
+        [ngClass]="selected == 'all' ? 'selected-filter' : ''"
+      >
+        All projects
+      </button>
+      <button
+        mat-button
+        (click)="filterByYourProjects()"
+        [ngClass]="selected == 'mine' ? 'selected-filter' : ''"
+      >
+        Your projects
+      </button>
+      <button
+        mat-button
+        (click)="filterByProjectsSharedWithYou()"
+        [ngClass]="selected == 'shared' ? 'selected-filter' : ''"
+      >
+        Projects shared with you
+      </button>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-form-field id="search-field">
+      <mat-label>Search</mat-label>
+      <mat-icon matPrefix style="vertical-align: middle;">search</mat-icon>
+      <input matInput (keyup)="applySearch($event)" />
+    </mat-form-field>
+
+    <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z4">
+      <ng-container matColumnDef="title">
+        <mat-header-cell *matHeaderCellDef mat-sort-header
+          >Title</mat-header-cell
+        >
+        <mat-cell *matCellDef="let project">
+          <a class="link" routerLink="./{{ project._id }}">{{
+            project.title
+          }}</a>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="owner">
+        <mat-header-cell *matHeaderCellDef mat-sort-header
+          >Owner</mat-header-cell
+        >
+        <mat-cell *matCellDef="let project">
+          {{
+            project.owner._id == currentUser._id
+              ? "You"
+              : project.owner.username
+          }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="lastUpdated">
+        <mat-header-cell *matHeaderCellDef mat-sort-header
+          >Last Updated</mat-header-cell
+        >
+        <mat-cell *matCellDef="let project">
+          <span
+            matTooltip="{{ project.lastUpdated | date: 'MMM d, y, h:mm a' }}"
+            matTooltipPosition="above"
+          >
+            {{ project.lastUpdated | timeAgo }} by
+            {{
+              project.lastUpdatedBy._id == currentUser._id
+                ? "You"
+                : project.lastUpdatedBy.username
+            }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+        <mat-cell *matCellDef="let project">
+          <button
+            (click)="downloadSourceFiles(project)"
+            mat-icon-button
+            matTooltip="Download"
+            matTooltipPosition="above"
+          >
+            <mat-icon>get_app</mat-icon>
+          </button>
+          <button
+            *ngIf="project.owner._id == currentUser._id"
+            mat-icon-button
+            (click)="openDeleteProjectDialog(project)"
+            matTooltip="Delete"
+            matTooltipPosition="above"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            *ngIf="project.owner._id != currentUser._id"
+            mat-icon-button
+            (click)="openLeaveProjectDialog(project)"
+            matTooltip="Leave project"
+            matTooltipPosition="above"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    </mat-table>
+  </mat-sidenav-content>
+</mat-sidenav-container>

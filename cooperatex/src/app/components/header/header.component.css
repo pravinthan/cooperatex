@@ -1,0 +1,53 @@
+#toolbar {
+  position: fixed;
+  z-index: 999;
+}
+
+#toolbar > mat-toolbar-row {
+  box-sizing: unset;
+}
+
+mat-toolbar-row {
+  height: 64px !important;
+  display: flex;
+  justify-content: space-between;
+}
+
+#app-name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+}
+
+#app-icon {
+  width: 36px;
+  height: 36px;
+  margin-right: 0.5rem;
+}
+
+#context-buttons {
+  margin-right: 36px;
+}
+
+#context-buttons > button {
+  margin: 6px;
+}
+
+.mat-toolbar-multiple-rows {
+  line-height: 64px !important;
+}
+
+#sign-out-overlay {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.32);
+  z-index: 1000;
+  top: 0;
+  left: 0;
+}
