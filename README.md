@@ -12,9 +12,9 @@ Collaborators: [Thomas Lo](https://github.com/tommy-lo)
 - sync with other cloud services (github)
 - starting templates
 
-Angular - frontend
-Node - front/backend
-Express - server
-MongoDB - database
-Socket.io - for collaboration between multiple users
-Docker/CircleCI - Automated deployment and Continuous Integration
+- Angular - frontend
+- Node - front/backend
+- Express - server
+- MongoDB - database
+- Socket.io - for collaboration between multiple users
+- Docker/CircleCI - Automated deployment and Continuous Integration
