@@ -33,7 +33,7 @@
 
 Documentation for the REST API as well as the WebSocket API.
 
-[**Documentation URL**](docs)
+[**Documentation URL**](https://github.com/pravinthan/cooperatex/wiki/Documentation)
 
 ## Contributors
 
