@@ -7,7 +7,7 @@ jobs:
       name: node/default
     steps:
       - checkout
-      - run: ssh -oStrictHostKeyChecking=no -v pravinthan@192.241.155.237 "./cooperatex/deploy-containers.sh"
+      - run: ssh -oStrictHostKeyChecking=no -v pravinthan@192.241.155.237 "./deploy-containers.sh"
 workflows:
     build:
       jobs:
